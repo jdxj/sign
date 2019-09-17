@@ -8,7 +8,8 @@ import (
 
 // DailyRandTimeExec 用于每日签到, 做了随机
 func DailyRandTimeExec(f func()) {
-	timer := time.NewTimer(0)
+	timer := time.NewTimer(time.Hour)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	// 无限循环
 	for {
 		// 现在时刻
@@ -18,13 +19,13 @@ func DailyRandTimeExec(f func()) {
 		// 明天0点
 		tomZero := time.Date(tomNow.Year(), tomNow.Month(), tomNow.Day(), 0, 0, 0, 0, tomNow.Location())
 		// 明天随便几点
-		inc := time.Duration(rand.Intn(24 * 60 * 60))
+		inc := time.Duration(r.Intn(24 * 60 * 60))
 		tomSome := tomZero.Add(inc * time.Second)
 		// 下次签到时延
 		dur := tomSome.Sub(now)
 
 		timer.Reset(dur)
-		fmt.Println("等待时间到达...")
+		fmt.Println("等待时间到达:", tomSome)
 		select {
 		case <-timer.C:
 			f()
