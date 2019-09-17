@@ -22,3 +22,12 @@ func TestTiming(t *testing.T) {
 		}
 	}
 }
+
+func TestNewDay(t *testing.T) {
+	now := time.Now()
+	fmt.Println(now)
+
+	tomNow := now.Add(24 * time.Hour)
+	newDay := time.Date(tomNow.Year(), tomNow.Month(), tomNow.Day(), 0, 0, 0, 0, tomNow.Location())
+	fmt.Println(newDay)
+}

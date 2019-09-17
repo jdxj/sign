@@ -18,16 +18,15 @@ func Start() {
 	// todo: 登录参数隐藏
 	if err := c.Post("https://studygolang.com/account/login", map[string]string{
 		"redirect_uri": "https://studygolang.com/",
-		"username":     "985759262@qq.com",
+		"username":     "",
 		"passwd":       "",
 	}); err != nil {
 		panic(err)
 	}
-	fmt.Println("登录成功!")
 
-	c.OnHTML(".user-name", func(e *colly.HTMLElement) {
-		fmt.Println("user name:", e.Text)
+	c.OnHTML("p[class=c9]", func(e *colly.HTMLElement) {
+		fmt.Println("领取状态:", e.Text)
 	})
 
-	c.Visit("https://studygolang.com/")
+	c.Visit("https://studygolang.com/mission/daily/redeem")
 }
