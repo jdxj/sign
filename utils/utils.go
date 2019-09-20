@@ -1,13 +1,12 @@
 package utils
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
 
 // DailyRandTimeExec 用于每日签到, 做了随机
-func DailyRandTimeExec(f func()) {
+func DailyRandTimeExec(prefix string, f func()) {
 	timer := time.NewTimer(time.Hour)
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	// 无限循环
@@ -25,11 +24,11 @@ func DailyRandTimeExec(f func()) {
 		dur := tomSome.Sub(now)
 
 		timer.Reset(dur)
-		fmt.Println("等待时间到达:", tomSome)
+		LogPrintln(prefix, "等待时间到达:", tomSome)
 		select {
 		case <-timer.C:
 			f()
 		}
-		fmt.Println("本次每日任务完成...")
+		LogPrintln(prefix, "本次每日任务完成...")
 	}
 }

@@ -11,7 +11,7 @@ func main() {
 	wg.Add(1)
 
 	go func() {
-		utils.DailyRandTimeExec(sgc.Start)
+		utils.DailyRandTimeExec(utils.StudyGolang, sgc.Start)
 		// 目前不会退出, 只是用于阻塞
 		wg.Done()
 	}()
