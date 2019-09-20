@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	StudyGolang = "[studygolang.com] "
+	Log_StudyGolang = "[studygolang.com] "
 )
 
 func LogPrintln(prefix string, v ...interface{}) {
