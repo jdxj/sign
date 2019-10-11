@@ -10,6 +10,10 @@
 - [B 站](https://www.bilibili.com/)
 - [千图网](https://www.58pic.com/)
 
+特性:
+
+- 随机时间签到
+
 ## 原理
 
 使用 [colly](https://github.com/gocolly/colly) 爬虫访问签到链接. 使用 colly 的原因是: 爬取指定信息来确认是否签到成功.
@@ -42,3 +46,7 @@ key = value
 
 - 优化细节
 - 支持更多网站
+
+## 已知的问题
+
+- 目标服务器与签到程序服务器之间的时间会有误差, 理论上会有漏签问题
