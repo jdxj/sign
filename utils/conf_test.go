@@ -12,3 +12,7 @@ func TestConfAll(t *testing.T) {
 		fmt.Println("value:", kv.V)
 	}
 }
+
+func TestEmptyFunc(t *testing.T) {
+	EmptyFunc()
+}
