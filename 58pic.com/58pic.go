@@ -23,6 +23,7 @@ func Start() {
 	// once 用于只发送一次签到行动
 	// 因为在查找 html 元素会有多个相同目标元素
 	var once sync.Once
+	var cycleTime string
 
 	c := colly.NewCollector()
 	extensions.RandomUserAgent(c)
@@ -33,28 +34,41 @@ func Start() {
 		return
 	}
 
-	// .user-info: 登录成功后才有
+	// 获取 cycle_time
+	c.OnResponse(func(resp *colly.Response) {
+		buf := make([]byte, len(resp.Body))
+		copy(buf, resp.Body)
+		ct := CycleTime(buf)
+		if ct != "" {
+			cycleTime = ct
+		}
+	})
+
+	// todo: 成功登录的 html class 会因为千图页面的更改而随之更改
 	c.OnHTML(".user-info", func(e *colly.HTMLElement) {
 		once.Do(func() {
 			// 打印用户 ID
 			utils.LogPrintln(utils.Log_58pic, e.Text)
+			utils.LogPrintln(utils.Log_58pic, "获取 cycle_time")
+			c.Post(cycleTimeUrl(), cycleTimeData())
+
 			utils.LogPrintln(utils.Log_58pic, "执行签到")
-			c.Post(postUrl(), postData())
+			// 访问签到链接
+			c.Post(postUrl(), postData(cycleTime))
 		})
 
-		// 以下语句不能放到 once 中, 会阻塞, 原因不明, 但是源头在底层的 goquery
-		// colly 会排除重复 url, 先写在这里
-		// 访问积分页
-		c.Visit("https://www.58pic.com/index.php?m=IntegralMall")
+		// 访问积分明细页
+		c.Visit("https://www.58pic.com/index.php?m=IntegralMall&a=qtbRecord")
 	})
 
-	// .cs-ul3-li1: 查询积分页
-	c.OnHTML(".cs-ul3-li1", func(e *colly.HTMLElement) {
+	// 获取积分收支明细
+	c.OnHTML(".szmx-list", func(e *colly.HTMLElement) {
 		// 打印积分
 		utils.LogPrintln(utils.Log_58pic, e.Text)
 	})
 
-	c.Visit("https://www.58pic.com/")
+	//c.Visit("https://www.58pic.com/")
+	c.Visit("https://www.58pic.com/index.php?m=IntegralMall")
 }
 
 // todo: 根据响应头更新 cookies
@@ -115,15 +129,29 @@ func postUrl() string {
 	return url
 }
 
-func postData() map[string]string {
+func postData(ct string) map[string]string {
 	m := make(map[string]string)
 	s, e := beginAndEnd()
 
-	m["cycle"] = "100"
+	// todo: cycle 应该从千图获取
+	m["cycle"] = ct
 	m["sign"] = ""
 	m["start_time"] = s
 	m["end_time"] = e
 
 	utils.LogPrintln(utils.Log_58pic, "签到 map:", m)
+	return m
+}
+
+func cycleTimeUrl() string {
+	url := "https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity"
+	utils.LogPrintln(utils.Log_58pic, "ct url:", url)
+	return url
+}
+
+func cycleTimeData() map[string]string {
+	m := make(map[string]string)
+	m["taskIdNum"] = "40"
+
 	return m
 }
