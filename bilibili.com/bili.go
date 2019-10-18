@@ -17,7 +17,7 @@ func Start() {
 
 	err := c.SetCookies("https://www.bilibili.com", cookies())
 	if err != nil {
-		utils.LogPrintln(utils.Log_Bilibili, err)
+		utils.MyLogger.Error("%s %s", utils.Log_Bilibili, err)
 		return
 	}
 
@@ -27,11 +27,8 @@ func Start() {
 	//	fmt.Printf("Body: %s", response.Body)
 	//})
 
-	utils.LogPrintln(utils.Log_Bilibili, "访问主页")
-	err = c.Visit("https://www.bilibili.com")
-	if err != nil {
-		utils.LogPrintln(utils.Log_Bilibili, err)
-	}
+	utils.MyLogger.Info("%s %s", utils.Log_Bilibili, "访问主页")
+	c.Visit("https://www.bilibili.com")
 }
 
 // todo: 复用 cookies
@@ -56,7 +53,7 @@ func cookies() []*http.Cookie {
 	}
 
 	if len(cookies) != 0 {
-		utils.LogPrintln(utils.Log_Bilibili, "读取配置成功")
+		utils.MyLogger.Debug("%s %s", utils.Log_Bilibili, "读取配置成功")
 	}
 	return cookies
 }

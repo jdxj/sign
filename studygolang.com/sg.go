@@ -26,13 +26,14 @@ func Start() {
 		"username":     res[0],
 		"passwd":       res[1],
 	}); err != nil {
-		panic(err)
+		utils.MyLogger.Error("%s %s", utils.Log_StudyGolang, err)
+		return
 	}
 
-	utils.LogPrintln(utils.Log_StudyGolang, "login success!")
+	utils.MyLogger.Info("%s %s", utils.Log_StudyGolang, "登录成功")
 
 	c.OnHTML("p[class=c9]", func(e *colly.HTMLElement) {
-		utils.LogPrintln(utils.Log_StudyGolang, "领取状态:", e.Text)
+		utils.MyLogger.Info("%s 领取状态: %s", utils.Log_StudyGolang, e.Text)
 	})
 
 	c.Visit("https://studygolang.com/mission/daily/redeem")
@@ -49,6 +50,6 @@ func conf() []string {
 		panic(fmt.Errorf("%s", "user info not found"))
 	}
 
-	utils.LogPrintln(utils.Log_StudyGolang, "read conf success!")
+	utils.MyLogger.Debug("%s %s", utils.Log_StudyGolang, "读取配置成功")
 	return res
 }

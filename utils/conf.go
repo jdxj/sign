@@ -43,12 +43,12 @@ func ConfAll(prefix string) []*KeyValue {
 }
 
 func EmptyFunc() {
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 }
 
 var (
 	cfgMutex sync.Mutex
-	iniCfg *ini.File
+	iniCfg   *ini.File
 )
 
 func loadInI() *ini.File {

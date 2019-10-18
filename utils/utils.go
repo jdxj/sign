@@ -24,11 +24,13 @@ func DailyRandTimeExec(prefix string, f func()) {
 		dur := tomSome.Sub(now)
 
 		timer.Reset(dur)
-		LogPrintln(prefix, "等待时间到达:", tomSome)
+		MyLogger.Debug("%s 等待时间到达: %s", prefix, tomSome)
+
 		select {
 		case <-timer.C:
 			f()
 		}
-		LogPrintln(prefix, "本次每日任务完成...")
+
+		MyLogger.Debug("%s %s", prefix, "本次每日任务完成...")
 	}
 }

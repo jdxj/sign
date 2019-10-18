@@ -8,14 +8,14 @@ import (
 // json 格式
 
 type Conf struct {
-	Status int `json:"status"`
+	Status  int    `json:"status"`
 	Message string `json:"message"`
-	Data Data `json:"data"`
+	Data    Data   `json:"data"`
 }
 
 type Data struct {
 	Status int `json:"status"`
-	Msg Msg `json:"msg"`
+	Msg    Msg `json:"msg"`
 }
 
 type Msg struct {

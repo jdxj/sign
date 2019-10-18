@@ -30,7 +30,7 @@ func Start() {
 
 	err := c.SetCookies("https://www.58pic.com", cookies())
 	if err != nil {
-		utils.LogPrintln(utils.Log_58pic, err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return
 	}
 
@@ -48,11 +48,11 @@ func Start() {
 	c.OnHTML(".user-info", func(e *colly.HTMLElement) {
 		once.Do(func() {
 			// 打印用户 ID
-			utils.LogPrintln(utils.Log_58pic, e.Text)
-			utils.LogPrintln(utils.Log_58pic, "获取 cycle_time")
+			utils.MyLogger.Info("%s %s", utils.Log_58pic, e.Text)
+			utils.MyLogger.Info("%s %s", utils.Log_58pic, "获取 cycle_time")
 			c.Post(cycleTimeUrl(), cycleTimeData())
 
-			utils.LogPrintln(utils.Log_58pic, "执行签到")
+			utils.MyLogger.Info("%s %s", utils.Log_58pic, "执行签到")
 			// 访问签到链接
 			c.Post(postUrl(), postData(cycleTime))
 		})
@@ -64,7 +64,7 @@ func Start() {
 	// 获取积分收支明细
 	c.OnHTML(".szmx-list", func(e *colly.HTMLElement) {
 		// 打印积分
-		utils.LogPrintln(utils.Log_58pic, e.Text)
+		utils.MyLogger.Info("%s %s", utils.Log_58pic, e.Text)
 	})
 
 	//c.Visit("https://www.58pic.com/")
@@ -93,7 +93,7 @@ func cookies() []*http.Cookie {
 	}
 
 	if len(cookies) != 0 {
-		utils.LogPrintln(utils.Log_58pic, "读取配置成功")
+		utils.MyLogger.Debug("%s %s", utils.Log_58pic, "读取配置成功")
 	}
 	return cookies
 }
@@ -125,7 +125,7 @@ func unixTimeMill() string {
 
 func postUrl() string {
 	url := "https://www.58pic.com/index.php?m=signin&a=addUserSign&time=" + unixTimeMill()
-	utils.LogPrintln(utils.Log_58pic, "签到 url:", url)
+	utils.MyLogger.Info("%s 签到 url: %s", utils.Log_58pic, url)
 	return url
 }
 
@@ -133,19 +133,18 @@ func postData(ct string) map[string]string {
 	m := make(map[string]string)
 	s, e := beginAndEnd()
 
-	// todo: cycle 应该从千图获取
 	m["cycle"] = ct
 	m["sign"] = ""
 	m["start_time"] = s
 	m["end_time"] = e
 
-	utils.LogPrintln(utils.Log_58pic, "签到 map:", m)
+	utils.MyLogger.Info("%s 签到 map: %s", utils.Log_58pic, m)
 	return m
 }
 
 func cycleTimeUrl() string {
 	url := "https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity"
-	utils.LogPrintln(utils.Log_58pic, "ct url:", url)
+	utils.MyLogger.Info("%s ct url: %s", utils.Log_58pic, url)
 	return url
 }
 
