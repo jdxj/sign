@@ -2,6 +2,7 @@ package utils
 
 import (
 	"math/rand"
+	"net/http"
 	"time"
 )
 
@@ -33,4 +34,35 @@ func DailyRandTimeExec(prefix string, f func()) {
 
 		MyLogger.Debug("%s %s", prefix, "本次每日任务完成...")
 	}
+}
+
+const (
+	Cookie_Bilibili = ".bilibili.com"
+	Cookie_58pic    = ".58pic.com"
+)
+
+func Cookies(prefix, domain string) []*http.Cookie {
+	var cookies []*http.Cookie
+
+	kvs := ConfAll(prefix)
+	// 无所谓的过期时间
+	expires := time.Date(2048, 1, 1, 0, 0, 0, 0, time.Now().Location())
+	for _, kv := range kvs {
+		cookie := &http.Cookie{
+			Name:     kv.K,
+			Value:    kv.V,
+			Path:     "/",
+			Domain:   domain,
+			Expires:  expires,
+			Secure:   false,
+			HttpOnly: false,
+		}
+
+		cookies = append(cookies, cookie)
+	}
+
+	if len(cookies) != 0 {
+		MyLogger.Debug("%s %s", prefix, "读取配置成功")
+	}
+	return cookies
 }

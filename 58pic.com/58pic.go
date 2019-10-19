@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/extensions"
-	"net/http"
 	"sign/utils"
 	"sync"
 	"time"
@@ -28,7 +27,7 @@ func Start() {
 	c := colly.NewCollector()
 	extensions.RandomUserAgent(c)
 
-	err := c.SetCookies("https://www.58pic.com", cookies())
+	err := c.SetCookies("https://www.58pic.com", utils.Cookies("58pic.com", utils.Cookie_58pic))
 	if err != nil {
 		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return
@@ -69,33 +68,6 @@ func Start() {
 
 	//c.Visit("https://www.58pic.com/")
 	c.Visit("https://www.58pic.com/index.php?m=IntegralMall")
-}
-
-// todo: 根据响应头更新 cookies
-func cookies() []*http.Cookie {
-	var cookies []*http.Cookie
-
-	kvs := utils.ConfAll("58pic.com")
-	// 无所谓的过期时间
-	expires := time.Date(2048, 1, 1, 0, 0, 0, 0, time.Now().Location())
-	for _, kv := range kvs {
-		cookie := &http.Cookie{
-			Name:     kv.K,
-			Value:    kv.V,
-			Path:     "/",
-			Domain:   ".58pic.com",
-			Expires:  expires,
-			Secure:   false,
-			HttpOnly: false,
-		}
-
-		cookies = append(cookies, cookie)
-	}
-
-	if len(cookies) != 0 {
-		utils.MyLogger.Debug("%s %s", utils.Log_58pic, "读取配置成功")
-	}
-	return cookies
 }
 
 func beginAndEnd() (string, string) {
