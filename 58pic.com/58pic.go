@@ -44,7 +44,7 @@ func Start() {
 	})
 
 	// todo: 成功登录的 html class 会因为千图页面的更改而随之更改
-	c.OnHTML(".user-info", func(e *colly.HTMLElement) {
+	c.OnHTML(".cs-ul3-li1", func(e *colly.HTMLElement) {
 		once.Do(func() {
 			// 打印用户 ID
 			utils.MyLogger.Info("%s %s", utils.Log_58pic, e.Text)
