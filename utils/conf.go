@@ -60,6 +60,11 @@ func loadInI() *ini.File {
 	cfgMutex.Lock()
 	defer cfgMutex.Unlock()
 
+	// 获取锁后再检测一次
+	if iniCfg != nil {
+		return iniCfg
+	}
+
 	iniCfg, err = ini.Load("sign.ini")
 	if err != nil {
 		panic(err)
