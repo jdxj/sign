@@ -12,6 +12,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gocolly/colly v1.2.0
 	github.com/gocolly/redisstorage v0.0.0-20190812112800-1745c5e6d0ba
+	github.com/jordan-wright/email v0.0.0-20190819015918-041e0cec78b0
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/onsi/ginkgo v1.10.2 // indirect
 	github.com/onsi/gomega v1.7.0 // indirect

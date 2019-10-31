@@ -45,9 +45,20 @@ func Start() {
 
 	// todo: 成功登录的 html class 会因为千图页面的更改而随之更改
 	c.OnHTML(".cs-ul3-li1", func(e *colly.HTMLElement) {
+		isLogin := false
 		once.Do(func() {
 			// 打印用户 ID
 			utils.MyLogger.Info("%s %s", utils.Log_58pic, e.Text)
+			if e.Text == "我的积分:--" {
+				// 登录失败, 邮件通知
+				err := utils.SendEmail("千图网签到可能失败", e.Text)
+				if err != nil {
+					utils.MyLogger.Error("send email fail: %s", err)
+				}
+				return
+			}
+			isLogin = true
+
 			utils.MyLogger.Info("%s %s", utils.Log_58pic, "获取 cycle_time")
 			c.Post(cycleTimeUrl(), cycleTimeData())
 
@@ -56,8 +67,10 @@ func Start() {
 			c.Post(postUrl(), postData(cycleTime))
 		})
 
-		// 访问积分明细页
-		c.Visit("https://www.58pic.com/index.php?m=IntegralMall&a=qtbRecord")
+		if isLogin {
+			// 访问积分明细页
+			c.Visit("https://www.58pic.com/index.php?m=IntegralMall&a=qtbRecord")
+		}
 	})
 
 	// 获取积分收支明细
