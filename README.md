@@ -78,6 +78,8 @@ key = value
 - 支持更多网站
 - 丰富邮件提醒功能
 - 扫码登录?
+- 为了更灵活, 不使用 colly, 而直接使用 [goquery](https://github.com/PuerkitoBio/goquery)
+- 整合扫码登录 [wxlogin](https://github.com/jdxj/wxlogin)
 
 ## 已知的问题
 
