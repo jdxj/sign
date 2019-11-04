@@ -87,8 +87,6 @@ func (tou *Touch58pic) Login() ([]*http.Cookie, error) {
 		return nil, fmt.Errorf("login verification fail")
 	}
 
-	// todo: 官方的 jar 实现是否能合并 cookie?
-	tou.client.Jar.SetCookies(cookieURL, resp.Cookies())
 	return tou.client.Jar.Cookies(cookieURL), nil
 }
 
