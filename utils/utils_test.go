@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -33,4 +34,23 @@ func TestWaitGroup(t *testing.T) {
 		fmt.Println("kkk")
 	}()
 	wg.Wait()
+}
+
+func TestTrim(t *testing.T) {
+	res := strings.ReplaceAll("123=456; 789=101", " ", "")
+	fmt.Println(res)
+}
+
+func TestStrToCookies(t *testing.T) {
+	//cooStr := "123=456; 789=101112"
+	//cooStr := "123=456; =101112"
+	cooStr := "=456"
+	cookies, err := StrToCookies(cooStr, Pic58Cookie)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, cookie := range cookies {
+		fmt.Println(cookie)
+	}
 }

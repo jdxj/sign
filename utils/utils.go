@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -65,4 +67,45 @@ func Cookies(prefix, domain string) []*http.Cookie {
 		MyLogger.Debug("%s %s", prefix, "读取配置成功")
 	}
 	return cookies
+}
+
+const (
+	Pic58CookieURL = "https://www.58pic.com"
+	Pic58Cookie    = ".58pic.com"
+)
+
+// StrToCookies 将给定的 cookie 字符串转换成 http.Cookie,
+// domain 是 http.Cookie 所必须的.
+func StrToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
+	if domain == "" {
+		return nil, fmt.Errorf("invaild domain")
+	}
+
+	cookiesStr = strings.ReplaceAll(cookiesStr, " ", "")
+	cookiesParts := strings.Split(cookiesStr, ";")
+
+	var cookies []*http.Cookie
+	for _, part := range cookiesParts {
+		kv := strings.Split(part, "=")
+		if len(kv) != 2 || kv[0] == "" {
+			// todo: 可能需要日志记录失败情况
+			continue
+		}
+
+		cookie := &http.Cookie{
+			Name:     kv[0],
+			Value:    kv[1],
+			Path:     "/",
+			Domain:   domain,
+			Expires:  time.Now().Add(time.Hour * 24 * 365), // 一年后过期
+			Secure:   false,
+			HttpOnly: false,
+		}
+		cookies = append(cookies, cookie)
+	}
+
+	if len(cookies) == 0 {
+		return nil, fmt.Errorf("invalid cookie")
+	}
+	return cookies, nil
 }
