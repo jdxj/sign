@@ -109,3 +109,7 @@ func StrToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
 	}
 	return cookies, nil
 }
+
+func NowUnixMilli() int64 {
+	return time.Now().UnixNano() / 1000000
+}

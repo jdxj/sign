@@ -1,9 +1,5 @@
 package modules
 
-import (
-	"net/http"
-)
-
 type Site int
 
 const (
@@ -47,23 +43,9 @@ type Toucher interface {
 	// 其返回值 http.Cookie 不仅返回登录所使用的 cookie,
 	// 还新增了 http.Response 收到的 cookie.
 	// 如果 error != nil, 则没必要调用 Sign().
-	Login() ([]*http.Cookie, error)
+	Boot() bool
+	Login() bool
 	Sign() bool
-}
-
-type ToucherCfg struct {
-	Site Site // 要签到的网站
-	Mode Mode
-
-	UserName string
-	Password string
-	Cookies  string // 用 "key=value; key=value" 表示的字符串
-
-	LoginURL           string // 用于验证是否登录成功所要抓取的网页
-	VerifyKey          string // 指定要抓取得属性, 比如 class, li 等 html 标签或属性
-	VerifyValue        string // 当要抓取的属性等于 VerifyValue 时, 判断为登录成功
-	VerifyReverseValue string // 当要抓取的属性等于 VerifyValue 时, 判断为登录失败
-	SignURL            string // 执行签到所要访问的链接
 }
 
 //func NewToucher(cfg *ToucherCfg) *Toucher {

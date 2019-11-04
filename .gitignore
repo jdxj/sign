@@ -17,3 +17,6 @@
 *.log
 *.ini
 *.swp
+
+# tmp
+*.jpeg
