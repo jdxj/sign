@@ -116,6 +116,16 @@ type conf struct {
 	} `json:"data"`
 }
 
+// 签到后要验证的数据
+type sign struct {
+	Status      string `json:"status"`
+	Type        string `json:"type"`
+	Times       string `json:"times"`
+	ClickNum    int    `json:"clickNum"`
+	Week        string `json:"week"`
+	RewardThing string `json:"rewardThing"`
+}
+
 func (tou *Touch58pic) Sign() bool {
 	val := url.Values{
 		"taskIdNum": []string{"40"},
@@ -163,9 +173,17 @@ func (tou *Touch58pic) Sign() bool {
 		return false
 	}
 
-	// todo: 解析数据来验证是否登录成功
-	fmt.Printf("%s\n", data)
-	return true
+	sign := &sign{}
+	err = json.Unmarshal(data, sign)
+	if err != nil {
+		utils.MyLogger.Error("%s", err)
+		return false
+	}
+
+	if sign.Status == "1" {
+		return true
+	}
+	return false
 }
 
 func beginAndEnd() (string, string) {

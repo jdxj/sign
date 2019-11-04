@@ -45,7 +45,12 @@ func TestTouch58pic_Login(t *testing.T) {
 		return
 	}
 
-	pic.Sign()
+	sign := pic.Sign()
+	if sign {
+		fmt.Println("sign success")
+	} else {
+		fmt.Println("sign fail")
+	}
 }
 
 type People struct {
