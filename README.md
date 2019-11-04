@@ -80,6 +80,7 @@ key = value
 - 扫码登录?
 - 为了更灵活, 不使用 colly, 而直接使用 [goquery](https://github.com/PuerkitoBio/goquery)
 - 整合扫码登录 [wxlogin](https://github.com/jdxj/wxlogin)
+- 完善抽象
 
 ## 已知的问题
 
