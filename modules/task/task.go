@@ -3,7 +3,7 @@ package task
 import (
 	"math/rand"
 	"sign/modules"
-	"sign/utils"
+	"sign/utils/log"
 	"sync"
 	"time"
 )
@@ -33,14 +33,14 @@ func (exe *Executor) Run() {
 		dur := tomSome.Sub(now)
 
 		timer.Reset(dur)
-		utils.MyLogger.Debug("等待时间到达: %s", tomSome)
+		log.MyLogger.Debug("等待时间到达: %s", tomSome)
 
 		select {
 		case <-timer.C:
 			exe.execute()
 		}
 
-		utils.MyLogger.Debug("%s", "本次每日任务完成...")
+		log.MyLogger.Debug("%s", "本次每日任务完成...")
 	}
 }
 
@@ -51,13 +51,13 @@ func (exe *Executor) execute() {
 
 	for _, toucher := range exe.touchers {
 		if !toucher.Boot() {
-			utils.MyLogger.Error("boot fail: %s", toucher.Name())
+			log.MyLogger.Error("boot fail: %s", toucher.Name())
 		}
 		if !toucher.Login() {
-			utils.MyLogger.Error("login fail: %s", toucher.Name())
+			log.MyLogger.Error("login fail: %s", toucher.Name())
 		}
 		if !toucher.Sign() {
-			utils.MyLogger.Error("sign fail: %s", toucher.Name())
+			log.MyLogger.Error("sign fail: %s", toucher.Name())
 		}
 	}
 }

@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"net/http"
+	"sign/utils/log"
 	"strings"
 	"time"
 )
@@ -29,7 +30,7 @@ func StrToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
 	for _, part := range cookiesParts {
 		idx := strings.Index(part, "=")
 		if idx < 0 {
-			MyLogger.Warn("%s not found '=' in cookie part: %s", Log_Log, part)
+			log.MyLogger.Warn("%s not found '=' in cookie part: %s", log.Log_Log, part)
 			continue
 		}
 		k := part[:idx]

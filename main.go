@@ -4,8 +4,9 @@ import (
 	"sign/cmd"
 	"sign/modules"
 	"sign/modules/task"
-	"sign/utils"
 	"sign/utils/conf"
+	"sign/utils/email"
+	"sign/utils/log"
 )
 
 //import (
@@ -40,23 +41,23 @@ import (
 //}
 
 func main() {
-	err := utils.SendEmail("sing start", "plase notice log")
+	err := email.SendEmail("sing start", "plase notice log")
 	if err != nil {
-		utils.MyLogger.Warn("%s %s", utils.Log_Main, err)
+		log.MyLogger.Warn("%s %s", log.Log_Main, err)
 	}
 
-	utils.MyLogger.Debug("%s sections' len: %d", utils.Log_Main, len(conf.Conf.Sections()))
+	log.MyLogger.Debug("%s sections' len: %d", log.Log_Main, len(conf.Conf.Sections()))
 
 	var touchers []modules.Toucher
 	for _, sec := range conf.Conf.Sections() {
 		if sec.Name() == "email" || sec.Name() == "DEFAULT" {
-			utils.MyLogger.Warn("%s jump over %s section", utils.Log_Main, sec.Name())
+			log.MyLogger.Warn("%s jump over %s section", log.Log_Main, sec.Name())
 			continue
 		}
 
 		toucher, err := cmd.NewToucher(sec)
 		if err != nil {
-			utils.MyLogger.Error("%s %s, section name: %s, %s", utils.Log_Main, "create toucher fail", sec.Name(), err)
+			log.MyLogger.Error("%s %s, section name: %s, %s", log.Log_Main, "create toucher fail", sec.Name(), err)
 			continue
 		}
 
@@ -64,7 +65,7 @@ func main() {
 	}
 
 	if len(touchers) == 0 {
-		utils.MyLogger.Warn("%s %s", utils.Log_Main, "add 0 touchers")
+		log.MyLogger.Warn("%s %s", log.Log_Main, "add 0 touchers")
 	}
 
 	exe := &task.Executor{}
