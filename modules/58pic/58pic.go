@@ -87,21 +87,13 @@ func (tou *Touch58pic) Login() bool {
 	}
 
 	var mark bool
-	doc.Find(".cs-ul3-li1").Each(func(i int, selection *goquery.Selection) {
-		if i != 0 {
-			return
-		}
+	doc.Find(tou.verifyKey).Each(func(i int, selection *goquery.Selection) {
 		if selection.Text() != tou.verifyReverseValue {
 			// 登录成功
 			mark = true
 		}
 	})
-	if !mark {
-		utils.MyLogger.Error("%s", "the specified html class does not exist")
-		return false
-	}
-
-	return true
+	return mark
 }
 
 // 签到前所需数据
