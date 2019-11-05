@@ -52,13 +52,13 @@ func (tou *ToucherBilibili) Name() string {
 func (tou *ToucherBilibili) Boot() bool {
 	cookies, err := utils.StrToCookies(tou.cookies, utils.BilibiliCookieDomain)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_Bilibili, err)
 		return false
 	}
 
 	cookieURL, err := url.Parse(utils.BilibiliCookieURL)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_Bilibili, err)
 		return false
 	}
 
@@ -69,7 +69,7 @@ func (tou *ToucherBilibili) Boot() bool {
 func (tou *ToucherBilibili) Login() bool {
 	req, err := http.NewRequest("GET", tou.loginURL, nil)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_Bilibili, err)
 		return false
 	}
 
@@ -77,14 +77,14 @@ func (tou *ToucherBilibili) Login() bool {
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36")
 	resp, err := tou.client.Do(req)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_Bilibili, err)
 		return false
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_Bilibili, err)
 		return false
 	}
 

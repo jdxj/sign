@@ -68,14 +68,14 @@ func (tou *ToucherStudyGolang) Boot() bool {
 	}
 	resp, err := tou.client.PostForm(tou.loginURL, val)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_StudyGolang, err)
 		return false
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_StudyGolang, err)
 		return false
 	}
 
@@ -95,14 +95,14 @@ func (tou *ToucherStudyGolang) Login() bool {
 func (tou *ToucherStudyGolang) Sign() bool {
 	resp, err := tou.client.Get(tou.signURL)
 	if err != nil {
-		utils.MyLogger.Error("%s, %s", "[StudyGolang]", err)
+		utils.MyLogger.Error("%s %s", utils.Log_StudyGolang, err)
 		return false
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		utils.MyLogger.Error("%s, %s", "[StudyGolang]", err)
+		utils.MyLogger.Error("%s %s", utils.Log_StudyGolang, err)
 		return false
 	}
 

@@ -63,13 +63,13 @@ func (tou *Toucher58pic) Name() string {
 func (tou *Toucher58pic) Boot() bool {
 	cookies, err := utils.StrToCookies(tou.cookies, utils.Pic58CookieDomain)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 
 	cookieURL, err := url.Parse(utils.Pic58CookieURL)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 
@@ -81,14 +81,14 @@ func (tou *Toucher58pic) Boot() bool {
 func (tou *Toucher58pic) Login() bool {
 	resp, err := tou.client.Get(tou.loginURL)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 
@@ -130,21 +130,21 @@ func (tou *Toucher58pic) Sign() bool {
 	}
 	resp, err := tou.client.PostForm(tou.signDataURL, val)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 	defer resp.Body.Close()
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 
 	conf := &conf{}
 	err = json.Unmarshal(data, conf)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 
@@ -160,21 +160,21 @@ func (tou *Toucher58pic) Sign() bool {
 	}
 	resp, err = tou.client.PostForm(signURL, val)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 	defer resp.Body.Close()
 
 	data, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 
 	sign := &sign{}
 	err = json.Unmarshal(data, sign)
 	if err != nil {
-		utils.MyLogger.Error("%s", err)
+		utils.MyLogger.Error("%s %s", utils.Log_58pic, err)
 		return false
 	}
 

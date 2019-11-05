@@ -5,9 +5,10 @@ import (
 )
 
 const (
-	Log_StudyGolang = "[studygolang.com]"
-	Log_Bilibili    = "[bilibili.com]"
-	Log_58pic       = "[58pic.com]"
+	Log_StudyGolang = "[studygolang]"
+	Log_Bilibili    = "[bilibili]"
+	Log_58pic       = "[58pic]"
+	Log_Main        = "[main]"
 )
 
 var (
