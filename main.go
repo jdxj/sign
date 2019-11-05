@@ -64,6 +64,6 @@ func main() {
 
 	exe := &task.Executor{}
 	exe.AddTaskSync(touchers...)
-	//exe.Run()
-	exe.DebugRun()
+	exe.Run()
+	//exe.DebugRun()
 }

@@ -89,16 +89,23 @@ func StrToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
 
 	var cookies []*http.Cookie
 	for _, part := range cookiesParts {
-		kv := strings.Split(part, "=")
-		if len(kv) != 2 || kv[0] == "" {
-			// todo: 可能需要日志记录失败情况
-			MyLogger.Debug("%s %s", Log_Log, kv)
+		idx := strings.Index(part, "=")
+		if idx < 0 {
+			MyLogger.Warn("%s not found '=' in cookie part: %s", Log_Log, part)
 			continue
 		}
+		k := part[:idx]
+		v := part[idx+1:]
+		//kv := strings.Split(part, "=")
+		//if len(kv) != 2 || kv[0] == "" {
+		//	// todo: 可能需要日志记录失败情况
+		//	MyLogger.Debug("%s %s", Log_Log, kv)
+		//	continue
+		//}
 
 		cookie := &http.Cookie{
-			Name:     kv[0],
-			Value:    kv[1],
+			Name:     k,
+			Value:    v,
 			Path:     "/",
 			Domain:   domain,
 			Expires:  time.Now().Add(time.Hour * 24 * 365), // 一年后过期
