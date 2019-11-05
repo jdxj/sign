@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-func new58Pic() (*Touch58pic, error) {
-	t := &Touch58pic{
+func new58Pic() (*Toucher58pic, error) {
+	t := &Toucher58pic{
 		cookies:            "",
 		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
 		verifyKey:          ".cs-ul3-li1",

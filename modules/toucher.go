@@ -10,6 +10,7 @@ type Toucher interface {
 	// 其返回值 http.Cookie 不仅返回登录所使用的 cookie,
 	// 还新增了 http.Response 收到的 cookie.
 	// 如果 error != nil, 则没必要调用 Sign().
+	Name() string
 	Boot() bool
 	Login() bool
 	Sign() bool

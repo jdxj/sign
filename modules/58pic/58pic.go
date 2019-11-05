@@ -15,12 +15,13 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-func New58Pic(sec *ini.Section) (*Touch58pic, error) {
+func NewToucher58Pic(sec *ini.Section) (*Toucher58pic, error) {
 	if sec == nil {
 		return nil, fmt.Errorf("invalid cfg")
 	}
 
-	t := &Touch58pic{
+	t := &Toucher58pic{
+		name:               sec.Name(),
 		cookies:            sec.Key("cookies").String(),
 		loginURL:           sec.Key("loginURL").String(),
 		verifyKey:          sec.Key("verifyKey").String(),
@@ -40,7 +41,8 @@ func New58Pic(sec *ini.Section) (*Touch58pic, error) {
 	return t, nil
 }
 
-type Touch58pic struct {
+type Toucher58pic struct {
+	name string
 	// 用 "key=value; key=value" 表示的 cookie 字符串,
 	// 其主要用于第一次启动所使用的 cookie, 登录成功后使用 http.Client 管理.
 	cookies            string
@@ -54,7 +56,11 @@ type Touch58pic struct {
 	client *http.Client
 }
 
-func (tou *Touch58pic) Boot() bool {
+func (tou *Toucher58pic) Name() string {
+	return tou.name
+}
+
+func (tou *Toucher58pic) Boot() bool {
 	cookies, err := utils.StrToCookies(tou.cookies, utils.Pic58CookieDomain)
 	if err != nil {
 		utils.MyLogger.Error("%s", err)
@@ -72,7 +78,7 @@ func (tou *Touch58pic) Boot() bool {
 }
 
 // Login 58pic 的登录使用 cookie 方式
-func (tou *Touch58pic) Login() bool {
+func (tou *Toucher58pic) Login() bool {
 	resp, err := tou.client.Get(tou.loginURL)
 	if err != nil {
 		utils.MyLogger.Error("%s", err)
@@ -118,7 +124,7 @@ type sign struct {
 	RewardThing string `json:"rewardThing"`
 }
 
-func (tou *Touch58pic) Sign() bool {
+func (tou *Toucher58pic) Sign() bool {
 	val := url.Values{
 		"taskIdNum": []string{"40"},
 	}

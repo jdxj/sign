@@ -10,12 +10,13 @@ import (
 	"sign/utils"
 )
 
-func NewTouchBilibili(sec *ini.Section) (*TouchBilibili, error) {
+func NewToucherBilibili(sec *ini.Section) (*ToucherBilibili, error) {
 	if sec == nil {
 		return nil, fmt.Errorf("invalid cfg")
 	}
 
-	t := &TouchBilibili{
+	t := &ToucherBilibili{
+		name:        sec.Name(),
 		cookies:     sec.Key("cookies").String(),
 		loginURL:    sec.Key("loginURL").String(),
 		verifyKey:   sec.Key("verifyKey").String(),
@@ -32,7 +33,8 @@ func NewTouchBilibili(sec *ini.Section) (*TouchBilibili, error) {
 	return t, nil
 }
 
-type TouchBilibili struct {
+type ToucherBilibili struct {
+	name     string
 	cookies  string
 	loginURL string
 
@@ -43,7 +45,11 @@ type TouchBilibili struct {
 	loginStat bool
 }
 
-func (tou *TouchBilibili) Boot() bool {
+func (tou *ToucherBilibili) Name() string {
+	return tou.name
+}
+
+func (tou *ToucherBilibili) Boot() bool {
 	cookies, err := utils.StrToCookies(tou.cookies, utils.BilibiliCookieDomain)
 	if err != nil {
 		utils.MyLogger.Error("%s", err)
@@ -60,7 +66,7 @@ func (tou *TouchBilibili) Boot() bool {
 	return true
 }
 
-func (tou *TouchBilibili) Login() bool {
+func (tou *ToucherBilibili) Login() bool {
 	req, err := http.NewRequest("GET", tou.loginURL, nil)
 	if err != nil {
 		utils.MyLogger.Error("%s", err)
@@ -92,6 +98,6 @@ func (tou *TouchBilibili) Login() bool {
 	return mark
 }
 
-func (tou *TouchBilibili) Sign() bool {
+func (tou *ToucherBilibili) Sign() bool {
 	return tou.loginStat
 }

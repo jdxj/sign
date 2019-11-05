@@ -10,12 +10,13 @@ import (
 	"sign/utils"
 )
 
-func NewTouchStudyGolang(sec *ini.Section) (*TouchStudyGolang, error) {
+func NewToucherStudyGolang(sec *ini.Section) (*ToucherStudyGolang, error) {
 	if sec == nil {
 		return nil, fmt.Errorf("invalid cfg")
 	}
 
-	t := &TouchStudyGolang{
+	t := &ToucherStudyGolang{
+		name:        sec.Name(),
 		username:    sec.Key("username").String(),
 		password:    sec.Key("password").String(),
 		loginURL:    sec.Key("loginURL").String(),
@@ -36,7 +37,9 @@ func NewTouchStudyGolang(sec *ini.Section) (*TouchStudyGolang, error) {
 	return t, nil
 }
 
-type TouchStudyGolang struct {
+type ToucherStudyGolang struct {
+	name string
+
 	username string
 	password string
 
@@ -52,7 +55,11 @@ type TouchStudyGolang struct {
 	bootStat bool
 }
 
-func (tou *TouchStudyGolang) Boot() bool {
+func (tou *ToucherStudyGolang) Name() string {
+	return tou.name
+}
+
+func (tou *ToucherStudyGolang) Boot() bool {
 	val := url.Values{
 		"redirect_uri": []string{"https://studygolang.com/"},
 		"username":     []string{tou.username},
@@ -81,11 +88,11 @@ func (tou *TouchStudyGolang) Boot() bool {
 	return mark
 }
 
-func (tou *TouchStudyGolang) Login() bool {
+func (tou *ToucherStudyGolang) Login() bool {
 	return tou.bootStat
 }
 
-func (tou *TouchStudyGolang) Sign() bool {
+func (tou *ToucherStudyGolang) Sign() bool {
 	resp, err := tou.client.Get(tou.signURL)
 	if err != nil {
 		utils.MyLogger.Error("%s, %s", "[StudyGolang]", err)

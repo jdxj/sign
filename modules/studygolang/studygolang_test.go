@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-func newTouchStudyGolang() (*TouchStudyGolang, error) {
-	t := &TouchStudyGolang{
+func newTouchStudyGolang() (*ToucherStudyGolang, error) {
+	t := &ToucherStudyGolang{
 		username:    "",
 		password:    "",
 		loginURL:    "https://studygolang.com/account/login",

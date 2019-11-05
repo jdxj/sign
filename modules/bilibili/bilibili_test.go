@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-func newTouchBilibili() (*TouchBilibili, error) {
-	t := &TouchBilibili{
+func newTouchBilibili() (*ToucherBilibili, error) {
+	t := &ToucherBilibili{
 		cookies:     "",
 		loginURL:    "https://space.bilibili.com/98634211",
 		verifyKey:   "title",
