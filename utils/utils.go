@@ -85,13 +85,14 @@ func StrToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
 	}
 
 	cookiesStr = strings.ReplaceAll(cookiesStr, " ", "")
-	cookiesParts := strings.Split(cookiesStr, ";")
+	cookiesParts := strings.Split(cookiesStr, "&")
 
 	var cookies []*http.Cookie
 	for _, part := range cookiesParts {
 		kv := strings.Split(part, "=")
 		if len(kv) != 2 || kv[0] == "" {
 			// todo: 可能需要日志记录失败情况
+			MyLogger.Debug("%s %s", Log_Log, kv)
 			continue
 		}
 

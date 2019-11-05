@@ -9,6 +9,7 @@ const (
 	Log_Bilibili    = "[bilibili]"
 	Log_58pic       = "[58pic]"
 	Log_Main        = "[main]"
+	Log_Log         = "[log]"
 )
 
 var (

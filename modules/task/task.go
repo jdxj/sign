@@ -62,6 +62,12 @@ func (exe *Executor) execute() {
 	}
 }
 
+// DebugRun 用于测试 task 的运行情况,
+// 该方法立即执行容器中的 task.
+func (exe *Executor) DebugRun() {
+	exe.execute()
+}
+
 // AddTaskAsync 向容器中添加任务, 非阻塞方式.
 func (exe *Executor) AddTaskAsync(touchers ...modules.Toucher) {
 	go func() {

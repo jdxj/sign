@@ -40,16 +40,18 @@ import (
 //}
 
 func main() {
+	utils.MyLogger.Debug("%s sections' len: %d", utils.Log_Main, len(conf.Conf.Sections()))
+
 	var touchers []modules.Toucher
 	for _, sec := range conf.Conf.Sections() {
-		if sec.Name() == "email" {
-			utils.MyLogger.Warn("%s %s", utils.Log_Main, "jump over email cfg section")
+		if sec.Name() == "email" || sec.Name() == "DEFAULT" {
+			utils.MyLogger.Warn("%s jump over %s section", utils.Log_Main, sec.Name())
 			continue
 		}
 
 		toucher, err := cmd.NewToucher(sec)
 		if err != nil {
-			utils.MyLogger.Error("%s %s, %s, %s", utils.Log_Main, "create toucher fail", sec.Name(), err)
+			utils.MyLogger.Error("%s %s, section name: %s, %s", utils.Log_Main, "create toucher fail", sec.Name(), err)
 			continue
 		}
 
@@ -62,5 +64,6 @@ func main() {
 
 	exe := &task.Executor{}
 	exe.AddTaskSync(touchers...)
-	exe.Run()
+	//exe.Run()
+	exe.DebugRun()
 }

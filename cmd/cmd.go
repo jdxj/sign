@@ -32,9 +32,9 @@ func NewToucher(sec *ini.Section) (modules.Toucher, error) {
 	case Pic58:
 		return pic.NewToucher58Pic(sec)
 	case StudyGolang:
-		return bilibili.NewToucherBilibili(sec)
-	case Bilibili:
 		return studygolang.NewToucherStudyGolang(sec)
+	case Bilibili:
+		return bilibili.NewToucherBilibili(sec)
 	}
 
 	return nil, fmt.Errorf("did not implement this site")
