@@ -19,7 +19,7 @@ const (
 
 func NewToucher(sec *ini.Section) (modules.Toucher, error) {
 	if sec == nil {
-		return nil, fmt.Errorf("invaild cfg")
+		return nil, fmt.Errorf("invaild section config")
 	}
 
 	site, err := sec.Key("site").Int()

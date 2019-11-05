@@ -50,14 +50,11 @@ func (exe *Executor) execute() {
 	defer exe.locker.RUnlock()
 
 	for _, toucher := range exe.touchers {
-		if !toucher.Boot() {
-			log.MyLogger.Error("boot fail: %s", toucher.Name())
-		}
 		if !toucher.Login() {
-			log.MyLogger.Error("login fail: %s", toucher.Name())
+			log.MyLogger.Error("%s login fail: %s", log.Log_Task, toucher.Name())
 		}
 		if !toucher.Sign() {
-			log.MyLogger.Error("sign fail: %s", toucher.Name())
+			log.MyLogger.Error("%s sign fail: %s", log.Log_Task, toucher.Name())
 		}
 	}
 }
@@ -74,7 +71,14 @@ func (exe *Executor) AddTaskAsync(touchers ...modules.Toucher) {
 		exe.locker.Lock()
 		defer exe.locker.Unlock()
 
-		exe.touchers = append(exe.touchers, touchers...)
+		for i, toucher := range touchers {
+			if !toucher.Boot() {
+				log.MyLogger.Warn("%s boot %s fail", log.Log_Task, toucher.Name())
+				continue
+			}
+
+			exe.touchers = append(exe.touchers, touchers[i])
+		}
 	}()
 }
 
@@ -83,5 +87,12 @@ func (exe *Executor) AddTaskSync(touchers ...modules.Toucher) {
 	exe.locker.Lock()
 	defer exe.locker.Unlock()
 
-	exe.touchers = append(exe.touchers, touchers...)
+	for i, toucher := range touchers {
+		if !toucher.Boot() {
+			log.MyLogger.Warn("%s boot %s fail", log.Log_Task, toucher.Name())
+			continue
+		}
+
+		exe.touchers = append(exe.touchers, touchers[i])
+	}
 }

@@ -9,39 +9,8 @@ import (
 	"sign/utils/log"
 )
 
-//import (
-//	pic "sign/58pic.com"
-//	bili "sign/bilibili.com"
-//	sgc "sign/studygolang.com"
-//	"sign/utils"
-//	"sync"
-//)
-//
-//func main() {
-//	wg := &sync.WaitGroup{}
-//	wg.Add(3)
-//
-//	go func() {
-//		utils.DailyRandTimeExec(utils.Log_StudyGolang, sgc.Start)
-//		// 目前不会退出, 只是用于阻塞
-//		wg.Done()
-//	}()
-//
-//	go func() {
-//		utils.DailyRandTimeExec(utils.Log_Bilibili, bili.Start)
-//		wg.Done()
-//	}()
-//
-//	go func() {
-//		utils.DailyRandTimeExec(utils.Log_58pic, pic.Start)
-//		wg.Done()
-//	}()
-//
-//	wg.Wait()
-//}
-
 func main() {
-	err := email.SendEmail("sing start", "plase notice log")
+	err := email.SendEmail("sing start", "please notice log")
 	if err != nil {
 		log.MyLogger.Warn("%s %s", log.Log_Main, err)
 	}
