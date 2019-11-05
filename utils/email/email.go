@@ -7,7 +7,7 @@ import (
 	"sign/utils/conf"
 )
 
-func SendEmail(sub, msg string) error {
+func SendEmail(sub, format string, a ...interface{}) error {
 	sec := conf.Conf.Section("email")
 	username := sec.Key("username").String()
 	password := sec.Key("password").String()
@@ -16,6 +16,7 @@ func SendEmail(sub, msg string) error {
 	e.From = fmt.Sprintf("sign <%s>", username)
 	e.To = []string{username}
 	e.Subject = sub
+	msg := fmt.Sprintf(format, a)
 	e.Text = []byte(msg)
 
 	return e.Send("smtp.qq.com:587", smtp.PlainAuth("", username, password, "smtp.qq.com"))

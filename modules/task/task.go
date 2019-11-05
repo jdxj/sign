@@ -3,6 +3,7 @@ package task
 import (
 	"math/rand"
 	"sign/modules"
+	"sign/utils/email"
 	"sign/utils/log"
 	"sync"
 	"time"
@@ -52,9 +53,11 @@ func (exe *Executor) execute() {
 	for _, toucher := range exe.touchers {
 		if !toucher.Login() {
 			log.MyLogger.Error("%s login fail: %s", log.Log_Task, toucher.Name())
+			email.SendEmail("签到失败通知", "section: %s, stage: %s", toucher.Name(), "Login()")
 		}
 		if !toucher.Sign() {
 			log.MyLogger.Error("%s sign fail: %s", log.Log_Task, toucher.Name())
+			email.SendEmail("签到失败通知", "section: %s, stage: %s", toucher.Name(), "Sign()")
 		}
 	}
 }
@@ -74,6 +77,7 @@ func (exe *Executor) AddTaskAsync(touchers ...modules.Toucher) {
 		for i, toucher := range touchers {
 			if !toucher.Boot() {
 				log.MyLogger.Warn("%s boot %s fail", log.Log_Task, toucher.Name())
+				email.SendEmail("签到失败通知", "section: %s, stage: %s", toucher.Name(), "Boot()")
 				continue
 			}
 
@@ -90,6 +94,7 @@ func (exe *Executor) AddTaskSync(touchers ...modules.Toucher) {
 	for i, toucher := range touchers {
 		if !toucher.Boot() {
 			log.MyLogger.Warn("%s boot %s fail", log.Log_Task, toucher.Name())
+			email.SendEmail("签到失败通知", "section: %s, stage: %s", toucher.Name(), "Boot()")
 			continue
 		}
 
