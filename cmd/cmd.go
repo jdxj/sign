@@ -17,7 +17,6 @@ const (
 	Bilibili
 )
 
-// todo 获取配置文件
 func NewToucher(sec *ini.Section) (modules.Toucher, error) {
 	if sec == nil {
 		return nil, fmt.Errorf("invaild cfg")

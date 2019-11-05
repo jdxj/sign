@@ -40,6 +40,11 @@ import (
 //}
 
 func main() {
+	err := utils.SendEmail("sing start", "plase notice log")
+	if err != nil {
+		utils.MyLogger.Warn("%s %s", utils.Log_Main, err)
+	}
+
 	utils.MyLogger.Debug("%s sections' len: %d", utils.Log_Main, len(conf.Conf.Sections()))
 
 	var touchers []modules.Toucher
