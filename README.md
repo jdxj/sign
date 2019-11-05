@@ -39,7 +39,7 @@ $ ./sign.out &
 
 ## 原理
 
-使用 [colly](https://github.com/gocolly/colly) 爬虫访问签到链接. 使用 colly 的原因是: 爬取指定信息来确认是否签到成功.
+使用 [http.Client](https://golang.org/pkg/net/http/#Client) 访问签到链接.
 
 ## 配置文件格式
 
@@ -50,26 +50,45 @@ $ ./sign.out &
 ```
 # 邮件通知配置
 # 目前只使用了 QQ 邮箱
+# 注意: section 中的 site 是必须的
+# 注意: 由于 cookies 中有 `;` 符号 (在 ini 中, `;` 是注释符号), 所以先使用 `&` 替换.
 [email]
 
-username = yourname
-password = yourpassword
+# 0 为不创建
+site = 0
+username =
+password =
 
-# 使用账户-密码
-[studygolang.com]
+[studygolang]
 
-username = yourname
-passwd = yourpasswd
+site = 2
+username =
+password =
+loginURL = https://studygolang.com/account/login
+signURL = https://studygolang.com/mission/daily/redeem
+verifyKey = .balance_area
+verifyValue =
+signKey = .c9
+signValue = 每日登录奖励已领取
 
-# 使用 cookie
-[bilibili.com]
+[bilibili]
 
-key = value
+site = 3
+cookies =
+loginURL = https://space.bilibili.com/98634211
+verifyKey = title
+verifyValue = 王者王尼玛的个人空间 - 哔哩哔哩 ( ゜- ゜)つロ 乾杯~ Bilibili
 
-# 使用 cookie
-[58pic.com]
+[58pic]
 
-key = value
+site = 1
+cookies =
+loginURL = https://www.58pic.com/index.php?m=IntegralMall
+verifyKey = .cs-ul3-li1
+verifyValue =
+verifyReverseValue = 我的积分:--
+signDataURL = https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity
+signURL = https://www.58pic.com/index.php?m=signin&a=addUserSign&time=
 ```
 
 ## TODO
@@ -78,9 +97,9 @@ key = value
 - 支持更多网站
 - 丰富邮件提醒功能
 - 扫码登录?
-- 为了更灵活, 不使用 colly, 而直接使用 [goquery](https://github.com/PuerkitoBio/goquery)
+- ~~为了更灵活, 不使用 colly, 而直接使用~~ [goquery](https://github.com/PuerkitoBio/goquery)
 - 整合扫码登录 [wxlogin](https://github.com/jdxj/wxlogin)
-- 完善抽象
+- ~~完善抽象~~
 
 ## 已知的问题
 
