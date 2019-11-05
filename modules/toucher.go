@@ -1,38 +1,5 @@
 package modules
 
-type Site int
-
-const (
-	Pic58 Site = iota
-	StudyGolang
-	Bilibili
-)
-
-// todo: 循环引用问题
-//func NewToucher(cfg *modules.ToucherCfg) (modules.Toucher, error) {
-//	var t modules.Toucher
-//	var err error
-//
-//	switch cfg.Site {
-//	case Pic58:
-//		t, err = pic.New58Pic(cfg)
-//	case StudyGolang:
-//	case Bilibili:
-//	}
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//	return t, nil
-//}
-
-type Mode int
-
-const (
-	UsePass Mode = iota + 1
-	UseCookie
-)
-
 // 签到通用流程:
 //     1. 构造请求 (账户名密码, cookie 等)
 //     2. 访问抓取网页 (看是否登录成功)
@@ -47,10 +14,3 @@ type Toucher interface {
 	Login() bool
 	Sign() bool
 }
-
-//func NewToucher(cfg *ToucherCfg) *Toucher {
-//	t := &Toucher{
-//		cfg: cfg,
-//	}
-//	return t
-//}

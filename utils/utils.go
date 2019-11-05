@@ -70,8 +70,11 @@ func Cookies(prefix, domain string) []*http.Cookie {
 }
 
 const (
-	Pic58CookieURL = "https://www.58pic.com"
-	Pic58Cookie    = ".58pic.com"
+	Pic58CookieURL    = "https://www.58pic.com"
+	Pic58CookieDomain = ".58pic.com"
+	//BilibiliCookieURL    = "https://www.bilibili.com"
+	BilibiliCookieURL    = "https://space.bilibili.com"
+	BilibiliCookieDomain = ".bilibili.com"
 )
 
 // StrToCookies 将给定的 cookie 字符串转换成 http.Cookie,

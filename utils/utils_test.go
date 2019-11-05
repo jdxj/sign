@@ -45,7 +45,7 @@ func TestStrToCookies(t *testing.T) {
 	//cooStr := "123=456; 789=101112"
 	//cooStr := "123=456; =101112"
 	cooStr := "=456"
-	cookies, err := StrToCookies(cooStr, Pic58Cookie)
+	cookies, err := StrToCookies(cooStr, Pic58CookieDomain)
 	if err != nil {
 		panic(err)
 	}

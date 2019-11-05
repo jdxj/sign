@@ -55,7 +55,7 @@ type Touch58pic struct {
 }
 
 func (tou *Touch58pic) Boot() bool {
-	cookies, err := utils.StrToCookies(tou.cookies, utils.Pic58Cookie)
+	cookies, err := utils.StrToCookies(tou.cookies, utils.Pic58CookieDomain)
 	if err != nil {
 		utils.MyLogger.Error("%s", err)
 		return false

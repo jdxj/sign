@@ -1,0 +1,97 @@
+package bilibili
+
+import (
+	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	"gopkg.in/ini.v1"
+	"net/http"
+	"net/http/cookiejar"
+	"net/url"
+	"sign/utils"
+)
+
+func NewTouchBilibili(sec *ini.Section) (*TouchBilibili, error) {
+	if sec == nil {
+		return nil, fmt.Errorf("invalid cfg")
+	}
+
+	t := &TouchBilibili{
+		cookies:     sec.Key("cookies").String(),
+		loginURL:    sec.Key("loginURL").String(),
+		verifyKey:   sec.Key("verifyKey").String(),
+		verifyValue: sec.Key("verifyValue").String(),
+		client:      &http.Client{},
+	}
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	t.client.Jar = jar
+	return t, nil
+}
+
+type TouchBilibili struct {
+	cookies  string
+	loginURL string
+
+	verifyKey   string
+	verifyValue string
+
+	client    *http.Client
+	loginStat bool
+}
+
+func (tou *TouchBilibili) Boot() bool {
+	cookies, err := utils.StrToCookies(tou.cookies, utils.BilibiliCookieDomain)
+	if err != nil {
+		utils.MyLogger.Error("%s", err)
+		return false
+	}
+
+	cookieURL, err := url.Parse(utils.BilibiliCookieURL)
+	if err != nil {
+		utils.MyLogger.Error("%s", err)
+		return false
+	}
+
+	tou.client.Jar.SetCookies(cookieURL, cookies)
+	return true
+}
+
+func (tou *TouchBilibili) Login() bool {
+	req, err := http.NewRequest("GET", tou.loginURL, nil)
+	if err != nil {
+		utils.MyLogger.Error("%s", err)
+		return false
+	}
+
+	// todo: 为所有请求生成 user-agent
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36")
+	resp, err := tou.client.Do(req)
+	if err != nil {
+		utils.MyLogger.Error("%s", err)
+		return false
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		utils.MyLogger.Error("%s", err)
+		return false
+	}
+
+	var mark bool
+	doc.Find(tou.verifyKey).Each(func(i int, selection *goquery.Selection) {
+		if selection.Text() == tou.verifyValue {
+			mark = true
+		}
+	})
+	tou.loginStat = mark
+	return mark
+}
+
+func (tou *TouchBilibili) Sign() bool {
+	return tou.loginStat
+}

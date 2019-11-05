@@ -6,16 +6,16 @@ import (
 	pic "sign/modules/58pic"
 )
 
-type App int
+type Site int
 
 const (
-	Pic58 App = iota
+	Pic58 Site = iota
 	StudyGolang
 	Bilibili
 )
 
 // todo 获取配置文件
-func NewToucher(app App) (modules.Toucher, error) {
+func NewToucher(app Site) (modules.Toucher, error) {
 	switch app {
 	case Pic58:
 		return pic.New58Pic(nil)
