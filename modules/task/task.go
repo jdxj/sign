@@ -35,6 +35,7 @@ func (exe *Executor) Run() {
 
 		timer.Reset(dur)
 		log.MyLogger.Debug("等待时间到达: %s", tomSome)
+		email.SendEmail("签到执行预通知", "签到任务将在 %s 时刻执行", tomSome.Format(time.RFC1123))
 
 		select {
 		case <-timer.C:
