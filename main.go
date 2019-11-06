@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	err := email.SendEmail("sing start", "please notice log")
+	err := email.SendEmail("sing start", "please notice %s", "log file")
 	if err != nil {
 		log.MyLogger.Warn("%s %s", log.Log_Main, err)
 	}
