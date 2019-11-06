@@ -101,6 +101,7 @@ signURL = https://www.58pic.com/index.php?m=signin&a=addUserSign&time=
 - ~~为了更灵活, 不使用 colly, 而直接使用~~ [goquery](https://github.com/PuerkitoBio/goquery)
 - 整合扫码登录 [wxlogin](https://github.com/jdxj/wxlogin)
 - ~~完善抽象~~
+- 签 [MIUI 论坛](https://www.miui.com/index.html)
 
 ## 已知的问题
 
