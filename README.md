@@ -94,6 +94,7 @@ signURL = https://www.58pic.com/index.php?m=signin&a=addUserSign&time=
 
 ## TODO
 
+- 签 [黑客派](https://hacpai.com/)
 - 优化细节
 - 支持更多网站
 - 丰富邮件提醒功能
