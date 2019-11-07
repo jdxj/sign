@@ -8,6 +8,7 @@ const (
 	Log_StudyGolang = "[studygolang]"
 	Log_Bilibili    = "[bilibili]"
 	Log_58pic       = "[58pic]"
+	Log_HacPai      = "[hacpai]"
 	Log_Main        = "[main]"
 	Log_Log         = "[log]"
 	Log_Task        = "[task]"

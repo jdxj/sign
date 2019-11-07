@@ -14,6 +14,8 @@ const (
 	//BilibiliCookieURL    = "https://www.bilibili.com"
 	BilibiliCookieURL    = "https://space.bilibili.com"
 	BilibiliCookieDomain = ".bilibili.com"
+	HacPaiCookieURL      = "https://hacpai.com"
+	HacPaiCookieDomain   = ".hacpai.com"
 )
 
 // StrToCookies 将给定的 cookie 字符串转换成 http.Cookie,
