@@ -91,6 +91,7 @@ func (tou *ToucherBilibili) Login() bool {
 
 	var mark bool
 	doc.Find(tou.verifyKey).Each(func(i int, selection *goquery.Selection) {
+		log.MyLogger.Debug("%s verify value: %s", log.Log_Bilibili, selection.Text())
 		if selection.Text() == tou.verifyValue {
 			mark = true
 		}

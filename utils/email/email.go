@@ -16,7 +16,7 @@ func SendEmail(sub, format string, a ...interface{}) error {
 	e.From = fmt.Sprintf("sign <%s>", username)
 	e.To = []string{username}
 	e.Subject = sub
-	msg := fmt.Sprintf(format, a)
+	msg := fmt.Sprintf(format, a...)
 	e.Text = []byte(msg)
 
 	return e.Send("smtp.qq.com:587", smtp.PlainAuth("", username, password, "smtp.qq.com"))

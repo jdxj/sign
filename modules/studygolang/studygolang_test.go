@@ -18,6 +18,7 @@ func newTouchStudyGolang() (*ToucherStudyGolang, error) {
 		signKey:     ".c9",
 		signValue:   "每日登录奖励已领取",
 		client:      &http.Client{},
+		activeURL:   "https://studygolang.com/user/jdxj",
 	}
 
 	jar, err := cookiejar.New(nil)

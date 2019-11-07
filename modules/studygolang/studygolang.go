@@ -8,6 +8,8 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"sign/utils/log"
+	"strconv"
+	"time"
 )
 
 func NewToucherStudyGolang(sec *ini.Section) (*ToucherStudyGolang, error) {
@@ -26,6 +28,7 @@ func NewToucherStudyGolang(sec *ini.Section) (*ToucherStudyGolang, error) {
 		signKey:     sec.Key("signKey").String(),
 		signValue:   sec.Key("signValue").String(),
 		client:      &http.Client{},
+		activeURL:   sec.Key("activeURL").String(),
 	}
 
 	jar, err := cookiejar.New(nil)
@@ -52,7 +55,13 @@ type ToucherStudyGolang struct {
 
 	client *http.Client
 
-	bootStat bool
+	// 状态相关
+	bootStat  bool // 引导是否成功
+	loginStat bool // 登录是否成功
+	signStat  bool // 签到是否成功
+
+	// 附加功能
+	activeURL string
 }
 
 func (tou *ToucherStudyGolang) Name() string {
@@ -89,6 +98,7 @@ func (tou *ToucherStudyGolang) Boot() bool {
 }
 
 func (tou *ToucherStudyGolang) Login() bool {
+	tou.loginStat = tou.bootStat
 	return tou.bootStat
 }
 
@@ -113,5 +123,84 @@ func (tou *ToucherStudyGolang) Sign() bool {
 			mark = true
 		}
 	})
+	tou.signStat = mark
+
+	// todo: 选择合适的插入位置
+	tou.run()
 	return mark
+}
+
+// active 用于刷活跃度
+func (tou *ToucherStudyGolang) active() {
+	// 期望活跃度排第10
+	expected := 10
+	realRanking := 10000
+
+	// todo: 并发访问 signStat?
+	for tou.signStat {
+		resp, err := tou.client.Get(tou.activeURL)
+		if err != nil {
+			log.MyLogger.Debug("%s execute active fail: %s", log.Log_StudyGolang, err)
+			return
+		}
+
+		doc, err := goquery.NewDocumentFromReader(resp.Body)
+		if err != nil {
+			log.MyLogger.Debug("%s execute active fail: %s", log.Log_StudyGolang, err)
+			resp.Body.Close()
+			return
+		}
+
+		doc.Find(".userinfo").Find("li").Each(func(i int, selection *goquery.Selection) {
+			if i != 4 {
+				log.MyLogger.Debug("%s jump over index %d html", log.Log_StudyGolang, i)
+				return
+			}
+
+			target := selection.Find("a").Text()
+			actRank, err := strconv.Atoi(target)
+			if err != nil {
+				log.MyLogger.Warn("%s can not parse activity ranking: %s", log.Log_StudyGolang, target)
+				return
+			}
+
+			log.MyLogger.Info("%s activity ranking: %d", log.Log_StudyGolang, actRank)
+			realRanking = actRank
+		})
+		resp.Body.Close()
+
+		if realRanking <= expected {
+			log.MyLogger.Info("%s flash activity ranking success, ranking: %d", log.Log_StudyGolang, realRanking)
+			break
+		}
+
+		// 2s 刷一次
+		time.Sleep(2 * time.Second)
+	}
+
+	log.MyLogger.Info("%s flash activity ranking finish, final ranking: %d", log.Log_StudyGolang, realRanking)
+	log.MyLogger.Debug("%s exit activity ranking because of signStat is: %s", log.Log_StudyGolang, tou.signStat)
+}
+
+// run 用于执行类似天执行一次的任务, 非阻塞的.
+func (tou *ToucherStudyGolang) run() {
+	// 当天21点刷活跃度
+	now := time.Now()
+	today8AM := time.Unix(now.Unix()/86400*86400, 0)
+	today21PM := today8AM.Add(13 * time.Hour)
+	dur := today21PM.Sub(now)
+
+	go func() {
+		// 立即执行
+		if dur <= 0 {
+			tou.active()
+			return
+		}
+
+		timer := time.NewTimer(dur)
+		<-timer.C
+
+		tou.active()
+		timer.Stop()
+	}()
 }
