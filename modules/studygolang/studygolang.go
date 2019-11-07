@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"sign/utils/email"
 	"sign/utils/log"
 	"strconv"
 	"time"
@@ -191,6 +192,7 @@ func (tou *ToucherStudyGolang) run() {
 	dur := today21PM.Sub(now)
 
 	go func() {
+		defer email.SendEmail("刷活跃状态", "刷 %s 的活跃度已完成, 请到官网查看结果", log.Log_StudyGolang)
 		// 立即执行
 		if dur <= 0 {
 			tou.active()
