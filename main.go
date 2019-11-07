@@ -1,6 +1,6 @@
 package main
 
-import "sign/service"
+import "sign/modules/service"
 
 func main() {
 	service.Service()
