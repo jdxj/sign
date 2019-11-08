@@ -10,7 +10,7 @@ import (
 func newToucherHacPai() (*ToucherHacPai, error) {
 	tou := &ToucherHacPai{
 		username:   "985759262@qq.com",
-		password:   "32cf10032d261b310a316f558e90c419",
+		password:   "",
 		loginURL:   "https://hacpai.com/api/v2/login",
 		signRefURL: "https://hacpai.com/activity/checkin",
 		signURL:    "https://hacpai.com/activity/daily-checkin",
@@ -41,4 +41,8 @@ func TestToucherHacPai(t *testing.T) {
 	if !tou.Sign() {
 		fmt.Println("sign fail")
 	}
+}
+
+func TestToMd5(t *testing.T) {
+	fmt.Println(toMd5(""))
 }

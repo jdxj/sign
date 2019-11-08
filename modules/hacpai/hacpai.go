@@ -2,6 +2,8 @@ package hacpai
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
@@ -58,7 +60,7 @@ func (tou *ToucherHacPai) Boot() bool {
 func (tou *ToucherHacPai) Login() bool {
 	loginData := make(map[string]interface{})
 	loginData["userName"] = tou.username
-	loginData["userPassword"] = tou.password
+	loginData["userPassword"] = toMd5(tou.password)
 	loginData["captcha"] = ""
 	loginDataJson, err := json.Marshal(loginData)
 	if err != nil {
@@ -141,4 +143,11 @@ func (tou *ToucherHacPai) Sign() bool {
 		log.MyLogger.Info("%s score is: %s", log.Log_HacPai, target.Text())
 		return true
 	}
+}
+
+func toMd5(data string) string {
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(data))
+	cipherStr := md5Ctx.Sum(nil)
+	return hex.EncodeToString(cipherStr)
 }
