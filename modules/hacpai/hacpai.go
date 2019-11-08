@@ -20,6 +20,7 @@ func NewToucherHacPai(sec *ini.Section) (*ToucherHacPai, error) {
 	}
 
 	tou := &ToucherHacPai{
+		name:       sec.Name(),
 		username:   sec.Key("username").String(),
 		password:   sec.Key("password").String(),
 		loginURL:   "https://hacpai.com/api/v2/login",
@@ -38,6 +39,7 @@ func NewToucherHacPai(sec *ini.Section) (*ToucherHacPai, error) {
 }
 
 type ToucherHacPai struct {
+	name     string
 	username string
 	password string // 需要 md5 值
 	token    string
@@ -50,7 +52,7 @@ type ToucherHacPai struct {
 }
 
 func (tou *ToucherHacPai) Name() string {
-	return ""
+	return tou.name
 }
 
 func (tou *ToucherHacPai) Boot() bool {
