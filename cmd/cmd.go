@@ -6,6 +6,7 @@ import (
 	"sign/modules"
 	pic "sign/modules/58pic"
 	"sign/modules/bilibili"
+	"sign/modules/hacpai"
 	"sign/modules/studygolang"
 )
 
@@ -15,6 +16,7 @@ const (
 	Pic58 Site = iota + 1
 	StudyGolang
 	Bilibili
+	HacPai
 )
 
 func NewToucher(sec *ini.Section) (modules.Toucher, error) {
@@ -34,6 +36,8 @@ func NewToucher(sec *ini.Section) (modules.Toucher, error) {
 		return studygolang.NewToucherStudyGolang(sec)
 	case Bilibili:
 		return bilibili.NewToucherBilibili(sec)
+	case HacPai:
+		return hacpai.NewToucherHacPai(sec)
 	}
 
 	return nil, fmt.Errorf("did not implement this site")
