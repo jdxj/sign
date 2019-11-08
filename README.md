@@ -9,6 +9,7 @@
 - [Go 语言中文网](https://studygolang.com/)
 - [B 站](https://www.bilibili.com/)
 - [千图网](https://www.58pic.com/)
+- [黑客派](https://hacpai.com/)
 
 特性:
 
@@ -94,14 +95,11 @@ signURL = https://www.58pic.com/index.php?m=signin&a=addUserSign&time=
 
 ## TODO
 
-- 签 [黑客派](https://hacpai.com/)
 - 优化细节
 - 支持更多网站
 - 丰富邮件提醒功能
 - 扫码登录?
-- ~~为了更灵活, 不使用 colly, 而直接使用~~ [goquery](https://github.com/PuerkitoBio/goquery)
 - 整合扫码登录 [wxlogin](https://github.com/jdxj/wxlogin)
-- ~~完善抽象~~
 - 签 [MIUI 论坛](https://www.miui.com/index.html)
 
 ## 已知的问题
