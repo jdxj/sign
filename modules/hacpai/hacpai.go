@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"sign/utils/log"
+	"strings"
 )
 
 func NewToucherHacPai(sec *ini.Section) (*ToucherHacPai, error) {
@@ -141,10 +142,56 @@ func (tou *ToucherHacPai) Sign() bool {
 	if target == nil {
 		log.MyLogger.Error("%s score not found, web page maybe change", log.Log_HacPai)
 		return false
-	} else {
-		log.MyLogger.Info("%s score is: %s", log.Log_HacPai, target.Text())
+	}
+	if strings.HasPrefix(target.Text(), "积分余额") {
+		log.MyLogger.Warn("%s already sign", log.Log_HacPai)
 		return true
 	}
+
+	realSignURL, ok := target.Attr("href")
+	if !ok {
+		log.MyLogger.Error("%s real sign url not found")
+		return false
+	}
+	req, err = http.NewRequest("GET", realSignURL, nil)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_HacPai, err)
+		return false
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36")
+	req.Header.Set("Referer", tou.signRefURL)
+	cookie = http.Cookie{
+		Name:   "symphony",
+		Value:  tou.token,
+		Path:   "/",
+		MaxAge: 86400,
+	}
+	req.AddCookie(&cookie)
+
+	resp, err = tou.client.Do(req)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_HacPai, err)
+		return false
+	}
+	defer resp.Body.Close()
+
+	doc, err = goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_HacPai, err)
+		return false
+	}
+
+	target = doc.Find(".module__body").Find(".btn")
+	if target == nil {
+		log.MyLogger.Error("%s score not found, web page maybe change", log.Log_HacPai)
+		return false
+	}
+	if strings.HasPrefix(target.Text(), "积分余额") {
+		log.MyLogger.Info("%s %s", log.Log_HacPai, target.Text())
+		return true
+	}
+	return false
 }
 
 func toMd5(data string) string {
