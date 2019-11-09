@@ -10,6 +10,7 @@
 - [B 站](https://www.bilibili.com/)
 - [千图网](https://www.58pic.com/)
 - [黑客派](https://hacpai.com/)
+- [v2ex](https://v2ex.com/)
 
 特性:
 
