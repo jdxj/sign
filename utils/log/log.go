@@ -12,6 +12,7 @@ const (
 	Log_V2ex        = "[v2ex]"
 	Log_Main        = "[main]"
 	Log_Log         = "[log]"
+	Log_Cmd         = "[cmd]"
 	Log_Task        = "[task]"
 )
 
