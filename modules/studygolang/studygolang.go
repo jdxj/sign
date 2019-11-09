@@ -154,7 +154,6 @@ func (tou *ToucherStudyGolang) active() {
 
 		doc.Find(".userinfo").Find("li").Each(func(i int, selection *goquery.Selection) {
 			if i != 4 {
-				log.MyLogger.Debug("%s jump over index %d html", log.Log_StudyGolang, i)
 				return
 			}
 
@@ -165,13 +164,11 @@ func (tou *ToucherStudyGolang) active() {
 				return
 			}
 
-			log.MyLogger.Info("%s activity ranking: %d", log.Log_StudyGolang, actRank)
 			realRanking = actRank
 		})
 		resp.Body.Close()
 
 		if realRanking <= expected {
-			log.MyLogger.Info("%s flash activity ranking success, ranking: %d", log.Log_StudyGolang, realRanking)
 			break
 		}
 
@@ -180,17 +177,18 @@ func (tou *ToucherStudyGolang) active() {
 	}
 
 	log.MyLogger.Info("%s flash activity ranking finish, final ranking: %d", log.Log_StudyGolang, realRanking)
-	log.MyLogger.Debug("%s exit activity ranking because of signStat is: %s", log.Log_StudyGolang, tou.signStat)
+	log.MyLogger.Debug("%s exit activity ranking - signStat is: %s", log.Log_StudyGolang, tou.signStat)
 }
 
 // run 用于执行类似天执行一次的任务, 非阻塞的.
 func (tou *ToucherStudyGolang) run() {
 	// 当天21点刷活跃度
 	now := time.Now()
-	today8AM := time.Unix(now.Unix()/86400*86400, 0)
-	today21PM := today8AM.Add(13 * time.Hour)
-	dur := today21PM.Sub(now)
 
+	today0AM := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	today21PM := today0AM.Add(21 * time.Hour)
+
+	dur := today21PM.Sub(now)
 	go func() {
 		defer email.SendEmail("刷活跃状态", "刷 %s 的活跃度已完成, 请到官网查看结果", log.Log_StudyGolang)
 		// 立即执行
