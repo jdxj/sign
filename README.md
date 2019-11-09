@@ -95,6 +95,23 @@ verifyValue =
 verifyReverseValue = 我的积分:--
 signDataURL = https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity
 signURL = https://www.58pic.com/index.php?m=signin&a=addUserSign&time=
+
+[hacpai]
+
+site = 4
+username =
+password =
+
+[v2ex]
+
+site = 5
+# 可能需要手动过滤特殊字符, 比如: `"`
+cookies =
+# 需要替换用户名: `jdxj`
+loginURL = https://www.v2ex.com/member/jdxj
+signURL = https://www.v2ex.com/mission/daily
+verifyKey = h1
+verifyValue = jdxj
 ```
 
 ## TODO
