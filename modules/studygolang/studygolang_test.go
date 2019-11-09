@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"testing"
+	"time"
 )
 
 func newTouchStudyGolang() (*ToucherStudyGolang, error) {
@@ -46,4 +47,16 @@ func TestNewTouchStudyGolang(t *testing.T) {
 	} else {
 		fmt.Println("sign success")
 	}
+}
+
+func TestTimer(t *testing.T) {
+	now := time.Now()
+	today0AM := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	fmt.Printf("today0AM: %s\n", today0AM.Format(time.RFC1123))
+
+	today21PM := today0AM.Add(21 * time.Hour)
+	fmt.Printf("today21AM: %s\n", today21PM.Format(time.RFC1123))
+
+	dur := today21PM.Sub(now)
+	fmt.Println(dur)
 }
