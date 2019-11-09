@@ -154,7 +154,6 @@ func (tou *ToucherStudyGolang) active() {
 
 		doc.Find(".userinfo").Find("li").Each(func(i int, selection *goquery.Selection) {
 			if i != 4 {
-				log.MyLogger.Debug("%s jump over index %d html", log.Log_StudyGolang, i)
 				return
 			}
 
@@ -165,13 +164,11 @@ func (tou *ToucherStudyGolang) active() {
 				return
 			}
 
-			log.MyLogger.Info("%s activity ranking: %d", log.Log_StudyGolang, actRank)
 			realRanking = actRank
 		})
 		resp.Body.Close()
 
 		if realRanking <= expected {
-			log.MyLogger.Info("%s flash activity ranking success, ranking: %d", log.Log_StudyGolang, realRanking)
 			break
 		}
 
@@ -180,7 +177,7 @@ func (tou *ToucherStudyGolang) active() {
 	}
 
 	log.MyLogger.Info("%s flash activity ranking finish, final ranking: %d", log.Log_StudyGolang, realRanking)
-	log.MyLogger.Debug("%s exit activity ranking because of signStat is: %s", log.Log_StudyGolang, tou.signStat)
+	log.MyLogger.Debug("%s exit activity ranking - signStat is: %s", log.Log_StudyGolang, tou.signStat)
 }
 
 // run 用于执行类似天执行一次的任务, 非阻塞的.
