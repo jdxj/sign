@@ -187,10 +187,11 @@ func (tou *ToucherStudyGolang) active() {
 func (tou *ToucherStudyGolang) run() {
 	// 当天21点刷活跃度
 	now := time.Now()
-	today8AM := time.Unix(now.Unix()/86400*86400, 0)
-	today21PM := today8AM.Add(13 * time.Hour)
-	dur := today21PM.Sub(now)
 
+	today0AM := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	today21PM := today0AM.Add(21 * time.Hour)
+
+	dur := today21PM.Sub(now)
 	go func() {
 		defer email.SendEmail("刷活跃状态", "刷 %s 的活跃度已完成, 请到官网查看结果", log.Log_StudyGolang)
 		// 立即执行
