@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"sign/utils"
 	"sign/utils/log"
+	"strings"
 )
 
 func NewToucherV2ex(sec *ini.Section) (*ToucherV2ex, error) {
@@ -128,6 +129,54 @@ func (tou *ToucherV2ex) Sign() bool {
 		log.MyLogger.Error("%s real sign url suffix not found", log.Log_V2ex)
 		return false
 	}
-	fmt.Println(target)
-	return false
+
+	param, err := parseOnce(target)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
+		return false
+	}
+
+	realSignURL := "https://www.v2ex.com/mission/daily/redeem?once=" + param
+	resp, err = tou.client.Get(realSignURL)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
+		return false
+	}
+	defer resp.Body.Close()
+
+	//data, err := ioutil.ReadAll(resp.Body)
+	//if err != nil {
+	//	log.MyLogger.Error("%s %s", log.Log_V2ex, err)
+	//	return false
+	//}
+	//
+	//fmt.Printf("%s\n", data)
+	doc, err = goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
+		return false
+	}
+
+	sel = doc.Find(".gray")
+	if sel == nil {
+		log.MyLogger.Error("%s sign stat selection not found", log.Log_V2ex)
+		return false
+	}
+	if sel.Text() == " &nbsp;每日登录奖励已领取" {
+		return true
+	}
+	return true
+}
+
+// 类似: location.href = '/mission/daily/redeem?once=69089';
+func parseOnce(str string) (string, error) {
+	idx := strings.Index(str, "once")
+	if idx < 0 {
+		return "", fmt.Errorf("not found once param")
+	}
+
+	str = str[idx+5:]
+	str = strings.Trim(str, ";")
+	str = strings.Trim(str, "'")
+	return str, nil
 }

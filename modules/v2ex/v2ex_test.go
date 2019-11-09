@@ -40,8 +40,17 @@ func TestToucherV2ex(t *testing.T) {
 	if !tou.Login() {
 		fmt.Println("login fail")
 	}
-	//location.href = '/mission/daily/redeem?once=69089';
+
 	if !tou.Sign() {
 		fmt.Println("sign fail")
 	}
+}
+
+func TestParseOnce(t *testing.T) {
+	res, err := parseOnce("location.href = '/mission/daily/redeem?once=69089';")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("res:", res)
 }
