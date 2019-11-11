@@ -101,5 +101,11 @@ func (tou *ToucherBilibili) Login() bool {
 }
 
 func (tou *ToucherBilibili) Sign() bool {
-	return tou.loginStat
+	_, err := tou.client.Get("http://bilibili.com")
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_Bilibili, err)
+		return false
+	}
+
+	return true
 }

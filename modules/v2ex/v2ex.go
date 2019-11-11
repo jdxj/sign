@@ -132,6 +132,7 @@ func (tou *ToucherV2ex) Sign() bool {
 
 	param, err := parseOnce(target)
 	if err != nil {
+		log.MyLogger.Debug("%s target is: %s", log.Log_V2ex, target)
 		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
 		return false
 	}
