@@ -122,7 +122,7 @@ verifyValue = jdxj
 - 丰富邮件提醒功能
 - 扫码登录?
 - 整合扫码登录 [wxlogin](https://github.com/jdxj/wxlogin)
-- 签 [MIUI 论坛](https://www.miui.com/index.html)
+- 重构, 使签到对象更好的管理
 
 ## 已知的问题
 
