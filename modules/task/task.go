@@ -42,6 +42,7 @@ func (exe *Executor) Run() {
 			exe.execute()
 		}
 
+		email.SendEmail("签到执行完成通知", "签到任务在 %s 时刻完成", tomSome.Format(time.RFC1123))
 		log.MyLogger.Debug("%s", "本次每日任务完成...")
 	}
 }
