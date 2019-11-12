@@ -17,11 +17,12 @@ func Service() {
 	}
 	r.SetHTMLTemplate(t)
 
+	// api
 	r.GET("/", func(context *gin.Context) {
-		context.HTML(http.StatusOK, "/index2.html", nil)
+		context.HTML(http.StatusOK, "/index.html", nil)
 	})
 
-	r.Run(":49152")
+	r.Run(":49153")
 }
 
 func loadTemplate() (*template.Template, error) {
