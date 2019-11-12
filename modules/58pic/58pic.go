@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"sign/utils"
 	"sign/utils/log"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -95,9 +96,10 @@ func (tou *Toucher58pic) Login() bool {
 
 	var mark bool
 	doc.Find(tou.verifyKey).Each(func(i int, selection *goquery.Selection) {
-		if selection.Text() != tou.verifyReverseValue {
-			// 登录成功
+		if !strings.HasSuffix(selection.Text(), "--") {
 			mark = true
+		} else {
+			log.MyLogger.Info("%s redeem info not found", log.Log_58pic)
 		}
 	})
 	return mark
@@ -145,7 +147,7 @@ func (tou *Toucher58pic) Sign() bool {
 	conf := &conf{}
 	err = json.Unmarshal(data, conf)
 	if err != nil {
-		log.MyLogger.Error("%s %s", log.Log_58pic, err)
+		log.MyLogger.Error("%s %s data: %s", log.Log_58pic, err, data)
 		return false
 	}
 
@@ -175,7 +177,7 @@ func (tou *Toucher58pic) Sign() bool {
 	sign := &sign{}
 	err = json.Unmarshal(data, sign)
 	if err != nil {
-		log.MyLogger.Error("%s %s", log.Log_58pic, err)
+		log.MyLogger.Error("%s %s data: %s", log.Log_58pic, err, data)
 		return false
 	}
 
