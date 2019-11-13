@@ -26,10 +26,11 @@ func (exe *Executor) Run() {
 		// 明天这个时候
 		tomNow := now.Add(24 * time.Hour)
 		// 明天0点
-		tomZero := time.Date(tomNow.Year(), tomNow.Month(), tomNow.Day(), 0, 0, 0, 0, tomNow.Location())
-		// 明天随便几点
-		inc := time.Duration(r.Intn(24 * 60 * 60))
-		tomSome := tomZero.Add(inc * time.Second)
+		tom0AM := time.Date(tomNow.Year(), tomNow.Month(), tomNow.Day(), 0, 0, 0, 0, tomNow.Location())
+		tom830AM := tom0AM.Add(8 * time.Hour).Add(30 * time.Minute)
+		// 明天随便几点 8:30~20:30
+		inc := time.Duration(r.Intn(12 * 60 * 60))
+		tomSome := tom830AM.Add(inc * time.Second)
 		// 下次签到时延
 		dur := tomSome.Sub(now)
 
