@@ -34,7 +34,7 @@ $ git clone https://github.com/jdxj/sign.git
 
 ```
 $ cd sign
-$ go build -o sign.out *.go
+$ make
 ```
 
 3. 根据格式创建 `sign.ini` 配置文件 (与 `sign.out` 在同级目录即可)
