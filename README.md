@@ -71,31 +71,22 @@ password =
 site = 2
 username =
 password =
-loginURL = https://studygolang.com/account/login
-signURL = https://studygolang.com/mission/daily/redeem
-verifyKey = .balance_area
-verifyValue =
-signKey = .c9
-signValue = 每日登录奖励已领取
+
+# 其他功能
+# 刷活跃度, 适可而止
+activeURL = https://studygolang.com/user/jdxj
 
 [bilibili]
 
 site = 3
 cookies =
 loginURL = https://space.bilibili.com/98634211
-verifyKey = title
 verifyValue = 王者王尼玛的个人空间 - 哔哩哔哩 ( ゜- ゜)つロ 乾杯~ Bilibili
 
 [58pic]
 
 site = 1
 cookies =
-loginURL = https://www.58pic.com/index.php?m=IntegralMall
-verifyKey = .cs-ul3-li1
-verifyValue =
-verifyReverseValue = 我的积分:--
-signDataURL = https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity
-signURL = https://www.58pic.com/index.php?m=signin&a=addUserSign&time=
 
 [hacpai]
 
@@ -106,12 +97,8 @@ password =
 [v2ex]
 
 site = 5
-# 可能需要手动过滤特殊字符, 比如: `"`
 cookies =
-# 需要替换用户名: `jdxj`
-loginURL = https://www.v2ex.com/member/jdxj
-signURL = https://www.v2ex.com/mission/daily
-verifyKey = h1
+# 用户名
 verifyValue = jdxj
 ```
 
