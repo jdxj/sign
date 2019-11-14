@@ -8,10 +8,33 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"sign/utils"
+	"sign/utils/conf"
 	"sign/utils/log"
 	"strings"
 )
 
+func NewV2exFromApi(conf *conf.V2exConf) (*ToucherV2ex, error) {
+	if conf == nil {
+		return nil, fmt.Errorf("invaild config")
+	}
+
+	tou := &ToucherV2ex{
+		name:      conf.Name,
+		cookies:   conf.Cookies,
+		loginURL:  "https://www.v2ex.com/balance",
+		signURL:   "https://www.v2ex.com/mission/daily",
+		verifyKey: ".balance_area,.bigger",
+		client:    &http.Client{},
+	}
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	tou.client.Jar = jar
+	return tou, nil
+}
 func NewToucherV2ex(sec *ini.Section) (*ToucherV2ex, error) {
 	if sec == nil {
 		return nil, fmt.Errorf("invaild section config")

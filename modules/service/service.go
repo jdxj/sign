@@ -23,6 +23,10 @@ func Service() {
 	apiRouter.Use(logger("%s somebody access %s", log.Log_API, log.Log_StudyGolang))
 	{
 		apiRouter.POST("/studygolang", SignStudyGolang)
+		apiRouter.POST("/bilibili", SignBili)
+		apiRouter.POST("/58pic", Sign58Pic)
+		apiRouter.POST("/hacpai", SignHacPai)
+		apiRouter.POST("/v2ex", SignV2ex)
 	}
 
 	// todo: 可视化网页

@@ -11,10 +11,35 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
+	"sign/utils/conf"
 	"sign/utils/log"
 	"strings"
 )
 
+func NewHacPaiFromApi(conf *conf.HacPaiConf) (*ToucherHacPai, error) {
+	if conf == nil {
+		return nil, fmt.Errorf("invaild config")
+	}
+
+	tou := &ToucherHacPai{
+		name:       conf.Name,
+		username:   conf.Username,
+		password:   conf.Password,
+		loginURL:   "https://hacpai.com/api/v2/login",
+		signRefURL: "https://hacpai.com/activity/checkin",
+		signURL:    "https://hacpai.com/activity/daily-checkin",
+		client:     &http.Client{},
+	}
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	tou.client.Jar = jar
+	return tou, nil
+
+}
 func NewToucherHacPai(sec *ini.Section) (*ToucherHacPai, error) {
 	if sec == nil {
 		return nil, fmt.Errorf("invaild section config")

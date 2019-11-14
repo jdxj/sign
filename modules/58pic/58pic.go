@@ -9,6 +9,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"sign/utils"
+	config "sign/utils/conf"
 	"sign/utils/log"
 	"strings"
 	"time"
@@ -16,6 +17,31 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"gopkg.in/ini.v1"
 )
+
+func New58PicFromApi(conf *config.Pic58Conf) (*Toucher58pic, error) {
+	if conf == nil {
+		return nil, fmt.Errorf("invalid cfg")
+	}
+
+	t := &Toucher58pic{
+		name:               conf.Name,
+		cookies:            conf.Cookies,
+		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
+		verifyKey:          ".cs-ul3-li1",
+		verifyReverseValue: "我的积分:--",
+		signDataURL:        "https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity",
+		signURL:            "https://www.58pic.com/index.php?m=signin&a=addUserSign&time=",
+		client:             &http.Client{},
+	}
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	t.client.Jar = jar
+	return t, nil
+}
 
 func NewToucher58Pic(sec *ini.Section) (*Toucher58pic, error) {
 	if sec == nil {
