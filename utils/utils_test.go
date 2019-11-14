@@ -43,10 +43,11 @@ func TestTrim(t *testing.T) {
 }
 
 func TestStrToCookies(t *testing.T) {
-	//cooStr := "123=456; 789=101112"
-	//cooStr := "123=456; =101112"
-	cooStr := "_uuid=C52E52BE-5D02-D899-B8A1-6EA59C48E68537621infoc; buvid3=760E75A7-3BE5-466C-9D36-D105DEDA550D190946infoc; LIVE_BUVID=AUTO4515713108385339; sid=89mn1hef; DedeUserID=98634211; DedeUserID__ckMd5=70cb5476ec3f0977; SESSDATA=aab9cad1%2C1573902850%2C06835ba1; bili_jct=d6c6abce34fcf6c6bcd4be93ce0dc455; bp_t_offset_98634211=318145776854474289"
-	cookies, err := StrToCookies(cooStr, Pic58CookieDomain)
+	// 带有引号的 cookie
+	//cooStr := ``
+	// 正常 cookie
+	cooStr := ``
+	cookies, err := StrToCookies(cooStr, V2exCookieDomain)
 	if err != nil {
 		panic(err)
 	}

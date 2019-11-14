@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"sign/utils"
 	"sign/utils/log"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -24,12 +25,11 @@ func NewToucher58Pic(sec *ini.Section) (*Toucher58pic, error) {
 	t := &Toucher58pic{
 		name:               sec.Name(),
 		cookies:            sec.Key("cookies").String(),
-		loginURL:           sec.Key("loginURL").String(),
-		verifyKey:          sec.Key("verifyKey").String(),
-		verifyValue:        sec.Key("verifyValue").String(),
-		verifyReverseValue: sec.Key("verifyReverseValue").String(),
-		signDataURL:        sec.Key("signDataURL").String(),
-		signURL:            sec.Key("signURL").String(),
+		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
+		verifyKey:          ".cs-ul3-li1",
+		verifyReverseValue: "我的积分:--",
+		signDataURL:        "https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity",
+		signURL:            "https://www.58pic.com/index.php?m=signin&a=addUserSign&time=",
 		client:             &http.Client{},
 	}
 
@@ -49,7 +49,6 @@ type Toucher58pic struct {
 	cookies            string
 	loginURL           string // 用于验证是否登录成功所要抓取的网页
 	verifyKey          string // 指定要抓取得属性, 比如 class, li 等 html 标签或属性
-	verifyValue        string // 当要抓取的属性等于 VerifyValue 时, 判断为登录成功
 	verifyReverseValue string // 当要抓取的属性等于 VerifyValue 时, 判断为登录失败
 	signDataURL        string // 执行签到签获取签到数据的链接
 	signURL            string // 执行签到所要访问的链接
@@ -95,9 +94,10 @@ func (tou *Toucher58pic) Login() bool {
 
 	var mark bool
 	doc.Find(tou.verifyKey).Each(func(i int, selection *goquery.Selection) {
-		if selection.Text() != tou.verifyReverseValue {
-			// 登录成功
+		if !strings.HasSuffix(selection.Text(), "--") {
 			mark = true
+		} else {
+			log.MyLogger.Info("%s redeem info not found", log.Log_58pic)
 		}
 	})
 	return mark
@@ -145,7 +145,7 @@ func (tou *Toucher58pic) Sign() bool {
 	conf := &conf{}
 	err = json.Unmarshal(data, conf)
 	if err != nil {
-		log.MyLogger.Error("%s %s", log.Log_58pic, err)
+		log.MyLogger.Error("%s %s data: %s", log.Log_58pic, err, data)
 		return false
 	}
 
@@ -175,7 +175,7 @@ func (tou *Toucher58pic) Sign() bool {
 	sign := &sign{}
 	err = json.Unmarshal(data, sign)
 	if err != nil {
-		log.MyLogger.Error("%s %s", log.Log_58pic, err)
+		log.MyLogger.Error("%s %s data: %s", log.Log_58pic, err, data)
 		return false
 	}
 

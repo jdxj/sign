@@ -20,9 +20,9 @@ func NewToucherV2ex(sec *ini.Section) (*ToucherV2ex, error) {
 	tou := &ToucherV2ex{
 		name:        sec.Name(),
 		cookies:     sec.Key("cookies").String(),
-		loginURL:    sec.Key("loginURL").String(),
-		signURL:     sec.Key("signURL").String(),
-		verifyKey:   sec.Key("verifyKey").String(),
+		loginURL:    "https://www.v2ex.com/member/",
+		signURL:     "https://www.v2ex.com/mission/daily",
+		verifyKey:   "h1",
 		verifyValue: sec.Key("verifyValue").String(),
 		client:      &http.Client{},
 	}
@@ -72,7 +72,7 @@ func (tou *ToucherV2ex) Boot() bool {
 
 // todo: 实现
 func (tou *ToucherV2ex) Login() bool {
-	resp, err := tou.client.Get(tou.loginURL)
+	resp, err := tou.client.Get(tou.loginURL + tou.verifyValue)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
 		return false

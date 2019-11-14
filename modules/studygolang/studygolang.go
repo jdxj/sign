@@ -19,17 +19,16 @@ func NewToucherStudyGolang(sec *ini.Section) (*ToucherStudyGolang, error) {
 	}
 
 	t := &ToucherStudyGolang{
-		name:        sec.Name(),
-		username:    sec.Key("username").String(),
-		password:    sec.Key("password").String(),
-		loginURL:    sec.Key("loginURL").String(),
-		signURL:     sec.Key("signURL").String(),
-		verifyKey:   sec.Key("verifyKey").String(),
-		verifyValue: sec.Key("verifyValue").String(),
-		signKey:     sec.Key("signKey").String(),
-		signValue:   sec.Key("signValue").String(),
-		client:      &http.Client{},
-		activeURL:   sec.Key("activeURL").String(),
+		name:      sec.Name(),
+		username:  sec.Key("username").String(),
+		password:  sec.Key("password").String(),
+		loginURL:  "https://studygolang.com/account/login",
+		signURL:   "https://studygolang.com/mission/daily/redeem",
+		verifyKey: ".balance_area",
+		signKey:   ".c9",
+		signValue: "每日登录奖励已领取",
+		client:    &http.Client{},
+		activeURL: sec.Key("activeURL").String(),
 	}
 
 	jar, err := cookiejar.New(nil)
@@ -47,12 +46,11 @@ type ToucherStudyGolang struct {
 	username string
 	password string
 
-	loginURL    string
-	signURL     string
-	verifyKey   string
-	verifyValue string
-	signKey     string
-	signValue   string
+	loginURL  string
+	signURL   string
+	verifyKey string
+	signKey   string
+	signValue string
 
 	client *http.Client
 
