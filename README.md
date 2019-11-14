@@ -107,6 +107,7 @@ $ ./sign.out &
 - 整合扫码登录 [wxlogin](https://github.com/jdxj/wxlogin)
 - 重构, 使签到对象更好的管理
 - 使用 http api 创建签到任务, 从配置读取的方式将被弃用
+- 任务管理?
 
 ## 已知的问题
 
