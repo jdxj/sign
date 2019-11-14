@@ -22,7 +22,7 @@
 
 1. 不收集任何数据
 
-## 用法
+## 部署
 
 1. 下载
 
@@ -38,23 +38,35 @@ $ make
 ```
 
 3. 根据格式创建 `sign.ini` 配置文件 (与 `sign.out` 在同级目录即可)
+
+```
+# sign.ini 格式
+
+# 用于邮件通知, 使用 QQ 邮箱
+[email]
+
+username = 985759262@qq.com
+password = # 授权码
+
+# 用于 http api basic auth 授权
+[basicauth]
+
+username =
+password =
+```
+
 4. 启动
 
 ```
 $ ./sign.out &
 ```
 
-## 原理
-
-使用 [http.Client](https://golang.org/pkg/net/http/#Client) 访问签到链接.
-
-## 添加签到任务
+## 添加任务
 
 - http api 格式 (Content-Type: application/json)
 
 ```
-// 链接前缀: http://sign.aaronkir.xyz
-// 目前只是测试, 加了验证, 无法使用
+// 我部署的域名: http://sign.aaronkir.xyz
 
 // 使用时请去掉注释
 // 每个 json 中的 name 只是一个标识, 随便取
