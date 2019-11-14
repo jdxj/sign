@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sign/modules/service/static"
+	"sign/utils/log"
 	"strings"
 )
 
@@ -19,6 +20,7 @@ func Service() {
 	engine.GET("/ping", Pong)
 
 	apiRouter := engine.Group("/api")
+	apiRouter.Use(logger("%s somebody access %s", log.Log_API, log.Log_StudyGolang))
 	{
 		apiRouter.POST("/studygolang", SignStudyGolang)
 	}
@@ -55,4 +57,12 @@ func Pong(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"msg": "ok",
 	})
+}
+
+func logger(format string, value ...interface{}) gin.HandlerFunc {
+	log.MyLogger.Debug(format, value...)
+
+	return func(context *gin.Context) {
+		// 空实现, 只是为了上面的日志记录
+	}
 }
