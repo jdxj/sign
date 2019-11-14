@@ -20,7 +20,7 @@ func NewToucherBilibili(sec *ini.Section) (*ToucherBilibili, error) {
 		name:        sec.Name(),
 		cookies:     sec.Key("cookies").String(),
 		loginURL:    sec.Key("loginURL").String(),
-		verifyKey:   sec.Key("verifyKey").String(),
+		verifyKey:   "title",
 		verifyValue: sec.Key("verifyValue").String(),
 		client:      &http.Client{},
 	}

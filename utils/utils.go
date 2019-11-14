@@ -27,8 +27,12 @@ func StrToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
 		return nil, fmt.Errorf("invaild domain")
 	}
 
-	cookiesStr = strings.ReplaceAll(cookiesStr, " ", "")
-	cookiesParts := strings.Split(cookiesStr, "&")
+	// 过滤引号
+	cookiesStr = strings.ReplaceAll(cookiesStr, `"`, ``)
+	// 过滤空格
+	cookiesStr = strings.ReplaceAll(cookiesStr, ` `, ``)
+	// 划分
+	cookiesParts := strings.Split(cookiesStr, ";")
 
 	var cookies []*http.Cookie
 	for _, part := range cookiesParts {

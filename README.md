@@ -14,7 +14,7 @@
 
 特性:
 
-- 随机时间签到
+- 随机时间签到 (8:30~20:30)
 - 签到失败通知
 - 刷活跃度: Go 语言中文网 (目前只刷到第10名就停止, 2s 刷一次)
 
@@ -34,7 +34,7 @@ $ git clone https://github.com/jdxj/sign.git
 
 ```
 $ cd sign
-$ go build -o sign.out *.go
+$ make
 ```
 
 3. 根据格式创建 `sign.ini` 配置文件 (与 `sign.out` 在同级目录即可)
@@ -55,6 +55,14 @@ $ ./sign.out &
 配置文件格式:
 
 ```
+# site 是用来标识要签到的网站, 而 [] 中的名称只是配置名
+# 可选的网站编号有:
+# 1: 千图
+# 2: Go 语言中文网
+# 3: B 站
+# 4: 黑客派
+# 5: V2ex
+
 # 邮件通知配置
 # 目前只使用了 QQ 邮箱
 # 注意: section 中的 site 是必须的
@@ -71,31 +79,22 @@ password =
 site = 2
 username =
 password =
-loginURL = https://studygolang.com/account/login
-signURL = https://studygolang.com/mission/daily/redeem
-verifyKey = .balance_area
-verifyValue =
-signKey = .c9
-signValue = 每日登录奖励已领取
+
+# 其他功能
+# 刷活跃度, 适可而止
+activeURL = https://studygolang.com/user/jdxj
 
 [bilibili]
 
 site = 3
 cookies =
 loginURL = https://space.bilibili.com/98634211
-verifyKey = title
 verifyValue = 王者王尼玛的个人空间 - 哔哩哔哩 ( ゜- ゜)つロ 乾杯~ Bilibili
 
 [58pic]
 
 site = 1
 cookies =
-loginURL = https://www.58pic.com/index.php?m=IntegralMall
-verifyKey = .cs-ul3-li1
-verifyValue =
-verifyReverseValue = 我的积分:--
-signDataURL = https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity
-signURL = https://www.58pic.com/index.php?m=signin&a=addUserSign&time=
 
 [hacpai]
 
@@ -106,12 +105,8 @@ password =
 [v2ex]
 
 site = 5
-# 可能需要手动过滤特殊字符, 比如: `"`
 cookies =
-# 需要替换用户名: `jdxj`
-loginURL = https://www.v2ex.com/member/jdxj
-signURL = https://www.v2ex.com/mission/daily
-verifyKey = h1
+# 用户名
 verifyValue = jdxj
 ```
 
@@ -126,5 +121,6 @@ verifyValue = jdxj
 
 ## 已知的问题
 
-- 目标服务器与签到程序服务器之间的时间会有误差, 理论上会有漏签问题
-- 由于千图网需要每周手动登录, 所以千图网会由于 cookie 失效而签到失败
+- ~~目标服务器与签到程序服务器之间的时间会有误差, 理论上会有漏签问题~~ (由于改了签到时间范围, 这个问题不会出现)
+- 由于千图网需要每周手动登录, 所以千图网会由于 cookie 失效而签到失败 (正在尝试解决)
+- v2ex 可能在早上几点之后才会更新签到链接
