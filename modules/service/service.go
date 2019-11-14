@@ -10,19 +10,26 @@ import (
 )
 
 func Service() {
-	r := gin.Default()
+	engine := gin.New()
 	t, err := loadTemplate()
 	if err != nil {
 		panic(err)
 	}
-	r.SetHTMLTemplate(t)
+	engine.SetHTMLTemplate(t)
+	engine.GET("/ping", Pong)
 
-	// api
-	r.GET("/", func(context *gin.Context) {
-		context.HTML(http.StatusOK, "/index.html", nil)
-	})
+	apiRouter := engine.Group("/api")
+	{
+		apiRouter.POST("/studygolang", SignStudyGolang)
+	}
 
-	r.Run(":49153")
+	// todo: 可视化网页
+	webRouter := engine.Group("/index")
+	{
+		_ = webRouter
+	}
+
+	engine.Run(":49152")
 }
 
 func loadTemplate() (*template.Template, error) {
@@ -42,4 +49,10 @@ func loadTemplate() (*template.Template, error) {
 	}
 
 	return t, nil
+}
+
+func Pong(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"msg": "ok",
+	})
 }

@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"math/rand"
 	"sign/modules"
 	"sign/utils/email"
@@ -103,4 +104,23 @@ func (exe *Executor) AddTaskSync(touchers ...modules.Toucher) {
 
 		exe.touchers = append(exe.touchers, touchers[i])
 	}
+}
+
+func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
+	if tou == nil {
+		return fmt.Errorf("toucher is nil")
+	}
+
+	if !tou.Boot() {
+		return fmt.Errorf("boot fail")
+	}
+
+	go func() {
+
+	}()
+}
+
+// randTime 根据指定的时间 now, 返回当天 now 之后的时刻
+func randTime(now time.Time) time.Time {
+
 }
