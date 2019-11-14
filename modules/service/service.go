@@ -1,17 +1,20 @@
 package service
 
 import (
-	"github.com/gin-gonic/gin"
 	"html/template"
 	"io/ioutil"
 	"net/http"
 	"sign/modules/service/static"
 	"sign/utils/log"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Service() {
 	engine := gin.New()
+	engine.Use(Logger)
+
 	t, err := loadTemplate()
 	if err != nil {
 		panic(err)
@@ -20,7 +23,6 @@ func Service() {
 	engine.GET("/ping", Pong)
 
 	apiRouter := engine.Group("/api")
-	apiRouter.Use(logger("%s somebody access %s", log.Log_API, log.Log_StudyGolang))
 	{
 		apiRouter.POST("/studygolang", SignStudyGolang)
 		apiRouter.POST("/bilibili", SignBili)
@@ -63,10 +65,6 @@ func Pong(c *gin.Context) {
 	})
 }
 
-func logger(format string, value ...interface{}) gin.HandlerFunc {
-	log.MyLogger.Debug(format, value...)
-
-	return func(context *gin.Context) {
-		// 空实现, 只是为了上面的日志记录
-	}
+func Logger(c *gin.Context) {
+	log.MyLogger.Info("%s %s", log.Log_API, c.Request.URL)
 }

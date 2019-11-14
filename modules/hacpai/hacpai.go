@@ -6,14 +6,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"gopkg.in/ini.v1"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"sign/utils/conf"
 	"sign/utils/log"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
+	"gopkg.in/ini.v1"
 )
 
 func NewHacPaiFromApi(conf *conf.HacPaiConf) (*ToucherHacPai, error) {
@@ -82,6 +83,7 @@ func (tou *ToucherHacPai) Name() string {
 }
 
 func (tou *ToucherHacPai) Boot() bool {
+	// hacpai 不需要引导, 因为它使用临时 token
 	return true
 }
 

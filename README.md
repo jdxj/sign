@@ -48,70 +48,56 @@ $ ./sign.out &
 
 使用 [http.Client](https://golang.org/pkg/net/http/#Client) 访问签到链接.
 
-## 配置文件格式 (将来会被弃用)
-
-配置文件名称: `sign.ini`.
-
-配置文件格式:
+## http api 格式 (Content-Type: application/json)
 
 ```
-# site 是用来标识要签到的网站, 而 [] 中的名称只是配置名
-# 可选的网站编号有:
-# 1: 千图
-# 2: Go 语言中文网
-# 3: B 站
-# 4: 黑客派
-# 5: V2ex
+// 目前只是测试, 目前暂未公开域名
+// 使用时请去掉注释
+// 每个 json 中的 name 只是一个标识, 随便取
 
-# 邮件通知配置
-# 目前只使用了 QQ 邮箱
-# 注意: section 中的 site 是必须的
-# 注意: 由于 cookies 中有 `;` 符号 (在 ini 中, `;` 是注释符号), 所以先使用 `&` 替换.
-[email]
+// POST /api/studygolang
+{
+	"name": "StudyGolang",
+	"username": "985759262@qq.com",
+	"password": "",
+    // 随便一个网页就行, 这里选取个人主页刷活跃度
+	"activeURL": "https://studygolang.com/user/jdxj"
+}
 
-# 0 为不创建
-site = 0
-username =
-password =
+// POST /api/bilibili
+{
+	"name": "Bilibili",
+	"cookies": "",
+    // 这里验证是否登录成功的方法是向服务器请求了你的关注数量, 我关注了9个人
+	"verify_value": 9
+}
 
-[studygolang]
+// POST /api/58pic
+{
+	"name": "58Pic",
+	"cookies": ""
+}
 
-site = 2
-username =
-password =
+// POST /api/hacpai
+{
+	"name": "HacPai",
+	"username": "985759262@qq.com",
+	"password": ""
+}
 
-# 其他功能
-# 刷活跃度, 适可而止
-activeURL = https://studygolang.com/user/jdxj
-
-[bilibili]
-
-site = 3
-cookies =
-loginURL = https://space.bilibili.com/98634211
-verifyValue = 王者王尼玛的个人空间 - 哔哩哔哩 ( ゜- ゜)つロ 乾杯~ Bilibili
-
-[58pic]
-
-site = 1
-cookies =
-
-[hacpai]
-
-site = 4
-username =
-password =
-
-[v2ex]
-
-site = 5
-cookies =
-# 用户名
-verifyValue = jdxj
+// POST /api/v2ex
+{
+	"name": "V2ex",
+    // v2ex 的 cookie 在从浏览器中手动复制时发现其带有双引号,
+    // 我已在程序中做了过滤处理, 如果你使用 postman,
+    // 那么需要手动删除双引号 (其自己的语法检查).
+	"cookies": ""
+}
 ```
 
 ## TODO
 
+- 使用 nginx 开启 https
 - 优化细节
 - 支持更多网站
 - 丰富邮件提醒功能
