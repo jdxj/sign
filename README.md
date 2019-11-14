@@ -48,7 +48,9 @@ $ ./sign.out &
 
 使用 [http.Client](https://golang.org/pkg/net/http/#Client) 访问签到链接.
 
-## http api 格式 (Content-Type: application/json)
+## 添加签到任务
+
+- http api 格式 (Content-Type: application/json)
 
 ```
 // 目前只是测试, 目前暂未公开域名
@@ -57,41 +59,41 @@ $ ./sign.out &
 
 // POST /api/studygolang
 {
-	"name": "StudyGolang",
-	"username": "985759262@qq.com",
-	"password": "",
-    // 随便一个网页就行, 这里选取个人主页刷活跃度
-	"activeURL": "https://studygolang.com/user/jdxj"
+  "name": "StudyGolang",
+  "username": "985759262@qq.com",
+  "password": "",
+  // 随便一个网页就行, 这里选取个人主页刷活跃度
+  "activeURL": "https://studygolang.com/user/jdxj"
 }
 
 // POST /api/bilibili
 {
-	"name": "Bilibili",
-	"cookies": "",
-    // 这里验证是否登录成功的方法是向服务器请求了你的关注数量, 我关注了9个人
-	"verify_value": 9
+  "name": "Bilibili",
+  "cookies": "",
+  // 这里验证是否登录成功的方法是向服务器请求了你的关注数量, 我关注了9个人
+  "verify_value": 9
 }
 
 // POST /api/58pic
 {
-	"name": "58Pic",
-	"cookies": ""
+  "name": "58Pic",
+  "cookies": ""
 }
 
 // POST /api/hacpai
 {
-	"name": "HacPai",
-	"username": "985759262@qq.com",
-	"password": ""
+  "name": "HacPai",
+  "username": "985759262@qq.com",
+  "password": ""
 }
 
 // POST /api/v2ex
 {
-	"name": "V2ex",
-    // v2ex 的 cookie 在从浏览器中手动复制时发现其带有双引号,
-    // 我已在程序中做了过滤处理, 如果你使用 postman,
-    // 那么需要手动删除双引号 (其自己的语法检查).
-	"cookies": ""
+  "name": "V2ex",
+  // v2ex 的 cookie 在从浏览器中手动复制时发现其带有双引号,
+  // 我已在程序中做了过滤处理, 如果你使用 postman,
+  // 那么需要手动删除双引号 (其自己的语法检查).
+  "cookies": ""
 }
 ```
 
