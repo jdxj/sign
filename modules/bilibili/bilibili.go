@@ -9,10 +9,35 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"sign/utils"
+	"sign/utils/conf"
 	"sign/utils/log"
 	"strconv"
 )
 
+func NewBiliFromApi(conf *conf.BiliConf) (*ToucherBilibili, error) {
+	if conf == nil {
+		return nil, fmt.Errorf("invalid cfg")
+	}
+
+	following := strconv.Itoa(conf.VerifyValue)
+
+	t := &ToucherBilibili{
+		name:        conf.Name,
+		cookies:     conf.Cookies,
+		loginURL:    "https://api.bilibili.com/x/web-interface/nav/stat",
+		verifyValue: following,
+		client:      &http.Client{},
+	}
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	t.client.Jar = jar
+	return t, nil
+
+}
 func NewToucherBilibili(sec *ini.Section) (*ToucherBilibili, error) {
 	if sec == nil {
 		return nil, fmt.Errorf("invalid cfg")

@@ -10,16 +10,15 @@ import (
 
 func newTouchStudyGolang() (*ToucherStudyGolang, error) {
 	t := &ToucherStudyGolang{
-		username:    "",
-		password:    "",
-		loginURL:    "https://studygolang.com/account/login",
-		signURL:     "https://studygolang.com/mission/daily/redeem",
-		verifyKey:   ".balance_area",
-		verifyValue: "",
-		signKey:     ".c9",
-		signValue:   "每日登录奖励已领取",
-		client:      &http.Client{},
-		activeURL:   "https://studygolang.com/user/jdxj",
+		username:  "",
+		password:  "",
+		loginURL:  "https://studygolang.com/account/login",
+		signURL:   "https://studygolang.com/mission/daily/redeem",
+		verifyKey: ".balance_area",
+		signKey:   ".c9",
+		signValue: "每日登录奖励已领取",
+		client:    &http.Client{},
+		activeURL: "https://studygolang.com/user/jdxj",
 	}
 
 	jar, err := cookiejar.New(nil)
