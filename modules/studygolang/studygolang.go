@@ -20,7 +20,7 @@ func NewSGFromAPI(conf *conf.SGConf) (*ToucherStudyGolang, error) {
 	}
 
 	t := &ToucherStudyGolang{
-		name:      conf.Site,
+		name:      conf.Name,
 		username:  conf.Username,
 		password:  conf.Password,
 		loginURL:  "https://studygolang.com/account/login",

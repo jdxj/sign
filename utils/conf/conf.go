@@ -17,14 +17,14 @@ func init() {
 
 // api 用
 type SGConf struct {
-	Site      string `json:"site"`
+	Name      string `json:"name"`
 	Username  string `json:"username"`
 	Password  string `json:"password"`
 	ActiveURL string `json:"activeURL"`
 }
 
 func (sgc *SGConf) CheckValidity() bool {
-	if sgc.Site == "" || sgc.Username == "" || sgc.Password == "" || sgc.ActiveURL == "" {
+	if sgc.Name == "" || sgc.Username == "" || sgc.Password == "" || sgc.ActiveURL == "" {
 		return false
 	}
 

@@ -48,7 +48,7 @@ $ ./sign.out &
 
 使用 [http.Client](https://golang.org/pkg/net/http/#Client) 访问签到链接.
 
-## 配置文件格式
+## 配置文件格式 (将来会被弃用)
 
 配置文件名称: `sign.ini`.
 
@@ -118,6 +118,7 @@ verifyValue = jdxj
 - 扫码登录?
 - 整合扫码登录 [wxlogin](https://github.com/jdxj/wxlogin)
 - 重构, 使签到对象更好的管理
+- 使用 http api 创建签到任务, 从配置读取的方式将被弃用
 
 ## 已知的问题
 
