@@ -53,7 +53,9 @@ $ ./sign.out &
 - http api 格式 (Content-Type: application/json)
 
 ```
-// 目前只是测试, 目前暂未公开域名
+// 链接前缀: http://sign.aaronkir.xyz
+// 目前只是测试, 加了验证, 无法使用
+
 // 使用时请去掉注释
 // 每个 json 中的 name 只是一个标识, 随便取
 
