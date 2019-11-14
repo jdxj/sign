@@ -1,14 +1,16 @@
 package bilibili
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"gopkg.in/ini.v1"
+	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"sign/utils"
 	"sign/utils/log"
+	"strconv"
 )
 
 func NewToucherBilibili(sec *ini.Section) (*ToucherBilibili, error) {
@@ -19,8 +21,7 @@ func NewToucherBilibili(sec *ini.Section) (*ToucherBilibili, error) {
 	t := &ToucherBilibili{
 		name:        sec.Name(),
 		cookies:     sec.Key("cookies").String(),
-		loginURL:    sec.Key("loginURL").String(),
-		verifyKey:   "title",
+		loginURL:    "https://api.bilibili.com/x/web-interface/nav/stat",
 		verifyValue: sec.Key("verifyValue").String(),
 		client:      &http.Client{},
 	}
@@ -35,15 +36,12 @@ func NewToucherBilibili(sec *ini.Section) (*ToucherBilibili, error) {
 }
 
 type ToucherBilibili struct {
-	name     string
-	cookies  string
-	loginURL string
-
-	verifyKey   string
+	name        string
+	cookies     string
+	loginURL    string
 	verifyValue string
 
-	client    *http.Client
-	loginStat bool
+	client *http.Client
 }
 
 func (tou *ToucherBilibili) Name() string {
@@ -83,21 +81,22 @@ func (tou *ToucherBilibili) Login() bool {
 	}
 	defer resp.Body.Close()
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.MyLogger.Error("%s %s", log.Log_Bilibili, err)
+		log.MyLogger.Error("%s %s", err)
 		return false
 	}
 
-	var mark bool
-	doc.Find(tou.verifyKey).Each(func(i int, selection *goquery.Selection) {
-		log.MyLogger.Debug("%s verify value: %s", log.Log_Bilibili, selection.Text())
-		if selection.Text() == tou.verifyValue {
-			mark = true
-		}
-	})
-	tou.loginStat = mark
-	return mark
+	var loginResp loginResp
+	if err := json.Unmarshal(data, &loginResp); err != nil {
+		log.MyLogger.Error("%s %s", err)
+		return false
+	}
+
+	if strconv.Itoa(loginResp.Data.Following) == tou.verifyValue {
+		return true
+	}
+	return false
 }
 
 func (tou *ToucherBilibili) Sign() bool {
@@ -108,4 +107,15 @@ func (tou *ToucherBilibili) Sign() bool {
 	}
 
 	return true
+}
+
+type loginResp struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	TTL     int    `json:"ttl"`
+	Data    struct {
+		Following    int `json:"following"`
+		Follower     int `json:"follower"`
+		DynamicCount int `json:"dynamic_count"`
+	} `json:"data"`
 }

@@ -58,6 +58,8 @@ func (exe *Executor) execute() {
 		if !toucher.Login() {
 			log.MyLogger.Error("%s login fail: %s", log.Log_Task, toucher.Name())
 			email.SendEmail("签到失败通知", "section: %s, stage: %s", toucher.Name(), "Login()")
+
+			continue
 		}
 		if !toucher.Sign() {
 			log.MyLogger.Error("%s sign fail: %s", log.Log_Task, toucher.Name())

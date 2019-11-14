@@ -18,13 +18,12 @@ func NewToucherV2ex(sec *ini.Section) (*ToucherV2ex, error) {
 	}
 
 	tou := &ToucherV2ex{
-		name:        sec.Name(),
-		cookies:     sec.Key("cookies").String(),
-		loginURL:    "https://www.v2ex.com/member/",
-		signURL:     "https://www.v2ex.com/mission/daily",
-		verifyKey:   "h1",
-		verifyValue: sec.Key("verifyValue").String(),
-		client:      &http.Client{},
+		name:      sec.Name(),
+		cookies:   sec.Key("cookies").String(),
+		loginURL:  "https://www.v2ex.com/balance",
+		signURL:   "https://www.v2ex.com/mission/daily",
+		verifyKey: ".balance_area,.bigger",
+		client:    &http.Client{},
 	}
 
 	jar, err := cookiejar.New(nil)
@@ -40,10 +39,9 @@ type ToucherV2ex struct {
 	name    string
 	cookies string
 
-	loginURL    string
-	signURL     string
-	verifyKey   string
-	verifyValue string
+	loginURL  string
+	signURL   string
+	verifyKey string
 
 	client *http.Client
 }
@@ -52,7 +50,6 @@ func (tou *ToucherV2ex) Name() string {
 	return tou.name
 }
 
-// todo: 实现
 func (tou *ToucherV2ex) Boot() bool {
 	cookies, err := utils.StrToCookies(tou.cookies, utils.V2exCookieDomain)
 	if err != nil {
@@ -70,9 +67,8 @@ func (tou *ToucherV2ex) Boot() bool {
 	return true
 }
 
-// todo: 实现
 func (tou *ToucherV2ex) Login() bool {
-	resp, err := tou.client.Get(tou.loginURL + tou.verifyValue)
+	resp, err := tou.client.Get(tou.loginURL)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
 		return false
@@ -85,19 +81,13 @@ func (tou *ToucherV2ex) Login() bool {
 		return false
 	}
 
-	sel := doc.Find(tou.verifyKey)
-	if sel == nil {
+	if sel := doc.Find(tou.verifyKey); sel == nil {
 		log.MyLogger.Error("%s selection is nil", log.Log_V2ex)
-		return false
-	}
-	if sel.Text() != tou.verifyValue {
-		log.MyLogger.Error("%s user name not found", log.Log_V2ex)
 		return false
 	}
 	return true
 }
 
-// todo: 实现
 func (tou *ToucherV2ex) Sign() bool {
 	resp, err := tou.client.Get(tou.signURL)
 	if err != nil {
@@ -106,13 +96,6 @@ func (tou *ToucherV2ex) Sign() bool {
 	}
 	defer resp.Body.Close()
 
-	//data, err := ioutil.ReadAll(resp.Body)
-	//if err != nil {
-	//	log.MyLogger.Error("%s %s", log.Log_V2ex, err)
-	//	return false
-	//}
-	//
-	//fmt.Printf("%s\n", data)
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
@@ -145,13 +128,6 @@ func (tou *ToucherV2ex) Sign() bool {
 	}
 	defer resp.Body.Close()
 
-	//data, err := ioutil.ReadAll(resp.Body)
-	//if err != nil {
-	//	log.MyLogger.Error("%s %s", log.Log_V2ex, err)
-	//	return false
-	//}
-	//
-	//fmt.Printf("%s\n", data)
 	doc, err = goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
