@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	pic "sign/modules/58pic"
 	"sign/modules/bilibili"
@@ -11,7 +10,15 @@ import (
 	"sign/modules/task"
 	"sign/modules/v2ex"
 	"sign/utils/conf"
+
+	"github.com/gin-gonic/gin"
 )
+
+func ApiPong(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"msg": "ok",
+	})
+}
 
 func SignStudyGolang(c *gin.Context) {
 	var cfg conf.SGConf
@@ -49,7 +56,6 @@ func SignStudyGolang(c *gin.Context) {
 	})
 }
 
-// todo: 实现
 func SignBili(c *gin.Context) {
 	var cfg conf.BiliConf
 	if err := c.Bind(&cfg); err != nil {
@@ -122,7 +128,6 @@ func Sign58Pic(c *gin.Context) {
 	})
 }
 
-// todo: 实现
 func SignHacPai(c *gin.Context) {
 	var cfg conf.HacPaiConf
 	if err := c.Bind(&cfg); err != nil {
@@ -159,7 +164,6 @@ func SignHacPai(c *gin.Context) {
 	})
 }
 
-// todo: 实现
 func SignV2ex(c *gin.Context) {
 	var cfg conf.V2exConf
 	if err := c.Bind(&cfg); err != nil {

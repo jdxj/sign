@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sign/modules/service/static"
+	"sign/utils/conf"
 	"sign/utils/log"
 	"strings"
 
@@ -12,6 +13,13 @@ import (
 )
 
 func Service() {
+	basicAuth := conf.Conf.Section("basicauth")
+	if basicAuth == nil {
+		panic("not found basicauth section in config file")
+	}
+	baUsername := basicAuth.Key("username").String()
+	baPassword := basicAuth.Key("password").String()
+
 	engine := gin.New()
 	engine.Use(Logger)
 
@@ -23,7 +31,11 @@ func Service() {
 	engine.GET("/ping", Pong)
 
 	apiRouter := engine.Group("/api")
+	apiRouter.Use(gin.BasicAuth(gin.Accounts{
+		baUsername: baPassword,
+	}))
 	{
+		apiRouter.GET("/ping", ApiPong)
 		apiRouter.POST("/studygolang", SignStudyGolang)
 		apiRouter.POST("/bilibili", SignBili)
 		apiRouter.POST("/58pic", Sign58Pic)
@@ -37,7 +49,7 @@ func Service() {
 		_ = webRouter
 	}
 
-	engine.Run(":49152")
+	engine.Run(":49159")
 }
 
 func loadTemplate() (*template.Template, error) {
