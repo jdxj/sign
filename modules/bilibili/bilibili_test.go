@@ -9,10 +9,10 @@ import (
 
 func newTouchBilibili() (*ToucherBilibili, error) {
 	t := &ToucherBilibili{
-		cookies:     "",
-		loginURL:    "https://space.bilibili.com/98634211",
-		verifyKey:   "title",
-		verifyValue: "王者王尼玛的个人空间 - 哔哩哔哩 ( ゜- ゜)つロ 乾杯~ Bilibili",
+		cookies:  "",
+		loginURL: "https://api.bilibili.com/x/web-interface/nav/stat",
+		//verifyKey:   "#big",
+		verifyValue: "9",
 		client:      &http.Client{},
 	}
 
@@ -32,9 +32,12 @@ func TestNewTouchBilibili(t *testing.T) {
 		fmt.Println("boot fail")
 		return
 	}
-
 	if !tou.Login() {
 		fmt.Println("login fail")
+		return
+	}
+	if !tou.Sign() {
+		fmt.Println("sign fail")
 		return
 	}
 }

@@ -12,7 +12,6 @@ func new58Pic() (*Toucher58pic, error) {
 		cookies:            "",
 		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
 		verifyKey:          ".cs-ul3-li1",
-		verifyValue:        "",
 		verifyReverseValue: "我的积分:--",
 		signDataURL:        "https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity",
 		signURL:            "https://www.58pic.com/index.php?m=signin&a=addUserSign&time=",

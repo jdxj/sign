@@ -14,7 +14,7 @@
 
 特性:
 
-- 随机时间签到
+- 随机时间签到 (8:30~20:30)
 - 签到失败通知
 - 刷活跃度: Go 语言中文网 (目前只刷到第10名就停止, 2s 刷一次)
 
@@ -22,7 +22,7 @@
 
 1. 不收集任何数据
 
-## 用法
+## 部署
 
 1. 下载
 
@@ -34,97 +34,97 @@ $ git clone https://github.com/jdxj/sign.git
 
 ```
 $ cd sign
-$ go build -o sign.out *.go
+$ make
 ```
 
 3. 根据格式创建 `sign.ini` 配置文件 (与 `sign.out` 在同级目录即可)
+
+```
+# sign.ini 格式
+
+# 用于邮件通知, 使用 QQ 邮箱
+[email]
+
+username = 985759262@qq.com
+password = # 授权码
+
+# 用于 http api basic auth 授权
+[basicauth]
+
+username =
+password =
+```
+
 4. 启动
 
 ```
 $ ./sign.out &
 ```
 
-## 原理
+## 添加任务
 
-使用 [http.Client](https://golang.org/pkg/net/http/#Client) 访问签到链接.
-
-## 配置文件格式
-
-配置文件名称: `sign.ini`.
-
-配置文件格式:
+- http api 格式 (Content-Type: application/json)
 
 ```
-# 邮件通知配置
-# 目前只使用了 QQ 邮箱
-# 注意: section 中的 site 是必须的
-# 注意: 由于 cookies 中有 `;` 符号 (在 ini 中, `;` 是注释符号), 所以先使用 `&` 替换.
-[email]
+// 我部署的域名: http://sign.aaronkir.xyz
 
-# 0 为不创建
-site = 0
-username =
-password =
+// 使用时请去掉注释
+// 每个 json 中的 name 只是一个标识, 随便取
 
-[studygolang]
+// POST /api/studygolang
+{
+  "name": "StudyGolang",
+  "username": "985759262@qq.com",
+  "password": "",
+  // 随便一个网页就行, 这里选取个人主页刷活跃度
+  "activeURL": "https://studygolang.com/user/jdxj"
+}
 
-site = 2
-username =
-password =
-loginURL = https://studygolang.com/account/login
-signURL = https://studygolang.com/mission/daily/redeem
-verifyKey = .balance_area
-verifyValue =
-signKey = .c9
-signValue = 每日登录奖励已领取
+// POST /api/bilibili
+{
+  "name": "Bilibili",
+  "cookies": "",
+  // 这里验证是否登录成功的方法是向服务器请求了你的关注数量, 我关注了9个人
+  "verify_value": 9
+}
 
-[bilibili]
+// POST /api/58pic
+{
+  "name": "58Pic",
+  "cookies": ""
+}
 
-site = 3
-cookies =
-loginURL = https://space.bilibili.com/98634211
-verifyKey = title
-verifyValue = 王者王尼玛的个人空间 - 哔哩哔哩 ( ゜- ゜)つロ 乾杯~ Bilibili
+// POST /api/hacpai
+{
+  "name": "HacPai",
+  "username": "985759262@qq.com",
+  "password": ""
+}
 
-[58pic]
-
-site = 1
-cookies =
-loginURL = https://www.58pic.com/index.php?m=IntegralMall
-verifyKey = .cs-ul3-li1
-verifyValue =
-verifyReverseValue = 我的积分:--
-signDataURL = https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity
-signURL = https://www.58pic.com/index.php?m=signin&a=addUserSign&time=
-
-[hacpai]
-
-site = 4
-username =
-password =
-
-[v2ex]
-
-site = 5
-# 可能需要手动过滤特殊字符, 比如: `"`
-cookies =
-# 需要替换用户名: `jdxj`
-loginURL = https://www.v2ex.com/member/jdxj
-signURL = https://www.v2ex.com/mission/daily
-verifyKey = h1
-verifyValue = jdxj
+// POST /api/v2ex
+{
+  "name": "V2ex",
+  // v2ex 的 cookie 在从浏览器中手动复制时发现其带有双引号,
+  // 我已在程序中做了过滤处理, 如果你使用 postman,
+  // 那么需要手动删除双引号 (其自己的语法检查).
+  "cookies": ""
+}
 ```
 
 ## TODO
 
+- **使用 nginx 开启 https**
 - 优化细节
 - 支持更多网站
 - 丰富邮件提醒功能
 - 扫码登录?
 - 整合扫码登录 [wxlogin](https://github.com/jdxj/wxlogin)
-- 签 [MIUI 论坛](https://www.miui.com/index.html)
+- 重构, 使签到对象更好的管理
+- 使用 http api 创建签到任务, 从配置读取的方式将被弃用
+- 任务管理?
 
 ## 已知的问题
 
-- 目标服务器与签到程序服务器之间的时间会有误差, 理论上会有漏签问题
-- 由于千图网需要每周手动登录, 所以千图网会由于 cookie 失效而签到失败
+- ~~目标服务器与签到程序服务器之间的时间会有误差, 理论上会有漏签问题~~ (由于改了签到时间范围, 这个问题不会出现)
+- 由于千图网需要每周手动登录, 所以千图网会由于 cookie 失效而签到失败 (正在尝试解决)
+- v2ex 可能在早上几点之后才会更新签到链接

@@ -7,11 +7,39 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"sign/utils/conf"
 	"sign/utils/email"
 	"sign/utils/log"
 	"strconv"
 	"time"
 )
+
+func NewSGFromAPI(conf *conf.SGConf) (*ToucherStudyGolang, error) {
+	if conf == nil {
+		return nil, fmt.Errorf("invalid cfg")
+	}
+
+	t := &ToucherStudyGolang{
+		name:      conf.Name,
+		username:  conf.Username,
+		password:  conf.Password,
+		loginURL:  "https://studygolang.com/account/login",
+		signURL:   "https://studygolang.com/mission/daily/redeem",
+		verifyKey: ".balance_area",
+		signKey:   ".c9",
+		signValue: "每日登录奖励已领取",
+		client:    &http.Client{},
+		activeURL: conf.ActiveURL,
+	}
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	t.client.Jar = jar
+	return t, nil
+}
 
 func NewToucherStudyGolang(sec *ini.Section) (*ToucherStudyGolang, error) {
 	if sec == nil {
@@ -19,17 +47,16 @@ func NewToucherStudyGolang(sec *ini.Section) (*ToucherStudyGolang, error) {
 	}
 
 	t := &ToucherStudyGolang{
-		name:        sec.Name(),
-		username:    sec.Key("username").String(),
-		password:    sec.Key("password").String(),
-		loginURL:    sec.Key("loginURL").String(),
-		signURL:     sec.Key("signURL").String(),
-		verifyKey:   sec.Key("verifyKey").String(),
-		verifyValue: sec.Key("verifyValue").String(),
-		signKey:     sec.Key("signKey").String(),
-		signValue:   sec.Key("signValue").String(),
-		client:      &http.Client{},
-		activeURL:   sec.Key("activeURL").String(),
+		name:      sec.Name(),
+		username:  sec.Key("username").String(),
+		password:  sec.Key("password").String(),
+		loginURL:  "https://studygolang.com/account/login",
+		signURL:   "https://studygolang.com/mission/daily/redeem",
+		verifyKey: ".balance_area",
+		signKey:   ".c9",
+		signValue: "每日登录奖励已领取",
+		client:    &http.Client{},
+		activeURL: sec.Key("activeURL").String(),
 	}
 
 	jar, err := cookiejar.New(nil)
@@ -47,12 +74,11 @@ type ToucherStudyGolang struct {
 	username string
 	password string
 
-	loginURL    string
-	signURL     string
-	verifyKey   string
-	verifyValue string
-	signKey     string
-	signValue   string
+	loginURL  string
+	signURL   string
+	verifyKey string
+	signKey   string
+	signValue string
 
 	client *http.Client
 
