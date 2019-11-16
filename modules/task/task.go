@@ -134,7 +134,10 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 	}
 
 	go func() {
-		dur := randTime().Sub(time.Now())
+		tomSome := randTime()
+		email.SendEmail("签到执行预通知", "签到任务: [%s] 将在 %s 时刻执行", tou.Name(), tomSome.Format(time.RFC1123))
+
+		dur := tomSome.Sub(time.Now())
 		timer := time.NewTimer(dur)
 		defer timer.Stop()
 
@@ -143,16 +146,20 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 
 			if !tou.Login() {
 				log.MyLogger.Error("%s login fail: %s", log.Log_Task, tou.Name())
-				email.SendEmail("签到失败通知", "section: %s, stage: %s", tou.Name(), "Login()")
+				email.SendEmail("签到失败通知", "task name: %s, stage: %s\n如果要重新签到, 请重新注册该任务", tou.Name(), "Login()")
 				return
 			}
 			if !tou.Sign() {
 				log.MyLogger.Error("%s sign fail: %s", log.Log_Task, tou.Name())
-				email.SendEmail("签到失败通知", "section: %s, stage: %s", tou.Name(), "Sign()")
+				email.SendEmail("签到失败通知", "task name: %s, stage: %s\n如果要重新签到, 请重新注册该任务", tou.Name(), "Sign()")
 				return
 			}
+			email.SendEmail("签到执行成功", "task name: %s", tou.Name())
 
-			dur = randTime().Sub(time.Now())
+			tomSome = randTime()
+			email.SendEmail("签到执行预通知", "签到任务: [%s] 将在 %s 时刻执行", tou.Name(), tomSome.Format(time.RFC1123))
+
+			dur = tomSome.Sub(time.Now())
 			timer.Reset(dur)
 		}
 	}()
