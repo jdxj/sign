@@ -15,12 +15,15 @@ func init() {
 	Conf = conf
 }
 
+const ExpectedLimit = 20
+
 // api 用
 type SGConf struct {
 	Name      string `json:"name"`
 	Username  string `json:"username"`
 	Password  string `json:"password"`
 	ActiveURL string `json:"activeURL"`
+	Expected  int    `json:"expected"`
 }
 
 func (sgc *SGConf) CheckValidity() bool {
@@ -28,6 +31,10 @@ func (sgc *SGConf) CheckValidity() bool {
 		return false
 	}
 
+	// 修正非法值
+	if sgc.Expected < 0 || sgc.Expected > ExpectedLimit {
+		sgc.Expected = 0
+	}
 	return true
 }
 

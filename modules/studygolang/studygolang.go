@@ -2,8 +2,7 @@ package studygolang
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"gopkg.in/ini.v1"
+	"math/rand"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -12,6 +11,9 @@ import (
 	"sign/utils/log"
 	"strconv"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"gopkg.in/ini.v1"
 )
 
 func NewSGFromAPI(conf *conf.SGConf) (*ToucherStudyGolang, error) {
@@ -30,6 +32,7 @@ func NewSGFromAPI(conf *conf.SGConf) (*ToucherStudyGolang, error) {
 		signValue: "每日登录奖励已领取",
 		client:    &http.Client{},
 		activeURL: conf.ActiveURL,
+		expected:  conf.Expected,
 	}
 
 	jar, err := cookiejar.New(nil)
@@ -79,6 +82,9 @@ type ToucherStudyGolang struct {
 	verifyKey string
 	signKey   string
 	signValue string
+	// 期望排名
+	// 0: 随机
+	expected int
 
 	client *http.Client
 
@@ -159,12 +165,19 @@ func (tou *ToucherStudyGolang) Sign() bool {
 
 // active 用于刷活跃度
 func (tou *ToucherStudyGolang) active() {
-	// 期望活跃度排第10
-	expected := 10
+	// 避免无限刷
+	const flashLimit = 500
+	count := 0
+
+	expected := tou.expected
+	if expected == 0 {
+		// 随机
+		expected = rand.Intn(conf.ExpectedLimit) + 1
+	}
 	realRanking := 10000
 
 	// todo: 并发访问 signStat?
-	for tou.signStat {
+	for tou.signStat && count < flashLimit {
 		resp, err := tou.client.Get(tou.activeURL)
 		if err != nil {
 			log.MyLogger.Debug("%s execute active fail: %s", log.Log_StudyGolang, err)
@@ -198,6 +211,7 @@ func (tou *ToucherStudyGolang) active() {
 			break
 		}
 
+		count++
 		// 2s 刷一次
 		time.Sleep(2 * time.Second)
 	}

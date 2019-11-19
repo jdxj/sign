@@ -154,7 +154,6 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 				email.SendEmail("签到失败通知", "task name: %s, stage: %s\n如果要重新签到, 请重新注册该任务", tou.Name(), "Sign()")
 				return
 			}
-			email.SendEmail("签到执行成功", "task name: %s", tou.Name())
 
 			tomSome = randTime()
 			email.SendEmail("签到执行预通知", "签到任务: [%s] 将在 %s 时刻执行", tou.Name(), tomSome.Format(time.RFC1123))
