@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"gopkg.in/ini.v1"
 )
 
 func New58PicFromApi(conf *config.Pic58Conf) (*Toucher58pic, error) {
@@ -26,31 +25,6 @@ func New58PicFromApi(conf *config.Pic58Conf) (*Toucher58pic, error) {
 	t := &Toucher58pic{
 		name:               conf.Name,
 		cookies:            conf.Cookies,
-		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
-		verifyKey:          ".cs-ul3-li1",
-		verifyReverseValue: "我的积分:--",
-		signDataURL:        "https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity",
-		signURL:            "https://www.58pic.com/index.php?m=signin&a=addUserSign&time=",
-		client:             &http.Client{},
-	}
-
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	t.client.Jar = jar
-	return t, nil
-}
-
-func NewToucher58Pic(sec *ini.Section) (*Toucher58pic, error) {
-	if sec == nil {
-		return nil, fmt.Errorf("invalid cfg")
-	}
-
-	t := &Toucher58pic{
-		name:               sec.Name(),
-		cookies:            sec.Key("cookies").String(),
 		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
 		verifyKey:          ".cs-ul3-li1",
 		verifyReverseValue: "我的积分:--",
@@ -80,6 +54,10 @@ type Toucher58pic struct {
 	signURL            string // 执行签到所要访问的链接
 
 	client *http.Client
+
+	// 模拟浏览用
+	loginStat bool
+	browsing  bool
 }
 
 func (tou *Toucher58pic) Name() string {
@@ -126,6 +104,9 @@ func (tou *Toucher58pic) Login() bool {
 			log.MyLogger.Info("%s redeem info not found", log.Log_58pic)
 		}
 	})
+
+	tou.loginStat = mark
+	tou.mockBrowsing()
 	return mark
 }
 
@@ -209,6 +190,27 @@ func (tou *Toucher58pic) Sign() bool {
 		return true
 	}
 	return false
+}
+
+func (tou *Toucher58pic) mockBrowsing() {
+	if tou.browsing {
+		return
+	}
+	tou.browsing = true
+
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+		defer log.MyLogger.Info("%s mock browsing finish", log.Log_58pic)
+
+		for tou.loginStat {
+			<-ticker.C
+
+			req, _ := http.NewRequest("GET", "https://www.58pic.com/", nil)
+			req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+			tou.client.Do(req)
+		}
+	}()
 }
 
 func beginAndEnd() (string, string) {

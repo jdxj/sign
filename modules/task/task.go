@@ -38,7 +38,6 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 
 	go func() {
 		tomSome := randTime()
-		email.SendEmail("签到执行预通知", "签到任务: [%s] 将在 %s 时刻执行", tou.Name(), tomSome.Format(time.RFC1123))
 
 		dur := tomSome.Sub(time.Now())
 		timer := time.NewTimer(dur)
