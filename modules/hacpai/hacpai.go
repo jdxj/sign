@@ -14,7 +14,6 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"gopkg.in/ini.v1"
 )
 
 func NewHacPaiFromApi(conf *conf.HacPaiConf) (*ToucherHacPai, error) {
@@ -23,9 +22,7 @@ func NewHacPaiFromApi(conf *conf.HacPaiConf) (*ToucherHacPai, error) {
 	}
 
 	tou := &ToucherHacPai{
-		name:       conf.Name,
-		username:   conf.Username,
-		password:   conf.Password,
+		conf:       conf,
 		loginURL:   "https://hacpai.com/api/v2/login",
 		signRefURL: "https://hacpai.com/activity/checkin",
 		signURL:    "https://hacpai.com/activity/daily-checkin",
@@ -40,36 +37,11 @@ func NewHacPaiFromApi(conf *conf.HacPaiConf) (*ToucherHacPai, error) {
 	tou.client.Jar = jar
 	return tou, nil
 
-}
-func NewToucherHacPai(sec *ini.Section) (*ToucherHacPai, error) {
-	if sec == nil {
-		return nil, fmt.Errorf("invaild section config")
-	}
-
-	tou := &ToucherHacPai{
-		name:       sec.Name(),
-		username:   sec.Key("username").String(),
-		password:   sec.Key("password").String(),
-		loginURL:   "https://hacpai.com/api/v2/login",
-		signRefURL: "https://hacpai.com/activity/checkin",
-		signURL:    "https://hacpai.com/activity/daily-checkin",
-		client:     &http.Client{},
-	}
-
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	tou.client.Jar = jar
-	return tou, nil
 }
 
 type ToucherHacPai struct {
-	name     string
-	username string
-	password string // 需要 md5 值
-	token    string
+	conf  *conf.HacPaiConf
+	token string
 
 	loginURL   string
 	signRefURL string
@@ -79,7 +51,11 @@ type ToucherHacPai struct {
 }
 
 func (tou *ToucherHacPai) Name() string {
-	return tou.name
+	return tou.conf.Name
+}
+
+func (tou *ToucherHacPai) Email() string {
+	return tou.conf.To
 }
 
 func (tou *ToucherHacPai) Boot() bool {
@@ -89,8 +65,8 @@ func (tou *ToucherHacPai) Boot() bool {
 
 func (tou *ToucherHacPai) Login() bool {
 	loginData := make(map[string]interface{})
-	loginData["userName"] = tou.username
-	loginData["userPassword"] = toMd5(tou.password)
+	loginData["userName"] = tou.conf.Username
+	loginData["userPassword"] = toMd5(tou.conf.Password)
 	loginData["captcha"] = ""
 	loginDataJson, err := json.Marshal(loginData)
 	if err != nil {

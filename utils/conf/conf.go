@@ -24,6 +24,7 @@ type SGConf struct {
 	Password  string `json:"password"`
 	ActiveURL string `json:"activeURL"`
 	Expected  int    `json:"expected"`
+	To        string `json:"to"`
 }
 
 func (sgc *SGConf) CheckValidity() bool {
@@ -42,6 +43,7 @@ type BiliConf struct {
 	Name        string `json:"name"`
 	Cookies     string `json:"cookies"`
 	VerifyValue int    `json:"verify_value"`
+	To          string `json:"to"`
 }
 
 func (bl *BiliConf) CheckValidity() bool {
@@ -55,6 +57,7 @@ func (bl *BiliConf) CheckValidity() bool {
 type Pic58Conf struct {
 	Name    string `json:"name"`
 	Cookies string `json:"cookies"`
+	To      string `json:"to"`
 }
 
 func (pic *Pic58Conf) CheckValidity() bool {
@@ -69,6 +72,7 @@ type HacPaiConf struct {
 	Name     string `json:"name"`
 	Username string `json:"username"`
 	Password string `json:"password"`
+	To       string `json:"to"`
 }
 
 func (hac *HacPaiConf) CheckValidity() bool {
@@ -82,6 +86,7 @@ func (hac *HacPaiConf) CheckValidity() bool {
 type V2exConf struct {
 	Name    string `json:"name"`
 	Cookies string `json:"cookies"`
+	To      string `json:"to"`
 }
 
 func (v2ex *V2exConf) CheckValidity() bool {

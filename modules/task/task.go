@@ -32,7 +32,7 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 
 	if !tou.Boot() {
 		// 通过 api 接口创建的任务, 如果 boot 阶段就失败, 则直接向
-		// api 接口返回错误, 不写入日志且不使用邮件通知
+		// api 接口返回错误, 不写入日志
 		return fmt.Errorf("boot fail")
 	}
 
@@ -43,25 +43,41 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 		timer := time.NewTimer(dur)
 		defer timer.Stop()
 
+		msg := &email.Msg{
+			To: tou.Email(),
+		}
+
+		msg.Subject = email.SignStart
+		msg.Content = fmt.Sprintf("标记: %s, 下一次签到时间: %s", tou.Name(), tomSome.Format(email.TimeFormat))
+		email.SendEmail(msg)
+
 		for {
 			<-timer.C
 
 			if !tou.Login() {
 				log.MyLogger.Error("%s login fail: %s", log.Log_Task, tou.Name())
-				email.SendEmail("签到失败通知", "task name: %s, stage: %s\n如果要重新签到, 请重新注册该任务", tou.Name(), "Login()")
+
+				msg.Subject = email.SignFailed
+				msg.Content = fmt.Sprintf("标记: %s, 阶段: %s", tou.Name(), "登录阶段")
+				email.SendEmail(msg)
 				return
 			}
 			if !tou.Sign() {
 				log.MyLogger.Error("%s sign fail: %s", log.Log_Task, tou.Name())
-				email.SendEmail("签到失败通知", "task name: %s, stage: %s\n如果要重新签到, 请重新注册该任务", tou.Name(), "Sign()")
+
+				msg.Subject = email.SignFailed
+				msg.Content = fmt.Sprintf("标记: %s, 阶段: %s", tou.Name(), "签到阶段")
+				email.SendEmail(msg)
 				return
 			}
 
 			tomSome = randTime()
-			email.SendEmail("签到执行预通知", "签到任务: [%s] 将在 %s 时刻执行", tou.Name(), tomSome.Format(time.RFC1123))
-
 			dur = tomSome.Sub(time.Now())
 			timer.Reset(dur)
+
+			msg.Subject = email.SignSuccess
+			msg.Content = fmt.Sprintf("标记: %s, 下一次签到时间: %s", tou.Name(), tomSome.Format(email.TimeFormat))
+			email.SendEmail(msg)
 		}
 	}()
 	return nil

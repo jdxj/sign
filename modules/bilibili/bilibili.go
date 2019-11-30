@@ -3,7 +3,6 @@ package bilibili
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/ini.v1"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -22,8 +21,7 @@ func NewBiliFromApi(conf *conf.BiliConf) (*ToucherBilibili, error) {
 	following := strconv.Itoa(conf.VerifyValue)
 
 	t := &ToucherBilibili{
-		name:        conf.Name,
-		cookies:     conf.Cookies,
+		conf:        conf,
 		loginURL:    "https://api.bilibili.com/x/web-interface/nav/stat",
 		verifyValue: following,
 		client:      &http.Client{},
@@ -38,31 +36,10 @@ func NewBiliFromApi(conf *conf.BiliConf) (*ToucherBilibili, error) {
 	return t, nil
 
 }
-func NewToucherBilibili(sec *ini.Section) (*ToucherBilibili, error) {
-	if sec == nil {
-		return nil, fmt.Errorf("invalid cfg")
-	}
-
-	t := &ToucherBilibili{
-		name:        sec.Name(),
-		cookies:     sec.Key("cookies").String(),
-		loginURL:    "https://api.bilibili.com/x/web-interface/nav/stat",
-		verifyValue: sec.Key("verifyValue").String(),
-		client:      &http.Client{},
-	}
-
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	t.client.Jar = jar
-	return t, nil
-}
 
 type ToucherBilibili struct {
-	name        string
-	cookies     string
+	conf *conf.BiliConf
+
 	loginURL    string
 	verifyValue string
 
@@ -70,11 +47,15 @@ type ToucherBilibili struct {
 }
 
 func (tou *ToucherBilibili) Name() string {
-	return tou.name
+	return tou.conf.Name
+}
+
+func (tou *ToucherBilibili) Email() string {
+	return tou.conf.To
 }
 
 func (tou *ToucherBilibili) Boot() bool {
-	cookies, err := utils.StrToCookies(tou.cookies, utils.BilibiliCookieDomain)
+	cookies, err := utils.StrToCookies(tou.conf.Cookies, utils.BilibiliCookieDomain)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_Bilibili, err)
 		return false
@@ -97,7 +78,6 @@ func (tou *ToucherBilibili) Login() bool {
 		return false
 	}
 
-	// todo: 为所有请求生成 user-agent
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36")
 	resp, err := tou.client.Do(req)
 	if err != nil {

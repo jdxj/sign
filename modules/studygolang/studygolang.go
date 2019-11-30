@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"gopkg.in/ini.v1"
 )
 
 func NewSGFromAPI(conf *conf.SGConf) (*ToucherStudyGolang, error) {
@@ -22,44 +21,13 @@ func NewSGFromAPI(conf *conf.SGConf) (*ToucherStudyGolang, error) {
 	}
 
 	t := &ToucherStudyGolang{
-		name:      conf.Name,
-		username:  conf.Username,
-		password:  conf.Password,
+		conf:      conf,
 		loginURL:  "https://studygolang.com/account/login",
 		signURL:   "https://studygolang.com/mission/daily/redeem",
 		verifyKey: ".balance_area",
 		signKey:   ".c9",
 		signValue: "每日登录奖励已领取",
 		client:    &http.Client{},
-		activeURL: conf.ActiveURL,
-		expected:  conf.Expected,
-	}
-
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	t.client.Jar = jar
-	return t, nil
-}
-
-func NewToucherStudyGolang(sec *ini.Section) (*ToucherStudyGolang, error) {
-	if sec == nil {
-		return nil, fmt.Errorf("invalid cfg")
-	}
-
-	t := &ToucherStudyGolang{
-		name:      sec.Name(),
-		username:  sec.Key("username").String(),
-		password:  sec.Key("password").String(),
-		loginURL:  "https://studygolang.com/account/login",
-		signURL:   "https://studygolang.com/mission/daily/redeem",
-		verifyKey: ".balance_area",
-		signKey:   ".c9",
-		signValue: "每日登录奖励已领取",
-		client:    &http.Client{},
-		activeURL: sec.Key("activeURL").String(),
 	}
 
 	jar, err := cookiejar.New(nil)
@@ -72,40 +40,35 @@ func NewToucherStudyGolang(sec *ini.Section) (*ToucherStudyGolang, error) {
 }
 
 type ToucherStudyGolang struct {
-	name string
-
-	username string
-	password string
+	conf *conf.SGConf
 
 	loginURL  string
 	signURL   string
 	verifyKey string
 	signKey   string
 	signValue string
-	// 期望排名
-	// 0: 随机
-	expected int
-
-	client *http.Client
+	client    *http.Client
 
 	// 状态相关
 	bootStat  bool // 引导是否成功
 	loginStat bool // 登录是否成功
 	signStat  bool // 签到是否成功
 
-	// 附加功能
-	activeURL string
 }
 
 func (tou *ToucherStudyGolang) Name() string {
-	return tou.name
+	return tou.conf.Name
+}
+
+func (tou *ToucherStudyGolang) Email() string {
+	return tou.conf.To
 }
 
 func (tou *ToucherStudyGolang) Boot() bool {
 	val := url.Values{
 		"redirect_uri": []string{"https://studygolang.com/"},
-		"username":     []string{tou.username},
-		"passwd":       []string{tou.password},
+		"username":     []string{tou.conf.Username},
+		"passwd":       []string{tou.conf.Password},
 		"remember_me":  []string{"1"},
 	}
 	resp, err := tou.client.PostForm(tou.loginURL, val)
@@ -158,7 +121,6 @@ func (tou *ToucherStudyGolang) Sign() bool {
 	})
 	tou.signStat = mark
 
-	// todo: 选择合适的插入位置
 	tou.run()
 	return mark
 }
@@ -169,16 +131,15 @@ func (tou *ToucherStudyGolang) active() {
 	const flashLimit = 500
 	count := 0
 
-	expected := tou.expected
+	expected := tou.conf.Expected
 	if expected == 0 {
 		// 随机
 		expected = rand.Intn(conf.ExpectedLimit) + 1
 	}
 	realRanking := 10000
 
-	// todo: 并发访问 signStat?
 	for tou.signStat && count < flashLimit {
-		resp, err := tou.client.Get(tou.activeURL)
+		resp, err := tou.client.Get(tou.conf.ActiveURL)
 		if err != nil {
 			log.MyLogger.Debug("%s execute active fail: %s", log.Log_StudyGolang, err)
 			return
@@ -230,7 +191,16 @@ func (tou *ToucherStudyGolang) run() {
 
 	dur := today21PM.Sub(now)
 	go func() {
-		defer email.SendEmail("刷活跃状态", "刷 %s 的活跃度已完成, 请到官网查看结果", log.Log_StudyGolang)
+		if tou.conf.To != "" {
+			defer func() {
+				msg := &email.Msg{
+					To:      tou.conf.To,
+					Subject: email.FlashActivity,
+					Content: fmt.Sprintf("刷 %s 的活跃度已完成, 请到官网查看结果", log.Log_StudyGolang),
+				}
+				email.SendEmail(msg)
+			}()
+		}
 		// 立即执行
 		if dur <= 0 {
 			tou.active()

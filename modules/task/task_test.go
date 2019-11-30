@@ -58,3 +58,7 @@ func TestRandTime(t *testing.T) {
 		time.Sleep(time.Millisecond)
 	}
 }
+
+func TestFormatTime(t *testing.T) {
+	fmt.Printf("%s\n", time.Now().Format("2006-01-02 15:04:05"))
+}

@@ -23,8 +23,7 @@ func New58PicFromApi(conf *config.Pic58Conf) (*Toucher58pic, error) {
 	}
 
 	t := &Toucher58pic{
-		name:               conf.Name,
-		cookies:            conf.Cookies,
+		conf:               conf,
 		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
 		verifyKey:          ".cs-ul3-li1",
 		verifyReverseValue: "我的积分:--",
@@ -43,10 +42,8 @@ func New58PicFromApi(conf *config.Pic58Conf) (*Toucher58pic, error) {
 }
 
 type Toucher58pic struct {
-	name string
-	// 用 "key=value; key=value" 表示的 cookie 字符串,
-	// 其主要用于第一次启动所使用的 cookie, 登录成功后使用 http.Client 管理.
-	cookies            string
+	conf *config.Pic58Conf
+
 	loginURL           string // 用于验证是否登录成功所要抓取的网页
 	verifyKey          string // 指定要抓取得属性, 比如 class, li 等 html 标签或属性
 	verifyReverseValue string // 当要抓取的属性等于 VerifyValue 时, 判断为登录失败
@@ -61,11 +58,15 @@ type Toucher58pic struct {
 }
 
 func (tou *Toucher58pic) Name() string {
-	return tou.name
+	return tou.conf.Name
+}
+
+func (tou *Toucher58pic) Email() string {
+	return tou.conf.To
 }
 
 func (tou *Toucher58pic) Boot() bool {
-	cookies, err := utils.StrToCookies(tou.cookies, utils.Pic58CookieDomain)
+	cookies, err := utils.StrToCookies(tou.conf.Cookies, utils.Pic58CookieDomain)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_58pic, err)
 		return false
