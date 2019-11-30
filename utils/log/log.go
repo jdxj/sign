@@ -15,6 +15,7 @@ const (
 	Log_Cmd         = "[cmd]"
 	Log_Task        = "[task]"
 	Log_API         = "[api]"
+	Log_Email       = "[email]"
 )
 
 var (

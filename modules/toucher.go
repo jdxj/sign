@@ -14,4 +14,5 @@ type Toucher interface {
 	Boot() bool
 	Login() bool
 	Sign() bool
+	Email() string
 }

@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"gopkg.in/ini.v1"
 )
 
 func New58PicFromApi(conf *config.Pic58Conf) (*Toucher58pic, error) {
@@ -24,33 +23,7 @@ func New58PicFromApi(conf *config.Pic58Conf) (*Toucher58pic, error) {
 	}
 
 	t := &Toucher58pic{
-		name:               conf.Name,
-		cookies:            conf.Cookies,
-		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
-		verifyKey:          ".cs-ul3-li1",
-		verifyReverseValue: "我的积分:--",
-		signDataURL:        "https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity",
-		signURL:            "https://www.58pic.com/index.php?m=signin&a=addUserSign&time=",
-		client:             &http.Client{},
-	}
-
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	t.client.Jar = jar
-	return t, nil
-}
-
-func NewToucher58Pic(sec *ini.Section) (*Toucher58pic, error) {
-	if sec == nil {
-		return nil, fmt.Errorf("invalid cfg")
-	}
-
-	t := &Toucher58pic{
-		name:               sec.Name(),
-		cookies:            sec.Key("cookies").String(),
+		conf:               conf,
 		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
 		verifyKey:          ".cs-ul3-li1",
 		verifyReverseValue: "我的积分:--",
@@ -69,10 +42,8 @@ func NewToucher58Pic(sec *ini.Section) (*Toucher58pic, error) {
 }
 
 type Toucher58pic struct {
-	name string
-	// 用 "key=value; key=value" 表示的 cookie 字符串,
-	// 其主要用于第一次启动所使用的 cookie, 登录成功后使用 http.Client 管理.
-	cookies            string
+	conf *config.Pic58Conf
+
 	loginURL           string // 用于验证是否登录成功所要抓取的网页
 	verifyKey          string // 指定要抓取得属性, 比如 class, li 等 html 标签或属性
 	verifyReverseValue string // 当要抓取的属性等于 VerifyValue 时, 判断为登录失败
@@ -80,14 +51,22 @@ type Toucher58pic struct {
 	signURL            string // 执行签到所要访问的链接
 
 	client *http.Client
+
+	// 模拟浏览用
+	loginStat bool
+	browsing  bool
 }
 
 func (tou *Toucher58pic) Name() string {
-	return tou.name
+	return tou.conf.Name
+}
+
+func (tou *Toucher58pic) Email() string {
+	return tou.conf.To
 }
 
 func (tou *Toucher58pic) Boot() bool {
-	cookies, err := utils.StrToCookies(tou.cookies, utils.Pic58CookieDomain)
+	cookies, err := utils.StrToCookies(tou.conf.Cookies, utils.Pic58CookieDomain)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_58pic, err)
 		return false
@@ -126,6 +105,9 @@ func (tou *Toucher58pic) Login() bool {
 			log.MyLogger.Info("%s redeem info not found", log.Log_58pic)
 		}
 	})
+
+	tou.loginStat = mark
+	tou.mockBrowsing()
 	return mark
 }
 
@@ -209,6 +191,27 @@ func (tou *Toucher58pic) Sign() bool {
 		return true
 	}
 	return false
+}
+
+func (tou *Toucher58pic) mockBrowsing() {
+	if tou.browsing {
+		return
+	}
+	tou.browsing = true
+
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+		defer log.MyLogger.Info("%s mock browsing finish", log.Log_58pic)
+
+		for tou.loginStat {
+			<-ticker.C
+
+			req, _ := http.NewRequest("GET", "https://www.58pic.com/", nil)
+			req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+			tou.client.Do(req)
+		}
+	}()
 }
 
 func beginAndEnd() (string, string) {

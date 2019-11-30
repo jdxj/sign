@@ -16,7 +16,9 @@
 
 - 随机时间签到 (8:30~20:30)
 - 签到失败通知
-- 刷活跃度: Go 语言中文网 (目前只刷到第10名就停止, 2s 刷一次)
+- 刷活跃度
+    - Go 语言中文网
+        - 1~20名之间, 可以手动指定, 超过范围的排名将会使用0 (随机)
 
 ## 安全性
 
@@ -77,7 +79,8 @@ $ ./sign.out &
   "username": "985759262@qq.com",
   "password": "",
   // 随便一个网页就行, 这里选取个人主页刷活跃度
-  "activeURL": "https://studygolang.com/user/jdxj"
+  "activeURL": "https://studygolang.com/user/jdxj",
+  "to": "985759262@qq.com"
 }
 
 // POST /api/bilibili
@@ -85,20 +88,23 @@ $ ./sign.out &
   "name": "Bilibili",
   "cookies": "",
   // 这里验证是否登录成功的方法是向服务器请求了你的关注数量, 我关注了9个人
-  "verify_value": 9
+  "verify_value": 9,
+  "to": "985759262@qq.com"
 }
 
 // POST /api/58pic
 {
   "name": "58Pic",
-  "cookies": ""
+  "cookies": "",
+  "to": "985759262@qq.com"
 }
 
 // POST /api/hacpai
 {
   "name": "HacPai",
   "username": "985759262@qq.com",
-  "password": ""
+  "password": "",
+  "to": "985759262@qq.com"
 }
 
 // POST /api/v2ex
@@ -107,7 +113,8 @@ $ ./sign.out &
   // v2ex 的 cookie 在从浏览器中手动复制时发现其带有双引号,
   // 我已在程序中做了过滤处理, 如果你使用 postman,
   // 那么需要手动删除双引号 (其自己的语法检查).
-  "cookies": ""
+  "cookies": "",
+  "to": "985759262@qq.com"
 }
 ```
 
@@ -122,6 +129,7 @@ $ ./sign.out &
 - 重构, 使签到对象更好的管理
 - 使用 http api 创建签到任务, 从配置读取的方式将被弃用
 - 任务管理?
+- 刷 hacpai 活跃度
 
 ## 已知的问题
 

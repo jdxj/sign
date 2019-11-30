@@ -2,8 +2,6 @@ package v2ex
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"gopkg.in/ini.v1"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -11,6 +9,8 @@ import (
 	"sign/utils/conf"
 	"sign/utils/log"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 func NewV2exFromApi(conf *conf.V2exConf) (*ToucherV2ex, error) {
@@ -19,30 +19,7 @@ func NewV2exFromApi(conf *conf.V2exConf) (*ToucherV2ex, error) {
 	}
 
 	tou := &ToucherV2ex{
-		name:      conf.Name,
-		cookies:   conf.Cookies,
-		loginURL:  "https://www.v2ex.com/balance",
-		signURL:   "https://www.v2ex.com/mission/daily",
-		verifyKey: ".balance_area,.bigger",
-		client:    &http.Client{},
-	}
-
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	tou.client.Jar = jar
-	return tou, nil
-}
-func NewToucherV2ex(sec *ini.Section) (*ToucherV2ex, error) {
-	if sec == nil {
-		return nil, fmt.Errorf("invaild section config")
-	}
-
-	tou := &ToucherV2ex{
-		name:      sec.Name(),
-		cookies:   sec.Key("cookies").String(),
+		conf:      conf,
 		loginURL:  "https://www.v2ex.com/balance",
 		signURL:   "https://www.v2ex.com/mission/daily",
 		verifyKey: ".balance_area,.bigger",
@@ -59,8 +36,7 @@ func NewToucherV2ex(sec *ini.Section) (*ToucherV2ex, error) {
 }
 
 type ToucherV2ex struct {
-	name    string
-	cookies string
+	conf *conf.V2exConf
 
 	loginURL  string
 	signURL   string
@@ -70,11 +46,15 @@ type ToucherV2ex struct {
 }
 
 func (tou *ToucherV2ex) Name() string {
-	return tou.name
+	return tou.conf.Name
+}
+
+func (tou *ToucherV2ex) Email() string {
+	return tou.conf.To
 }
 
 func (tou *ToucherV2ex) Boot() bool {
-	cookies, err := utils.StrToCookies(tou.cookies, utils.V2exCookieDomain)
+	cookies, err := utils.StrToCookies(tou.conf.Cookies, utils.V2exCookieDomain)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
 		return false

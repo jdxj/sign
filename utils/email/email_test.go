@@ -1,14 +1,14 @@
 package email
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestSendEmail(t *testing.T) {
-	err := SendEmail("test", "hello")
-	if err != nil {
-		fmt.Println(err)
-		return
+	msg := &Msg{
+		To:      "985759262@qq.com",
+		Subject: "test",
+		Content: "ok",
 	}
+	SendEmail(msg)
 }
