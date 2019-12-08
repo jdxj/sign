@@ -28,7 +28,9 @@ type SGConf struct {
 }
 
 func (sgc *SGConf) CheckValidity() bool {
-	if sgc.Name == "" || sgc.Username == "" || sgc.Password == "" || sgc.ActiveURL == "" {
+	if sgc.Name == "" || sgc.Username == "" || sgc.Password == "" ||
+		sgc.ActiveURL == "" || sgc.To == "" {
+
 		return false
 	}
 
@@ -47,7 +49,7 @@ type BiliConf struct {
 }
 
 func (bl *BiliConf) CheckValidity() bool {
-	if bl.Name == "" || bl.Cookies == "" {
+	if bl.Name == "" || bl.Cookies == "" || bl.To == "" {
 		return false
 	}
 
@@ -61,7 +63,7 @@ type Pic58Conf struct {
 }
 
 func (pic *Pic58Conf) CheckValidity() bool {
-	if pic.Name == "" || pic.Cookies == "" {
+	if pic.Name == "" || pic.Cookies == "" || pic.To == "" {
 		return false
 	}
 
@@ -76,7 +78,8 @@ type HacPaiConf struct {
 }
 
 func (hac *HacPaiConf) CheckValidity() bool {
-	if hac.Name == "" || hac.Username == "" || hac.Password == "" {
+	if hac.Name == "" || hac.Username == "" || hac.Password == "" ||
+		hac.To == "" {
 		return false
 	}
 
@@ -90,7 +93,22 @@ type V2exConf struct {
 }
 
 func (v2ex *V2exConf) CheckValidity() bool {
-	if v2ex.Name == "" || v2ex.Cookies == "" {
+	if v2ex.Name == "" || v2ex.Cookies == "" ||
+		v2ex.To == "" {
+		return false
+	}
+
+	return true
+}
+
+type IQiYiConf struct {
+	Name    string `json:"name"`
+	Cookies string `json:"cookies"`
+	To      string `json:"to"`
+}
+
+func (iqy *IQiYiConf) CheckValidity() bool {
+	if iqy.Name == "" || iqy.Cookies == "" || iqy.To == "" {
 		return false
 	}
 

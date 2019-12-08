@@ -18,6 +18,8 @@ const (
 	HacPaiCookieDomain   = ".hacpai.com"
 	V2exCookieURL        = "https://www.v2ex.com"
 	V2exCookieDomain     = ".v2ex.com"
+	IQiYiCookieURL       = "http://www.iqiyi.com"
+	IQiYiCookieDomain    = ".iqiyi.com"
 )
 
 // StrToCookies 将给定的 cookie 字符串转换成 http.Cookie,
@@ -64,4 +66,13 @@ func StrToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
 
 func NowUnixMilli() int64 {
 	return time.Now().UnixNano() / 1000000
+}
+
+func CookieArrayToMap(cookies []*http.Cookie) map[string]*http.Cookie {
+	cm := make(map[string]*http.Cookie)
+
+	for _, cookie := range cookies {
+		cm[cookie.Name] = cookie
+	}
+	return cm
 }
