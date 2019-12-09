@@ -12,6 +12,7 @@ import (
 	config "sign/utils/conf"
 	"sign/utils/log"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -46,6 +47,7 @@ func NewIQiYiFromApi(conf *config.IQiYiConf) (*ToucherIQiYi, error) {
 		loginVerifyValue: "做任务领VIP",
 		signURL:          "http://community.iqiyi.com/openApi/score/add",
 		hotSpotURL:       "http://www.iqiyi.com/feed/",
+		hotSpotSignURL:   "http://community.iqiyi.com/openApi/score/getReward",
 		client:           &http.Client{},
 	}
 
@@ -66,6 +68,7 @@ type ToucherIQiYi struct {
 	loginVerifyValue string
 	signURL          string
 	hotSpotURL       string
+	hotSpotSignURL   string
 
 	client    *http.Client
 	cookieURL *url.URL
@@ -166,6 +169,48 @@ func (tou *ToucherIQiYi) checkIn() bool {
 
 // todo: 实现
 func (tou *ToucherIQiYi) hotSpot() bool {
+	req, err := utils.NewRequestWithUserAgent("GET", tou.hotSpotURL, nil)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+	tou.client.Do(req)
+	time.Sleep(time.Second)
+
+	hotSpotSignURL, err := tou.realhotSpotSignURL(tou.client.Jar.Cookies(tou.cookieURL))
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+
+	req, err = utils.NewRequestWithUserAgent("GET", hotSpotSignURL, nil)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+
+	resp, err := tou.client.Do(req)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+
+	cip, err := parseCheckInResp(data)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+
+	if cip.Code == "A00000" {
+		return true
+	}
 	return false
 }
 
@@ -235,6 +280,31 @@ func (tou *ToucherIQiYi) realSignURL(cookies []*http.Cookie) (string, error) {
 	realSignURL += "channelCode=sign_pcw&"
 	realSignURL += "sign=" + tou.conf.CheckInSign
 	return realSignURL, nil
+}
+
+func (tou *ToucherIQiYi) realhotSpotSignURL(cookies []*http.Cookie) (string, error) {
+	realURL := tou.hotSpotSignURL + "?"
+
+	cm := utils.CookieArrayToMap(cookies)
+
+	for qpRawK, qpK := range queryParamsCookie {
+		if cookie, ok := cm[qpRawK]; ok {
+			if qpRawK == "__dfp" {
+				realURL += qpK + "=" + getDFP(cookie.Value) + "&"
+			} else {
+				realURL += qpK + "=" + cookie.Value + "&"
+			}
+		} else {
+			return "", fmt.Errorf("not found query param: %s", qpK)
+		}
+	}
+
+	for qpK, qpV := range queryParamsFixed {
+		realURL += qpK + "=" + qpV + "&"
+	}
+	realURL += "channelCode=paopao_pcw&"
+	realURL += "sign=" + tou.conf.HotSpotSign
+	return realURL, nil
 }
 
 func getDFP(v string) string {
