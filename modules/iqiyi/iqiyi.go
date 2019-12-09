@@ -1,7 +1,10 @@
 package iqiyi
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -64,7 +67,8 @@ type ToucherIQiYi struct {
 	signURL          string
 	hotSpotURL       string
 
-	client *http.Client
+	client    *http.Client
+	cookieURL *url.URL
 }
 
 func (tou *ToucherIQiYi) Name() string {
@@ -86,6 +90,7 @@ func (tou *ToucherIQiYi) Boot() bool {
 		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
 		return false
 	}
+	tou.cookieURL = cookieURL
 
 	tou.client.Jar.SetCookies(cookieURL, cookies)
 	return true
@@ -114,6 +119,53 @@ func (tou *ToucherIQiYi) Login() bool {
 
 // todo: 实现
 func (tou *ToucherIQiYi) Sign() bool {
+	if tou.checkIn() || tou.hotSpot() {
+		return true
+	}
+
+	return false
+}
+
+func (tou *ToucherIQiYi) checkIn() bool {
+	signURL, err := tou.realSignURL(tou.client.Jar.Cookies(tou.cookieURL))
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+
+	req, err := utils.NewRequestWithUserAgent("GET", signURL, nil)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+
+	resp, err := tou.client.Do(req)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+
+	cip, err := parseCheckInResp(data)
+	if err != nil {
+		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
+		return false
+	}
+
+	if cip.Code == "A00000" {
+		return true
+	}
+	return false
+}
+
+// todo: 实现
+func (tou *ToucherIQiYi) hotSpot() bool {
 	return false
 }
 
@@ -167,7 +219,11 @@ func (tou *ToucherIQiYi) realSignURL(cookies []*http.Cookie) (string, error) {
 
 	for qpRawK, qpK := range queryParamsCookie {
 		if cookie, ok := cm[qpRawK]; ok {
-			realSignURL += qpK + "=" + cookie.Value + "&"
+			if qpRawK == "__dfp" {
+				realSignURL += qpK + "=" + getDFP(cookie.Value) + "&"
+			} else {
+				realSignURL += qpK + "=" + cookie.Value + "&"
+			}
 		} else {
 			return "", fmt.Errorf("not found query param: %s", qpK)
 		}
@@ -177,11 +233,54 @@ func (tou *ToucherIQiYi) realSignURL(cookies []*http.Cookie) (string, error) {
 		realSignURL += qpK + "=" + qpV + "&"
 	}
 	realSignURL += "channelCode=sign_pcw&"
-	realSignURL += genSignQueryParam()
+	realSignURL += "sign=" + tou.conf.CheckInSign
 	return realSignURL, nil
 }
 
-// todo: 构造 "sign" 查询参数
+func getDFP(v string) string {
+	vs := strings.Split(v, "@")
+	if len(vs) < 1 {
+		return ""
+	}
+	return vs[0]
+}
+
+// try{cb({
+// "code" : "A00000",
+// "message" : "成功执行.",
+// "data" : [ {
+// "code" : "A0002",
+// "trdetailList" : null,
+// "curTRDetail" : null,
+// "trlotDetailList" : null,
+// "nextTRLotDetail" : null,
+// "signDayForCycle" : 0,
+// "message" : "任务次数已经到达上限",
+// "curTRLotDetail" : null,
+// "nextTRDetail" : null,
+// "typeCode" : "point",
+// "continuousScore" : 0,
+// "score" : 0,
+// "continuousValue" : 0,
+// "rewardCode" : null
+// } ]
+// })}catch(e){}
+type checkInResp struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+func parseCheckInResp(resp []byte) (*checkInResp, error) {
+	resp = bytes.TrimPrefix(resp, []byte("try{cb("))
+	resp = bytes.TrimSuffix(resp, []byte(")}catch(e){}"))
+
+	cip := &checkInResp{}
+	if err := json.Unmarshal(resp, cip); err != nil {
+		return nil, err
+	}
+	return cip, nil
+}
+
 // , x = {
 // uid: r.getUid(),
 // authCookie: r.getAuthCookies(),
@@ -194,7 +293,3 @@ func (tou *ToucherIQiYi) realSignURL(cookies []*http.Cookie) (string, error) {
 // srcplatform: "1",
 // typeCode: "point",
 // verticalCode: "iQIYI"
-func genSignQueryParam() string {
-	// 模拟的
-	return "sign=a0212558abb20ff13a02ee5cebb36803"
-}

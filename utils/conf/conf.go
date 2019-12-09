@@ -102,13 +102,16 @@ func (v2ex *V2exConf) CheckValidity() bool {
 }
 
 type IQiYiConf struct {
-	Name    string `json:"name"`
-	Cookies string `json:"cookies"`
-	To      string `json:"to"`
+	Name        string `json:"name"`
+	Cookies     string `json:"cookies"`
+	CheckInSign string `json:"check_in_sign"`
+	HotSpotSign string `json:"hot_spot_sign"`
+	To          string `json:"to"`
 }
 
 func (iqy *IQiYiConf) CheckValidity() bool {
-	if iqy.Name == "" || iqy.Cookies == "" || iqy.To == "" {
+	if iqy.Name == "" || iqy.Cookies == "" || iqy.To == "" ||
+		iqy.CheckInSign == "" || iqy.HotSpotSign == "" {
 		return false
 	}
 

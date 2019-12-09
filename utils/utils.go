@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"sign/utils/log"
 	"strings"
@@ -75,4 +76,14 @@ func CookieArrayToMap(cookies []*http.Cookie) map[string]*http.Cookie {
 		cm[cookie.Name] = cookie
 	}
 	return cm
+}
+
+func NewRequestWithUserAgent(method, url string, body io.Reader) (*http.Request, error) {
+	req, err := http.NewRequest(method, url, body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+	return req, nil
 }
