@@ -32,6 +32,7 @@ func Service() {
 		apiRouter.POST("/58pic", Sign58Pic)
 		apiRouter.POST("/hacpai", SignHacPai)
 		apiRouter.POST("/v2ex", SignV2ex)
+		apiRouter.POST("/iqiyi", SignIQiYi)
 	}
 
 	engine.Run(":49159")

@@ -99,7 +99,6 @@ func (tou *ToucherIQiYi) Boot() bool {
 	return true
 }
 
-// todo: 实现
 func (tou *ToucherIQiYi) Login() bool {
 	resp, err := tou.client.Get(tou.loginURL)
 	if err != nil {
@@ -120,9 +119,11 @@ func (tou *ToucherIQiYi) Login() bool {
 	return false
 }
 
-// todo: 实现
 func (tou *ToucherIQiYi) Sign() bool {
-	if tou.checkIn() || tou.hotSpot() {
+	// 保证都签一次
+	ciStat := tou.checkIn()
+	hsStat := tou.hotSpot()
+	if ciStat || hsStat {
 		return true
 	}
 
@@ -167,14 +168,16 @@ func (tou *ToucherIQiYi) checkIn() bool {
 	return false
 }
 
-// todo: 实现
 func (tou *ToucherIQiYi) hotSpot() bool {
+	// todo: 浏览失败, 需要修复
 	req, err := utils.NewRequestWithUserAgent("GET", tou.hotSpotURL, nil)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
 		return false
 	}
-	tou.client.Do(req)
+
+	// 模拟浏览热点页
+	_, _ = tou.client.Do(req)
 	time.Sleep(time.Second)
 
 	hotSpotSignURL, err := tou.realhotSpotSignURL(tou.client.Jar.Cookies(tou.cookieURL))
