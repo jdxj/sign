@@ -35,6 +35,47 @@ import (
 // sign: a0212558abb20ff13a02ee5cebb36803
 // callback: cb
 
+// 浏览热点
+// Request URL: https://community.iqiyi.com/openApi/task/complete?authCookie=5errXg8Jd6m2OZHPkc3WT0kwcQcGm2Ym245f31e33qhg7iQm3nODLm2CkV7cFIm2l3tEbTb1d9&userId=1813046165&channelCode=paopao_pcw&agenttype=1&agentversion=0&appKey=basic_pcw&appver=0&srcplatform=1&typeCode=point&verticalCode=iQIYI&scoreType=1&sign=560d792c3004a0f6dce94d5205fdaf51&callback=cb
+// Referer: https://www.iqiyi.com/u/point?vfrm=pcw_home&vfrmblk=A&vfrmrst=803141_points
+// authCookie: 5errXg8Jd6m2OZHPkc3WT0kwcQcGm2Ym245f31e33qhg7iQm3nODLm2CkV7cFIm2l3tEbTb1d9
+// userId: 1813046165
+// channelCode: paopao_pcw
+// agenttype: 1
+// agentversion: 0
+// appKey: basic_pcw
+// appver: 0
+// srcplatform: 1
+// typeCode: point
+// verticalCode: iQIYI
+// scoreType: 1
+// sign: 560d792c3004a0f6dce94d5205fdaf51
+// callback: cb
+//
+// resp
+// try{cb({
+// "code" : "A00000",
+// "message" : "成功执行.",
+// "data" : {
+// "dayCompleteLimit" : 1,
+// "weekCompleteCount" : 3,
+// "monthCompleteCount" : 5,
+// "weekGetRewardCount" : 0,
+// "verticalCode" : "iQIYI",
+// "userId" : 1813046165,
+// "totalGetRewardCount" : 0,
+// "typeCode" : "point",
+// "monthCompleteLimit" : 0,
+// "monthGetRewardCount" : 0,
+// "dayCompleteCount" : 1,
+// "weekCompleteLimit" : 0,
+// "dayGetRewardCount" : 0,
+// "totalCompleteCount" : 5,
+// "cooldown" : 0,
+// "totalCompleteLimit" : 0,
+// "channelCode" : "paopao_pcw"
+// }
+// })}catch(e){}
 func NewIQiYiFromApi(conf *config.IQiYiConf) (*ToucherIQiYi, error) {
 	if conf == nil {
 		return nil, fmt.Errorf("invalid cfg")
