@@ -11,6 +11,7 @@
 - [千图网](https://www.58pic.com/)
 - [黑客派](https://hacpai.com/)
 - [v2ex](https://v2ex.com/)
+- [爱奇艺](https://www.iqiyi.com/)
 
 特性:
 
@@ -114,6 +115,15 @@ $ ./sign.out &
   // 我已在程序中做了过滤处理, 如果你使用 postman,
   // 那么需要手动删除双引号 (其自己的语法检查).
   "cookies": "",
+  "to": "985759262@qq.com"
+}
+
+// POST /api/iqiyi
+{
+  "name": "IQiYi",
+  "cookies": "",
+  "check_in_sign": "",
+  "hot_spot_sign": "",
   "to": "985759262@qq.com"
 }
 ```
