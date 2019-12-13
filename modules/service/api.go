@@ -236,3 +236,11 @@ func SignIQiYi(c *gin.Context) {
 		"msg": "add success",
 	})
 }
+
+func ListTask(c *gin.Context) {
+	names := task.DefaultExe.GetTaskNames()
+
+	c.JSON(http.StatusOK, gin.H{
+		"names": names,
+	})
+}

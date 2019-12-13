@@ -16,65 +16,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-// sing2: a0212558abb20ff13a02ee5cebb36803
-// http://community.iqiyi.com/openApi/score/getReward
-// authCookie: cfjk22kzErU9qHxttB8WpNCo2nEai81WJ35zm3dy0HwzkNKMuLe2hGOGzm28qdZyfu2If6
-// userId: 1813046165
-// channelCode: paopao_pcw
-// agenttype: 1
-// agentversion: 0
-// appKey: basic_pcw
-// appver: 0
-// srcplatform: 1
-// typeCode: point
-// verticalCode: iQIYI
-// scoreType: 1
-// user_agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
-// dfp: a113014f0f0d28461faebfc0caccc23502e77febc919f8aa05f46cb67ffc7065cb
-// sign: a0212558abb20ff13a02ee5cebb36803
-// callback: cb
-
-// 浏览热点
-// Request URL: https://community.iqiyi.com/openApi/task/complete?authCookie=5errXg8Jd6m2OZHPkc3WT0kwcQcGm2Ym245f31e33qhg7iQm3nODLm2CkV7cFIm2l3tEbTb1d9&userId=1813046165&channelCode=paopao_pcw&agenttype=1&agentversion=0&appKey=basic_pcw&appver=0&srcplatform=1&typeCode=point&verticalCode=iQIYI&scoreType=1&sign=560d792c3004a0f6dce94d5205fdaf51&callback=cb
-// Referer: https://www.iqiyi.com/u/point?vfrm=pcw_home&vfrmblk=A&vfrmrst=803141_points
-// authCookie: 5errXg8Jd6m2OZHPkc3WT0kwcQcGm2Ym245f31e33qhg7iQm3nODLm2CkV7cFIm2l3tEbTb1d9
-// userId: 1813046165
-// channelCode: paopao_pcw
-// agenttype: 1
-// agentversion: 0
-// appKey: basic_pcw
-// appver: 0
-// srcplatform: 1
-// typeCode: point
-// verticalCode: iQIYI
-// scoreType: 1
-// sign: 560d792c3004a0f6dce94d5205fdaf51
-// callback: cb
-//
-// resp
-// try{cb({
-// "code" : "A00000",
-// "message" : "成功执行.",
-// "data" : {
-// "dayCompleteLimit" : 1,
-// "weekCompleteCount" : 3,
-// "monthCompleteCount" : 5,
-// "weekGetRewardCount" : 0,
-// "verticalCode" : "iQIYI",
-// "userId" : 1813046165,
-// "totalGetRewardCount" : 0,
-// "typeCode" : "point",
-// "monthCompleteLimit" : 0,
-// "monthGetRewardCount" : 0,
-// "dayCompleteCount" : 1,
-// "weekCompleteLimit" : 0,
-// "dayGetRewardCount" : 0,
-// "totalCompleteCount" : 5,
-// "cooldown" : 0,
-// "totalCompleteLimit" : 0,
-// "channelCode" : "paopao_pcw"
-// }
-// })}catch(e){}
 func NewIQiYiFromApi(conf *config.IQiYiConf) (*ToucherIQiYi, error) {
 	if conf == nil {
 		return nil, fmt.Errorf("invalid cfg")
@@ -285,29 +226,7 @@ func (tou *ToucherIQiYi) hotSpot() bool {
 	return false
 }
 
-// authCookie: cfjk22kzErU9qHxttB8WpNCo2nEai81WJ35zm3dy0HwzkNKMuLe2hGOGzm28qdZyfu2If6
-// userId: 1813046165
-// channelCode: sign_pcw
-// agenttype: 1
-// agentversion: 0
-// appKey: basic_pcw
-// appver: 0
-// srcplatform: 1
-// typeCode: point
-// verticalCode: iQIYI
-// scoreType: 1
-// user_agent: Mozilla%2F5.0%20(X11%3B%20Linux%20x86_64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F78.0.3904.108%20Safari%2F537.36
-// dfp: a113014f0f0d28461faebfc0caccc23502e77febc919f8aa05f46cb67ffc7065cb
-// sign: 2470cb8201ddc3c8e1e5881d1f61f5d9
-// callback: cb
-//
-// queryParams 是签到时 (signURL) 所使用的 url 查询参数.
-// 其中注释掉的使用固定值.
 var (
-	// "channelCode" 根据签到类型不同, 有不同的值
-	//     sign    : sign_pcw
-	//     hot spot: paopao_pcw
-
 	queryParamsCookie = map[string]string{
 		"P00001": "authCookie",
 		"P00003": "userId",
@@ -410,26 +329,6 @@ func getDFP(v string) string {
 	return vs[0]
 }
 
-// try{cb({
-// "code" : "A00000",
-// "message" : "成功执行.",
-// "data" : [ {
-// "code" : "A0002",
-// "trdetailList" : null,
-// "curTRDetail" : null,
-// "trlotDetailList" : null,
-// "nextTRLotDetail" : null,
-// "signDayForCycle" : 0,
-// "message" : "任务次数已经到达上限",
-// "curTRLotDetail" : null,
-// "nextTRDetail" : null,
-// "typeCode" : "point",
-// "continuousScore" : 0,
-// "score" : 0,
-// "continuousValue" : 0,
-// "rewardCode" : null
-// } ]
-// })}catch(e){}
 type checkInResp struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
@@ -445,16 +344,3 @@ func parseCheckInResp(resp []byte) (*checkInResp, error) {
 	}
 	return cip, nil
 }
-
-// , x = {
-// uid: r.getUid(),
-// authCookie: r.getAuthCookies(),
-// appKeyQiyi: "basic_pcw",
-// secret_key_qiyi: "UKobMjDMsDoScuWOfp6F",
-// needExpire: 1,
-// agenttype: "1",
-// agentversion: "0",
-// appver: "0",
-// srcplatform: "1",
-// typeCode: "point",
-// verticalCode: "iQIYI"

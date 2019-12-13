@@ -107,7 +107,6 @@ func (tou *Toucher58pic) Login() bool {
 	})
 
 	tou.loginStat = mark
-	tou.mockBrowsing()
 	return mark
 }
 
@@ -191,27 +190,6 @@ func (tou *Toucher58pic) Sign() bool {
 		return true
 	}
 	return false
-}
-
-func (tou *Toucher58pic) mockBrowsing() {
-	if tou.browsing {
-		return
-	}
-	tou.browsing = true
-
-	go func() {
-		ticker := time.NewTicker(time.Hour)
-		defer ticker.Stop()
-		defer log.MyLogger.Info("%s mock browsing finish", log.Log_58pic)
-
-		for tou.loginStat {
-			<-ticker.C
-
-			req, _ := http.NewRequest("GET", "https://www.58pic.com/", nil)
-			req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-			tou.client.Do(req)
-		}
-	}()
 }
 
 func beginAndEnd() (string, string) {
