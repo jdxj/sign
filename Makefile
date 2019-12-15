@@ -11,4 +11,5 @@ mac: clean
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags '-s -w' -o $(macName) *.go
 	upx --best $(macName)
 clean:
-	rm -rvf *.out *.log
+	find . -name "*.log" | xargs rm -f
+	find . -name "*.out" | xargs rm -f
