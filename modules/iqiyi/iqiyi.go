@@ -16,6 +16,9 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// todo: 刷 "抽 vip"
+// todo: http://h5.m.iqiyi.com/integralh5/lottery/index?lotteryCode=m012801&ext=true&appKey=lottery_h5&hideshare=0&from=login&spm=31819.1.1.1&_from=share&p1=2_22_222&social_platform=link
+
 func NewIQiYiFromApi(conf *config.IQiYiConf) (*ToucherIQiYi, error) {
 	if conf == nil {
 		return nil, fmt.Errorf("invalid cfg")
