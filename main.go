@@ -1,9 +1,14 @@
 package main
 
 import (
+	"os"
+	"os/signal"
 	"sign/modules/service"
+	"sign/modules/task"
 	"sign/utils/conf"
 	"sign/utils/email"
+	"sign/utils/log"
+	"syscall"
 )
 
 func main() {
@@ -16,6 +21,16 @@ func main() {
 	}
 	email.SendEmail(msg)
 
-	// 利用 web 的 listenXXX() 来阻塞 main()
-	service.Service()
+	go service.Service()
+
+	// 在结束前发送邮件通知
+	done := make(chan os.Signal, 2)
+	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case <-done:
+		task.DefaultExe.NotifyStop()
+	}
+
+	log.MyLogger.Info("%s sign stop", log.Log_Main)
 }

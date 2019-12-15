@@ -105,6 +105,26 @@ func (exe *Executor) GetTaskNames() []string {
 	return names
 }
 
+func (exe *Executor) NotifyStop() {
+	emailAddresses := make(map[string]struct{})
+
+	exe.locker.RLock()
+	for _, tou := range exe.touchers {
+		emailAddresses[tou.Email()] = struct{}{}
+	}
+	exe.locker.RUnlock()
+
+	msg := &email.Msg{
+		Subject: "重要通知",
+		Content: "由于要对 sign 进行维护, 即将停止签到任务.",
+	}
+
+	for emailAddr := range emailAddresses {
+		msg.To = emailAddr
+		email.SendEmail(msg)
+	}
+}
+
 // randTime 返回明天的某个时刻
 func randTime() time.Time {
 	now := time.Now()
