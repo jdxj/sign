@@ -13,11 +13,13 @@ import (
 var DefaultExe *Executor
 
 func init() {
-	DefaultExe = &Executor{}
+	DefaultExe = &Executor{
+		touchers: make(map[string]modules.Toucher),
+	}
 }
 
 type Executor struct {
-	touchers []modules.Toucher
+	touchers map[string]modules.Toucher
 
 	locker sync.RWMutex
 }
@@ -30,11 +32,20 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 		return fmt.Errorf("toucher is nil")
 	}
 
+	if _, ok := exe.touchers[tou.Name()]; ok {
+		return fmt.Errorf("toucher name repeated")
+	}
+
 	if !tou.Boot() {
-		// 通过 api 接口创建的任务, 如果 boot 阶段就失败, 则直接向
-		// api 接口返回错误, 不写入日志
 		return fmt.Errorf("boot fail")
 	}
+	if !tou.Login() {
+		return fmt.Errorf("login fail")
+	}
+
+	exe.locker.Lock()
+	exe.touchers[tou.Name()] = tou
+	exe.locker.Unlock()
 
 	go func() {
 		tomSome := randTime()
@@ -81,6 +92,37 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 		}
 	}()
 	return nil
+}
+
+func (exe *Executor) GetTaskNames() []string {
+	var names []string
+	exe.locker.RLock()
+	defer exe.locker.RUnlock()
+
+	for name := range exe.touchers {
+		names = append(names, name)
+	}
+	return names
+}
+
+func (exe *Executor) NotifyStop() {
+	emailAddresses := make(map[string]struct{})
+
+	exe.locker.RLock()
+	for _, tou := range exe.touchers {
+		emailAddresses[tou.Email()] = struct{}{}
+	}
+	exe.locker.RUnlock()
+
+	msg := &email.Msg{
+		Subject: "重要通知",
+		Content: "由于要对 sign 进行维护, 即将停止签到任务.",
+	}
+
+	for emailAddr := range emailAddresses {
+		msg.To = emailAddr
+		email.SendEmail(msg)
+	}
 }
 
 // randTime 返回明天的某个时刻

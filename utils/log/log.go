@@ -10,6 +10,7 @@ const (
 	Log_58pic       = "[58pic]"
 	Log_HacPai      = "[hacpai]"
 	Log_V2ex        = "[v2ex]"
+	Log_IQiYi       = "[iqiyi]"
 	Log_Main        = "[main]"
 	Log_Log         = "[log]"
 	Log_Cmd         = "[cmd]"

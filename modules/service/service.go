@@ -25,13 +25,17 @@ func Service() {
 	apiRouter.Use(gin.BasicAuth(gin.Accounts{
 		baUsername: baPassword,
 	}))
-	{
+	{ // service
 		apiRouter.GET("/ping", ApiPong)
 		apiRouter.POST("/studygolang", SignStudyGolang)
 		apiRouter.POST("/bilibili", SignBili)
 		apiRouter.POST("/58pic", Sign58Pic)
 		apiRouter.POST("/hacpai", SignHacPai)
 		apiRouter.POST("/v2ex", SignV2ex)
+		apiRouter.POST("/iqiyi", SignIQiYi)
+	}
+	{ // manage
+		apiRouter.GET("/listTask", ListTask)
 	}
 
 	engine.Run(":49159")

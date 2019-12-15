@@ -6,6 +6,7 @@ import (
 	pic "sign/modules/58pic"
 	"sign/modules/bilibili"
 	"sign/modules/hacpai"
+	"sign/modules/iqiyi"
 	"sign/modules/studygolang"
 	"sign/modules/task"
 	"sign/modules/v2ex"
@@ -197,5 +198,49 @@ func SignV2ex(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"msg": "add success",
+	})
+}
+
+func SignIQiYi(c *gin.Context) {
+	var cfg conf.IQiYiConf
+	if err := c.Bind(&cfg); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "can not read data",
+		})
+		return
+	}
+
+	if !cfg.CheckValidity() {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "has empty data",
+		})
+		return
+	}
+
+	tou, err := iqiyi.NewIQiYiFromApi(&cfg)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": fmt.Sprintf("%s", err),
+		})
+		return
+	}
+
+	if err = task.DefaultExe.AddTaskFromApi(tou); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": fmt.Sprintf("%s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"msg": "add success",
+	})
+}
+
+func ListTask(c *gin.Context) {
+	names := task.DefaultExe.GetTaskNames()
+
+	c.JSON(http.StatusOK, gin.H{
+		"names": names,
 	})
 }

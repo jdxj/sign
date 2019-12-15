@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"sign/utils/log"
 	"strings"
@@ -18,6 +19,8 @@ const (
 	HacPaiCookieDomain   = ".hacpai.com"
 	V2exCookieURL        = "https://www.v2ex.com"
 	V2exCookieDomain     = ".v2ex.com"
+	IQiYiCookieURL       = "http://www.iqiyi.com"
+	IQiYiCookieDomain    = ".iqiyi.com"
 )
 
 // StrToCookies 将给定的 cookie 字符串转换成 http.Cookie,
@@ -64,4 +67,23 @@ func StrToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
 
 func NowUnixMilli() int64 {
 	return time.Now().UnixNano() / 1000000
+}
+
+func CookieArrayToMap(cookies []*http.Cookie) map[string]*http.Cookie {
+	cm := make(map[string]*http.Cookie)
+
+	for _, cookie := range cookies {
+		cm[cookie.Name] = cookie
+	}
+	return cm
+}
+
+func NewRequestWithUserAgent(method, url string, body io.Reader) (*http.Request, error) {
+	req, err := http.NewRequest(method, url, body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+	return req, nil
 }
