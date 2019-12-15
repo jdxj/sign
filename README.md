@@ -81,6 +81,7 @@ $ ./sign.out &
   "password": "",
   // 随便一个网页就行, 这里选取个人主页刷活跃度
   "activeURL": "https://studygolang.com/user/jdxj",
+  "expected": 10,
   "to": "985759262@qq.com"
 }
 
