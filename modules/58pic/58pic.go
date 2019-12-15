@@ -125,7 +125,7 @@ type conf struct {
 // 签到后要验证的数据
 type sign struct {
 	Status      string `json:"status"`
-	Type        string `json:"type"`
+	Type        int    `json:"type"`
 	Times       string `json:"times"`
 	ClickNum    int    `json:"clickNum"`
 	Week        string `json:"week"`
