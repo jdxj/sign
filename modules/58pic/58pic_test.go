@@ -1,7 +1,6 @@
 package _8pic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/cookiejar"
@@ -16,7 +15,7 @@ func new58Pic() (*Toucher58pic, error) {
 
 	t := &Toucher58pic{
 		conf:               cfg,
-		loginURL:           "https://www.58pic.com/index.php?m=IntegralMall",
+		loginURL:           "https://www.58pic.com/index.php?m=ajaxGetUserInfo&a=userInfo",
 		verifyKey:          ".cs-ul3-li1",
 		verifyReverseValue: "我的积分:--",
 		signDataURL:        "https://www.58pic.com/index.php?m=jifenNew&a=getTreeActivity",
@@ -50,12 +49,12 @@ func TestTouch58pic_Login(t *testing.T) {
 		return
 	}
 
-	sign := pic.Sign()
-	if sign {
-		fmt.Println("sign success")
-	} else {
-		fmt.Println("sign fail")
-	}
+	//sign := pic.Sign()
+	//if sign {
+	//	fmt.Println("sign success")
+	//} else {
+	//	fmt.Println("sign fail")
+	//}
 }
 
 type People struct {
@@ -72,15 +71,4 @@ func TestChangePointer(t *testing.T) {
 
 	peo = &People{Name: "456"}
 	defer peo.PP()
-}
-
-func TestJsonUnmarshal(t *testing.T) {
-	str := `{"status":"1","type":1,"times":"5","clickNum":5,"week":"6","rewardThing":"\u660e\u65e5\u7b7e\u5230\u53ef\u83b7\u5f975\u79ef\u5206","valueVoucher":{"activity_name":"\u7b7e\u5230\u7d2f\u8ba1\u5956\u52b1-5\u5929","id":"94","coupon_name":"\u7b7e\u5230\u5956\u52b1-5\u5143\u6ee1\u51cf\u5238","creator":"\u8d75\u96f7","discount":"0.00","end_time":"2019-12-15","full_price":"27.00","issue_time":"0","label":"\u6ee1\u51cf\u5238","reduce_price":"5.00","relative_time":"2","start_time":"1574352026","type":"1"}}`
-	sign := &sign{}
-
-	if err := json.Unmarshal([]byte(str), &sign); err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%+v\n", sign)
 }
