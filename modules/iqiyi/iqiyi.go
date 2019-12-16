@@ -29,9 +29,6 @@ func NewIQiYiFromApi(conf *config.IQiYiConf) (*ToucherIQiYi, error) {
 		loginURL:         "http://www.iqiyi.com/u/point",
 		loginVerifyKey:   ".read-title-bd",
 		loginVerifyValue: "做任务领VIP",
-		signURL:          "http://community.iqiyi.com/openApi/score/add",
-		hotSpotBrowseURL: "https://community.iqiyi.com/openApi/task/complete",
-		hotSpotSignURL:   "http://community.iqiyi.com/openApi/score/getReward",
 		client:           &http.Client{},
 	}
 
@@ -50,9 +47,6 @@ type ToucherIQiYi struct {
 	loginURL         string
 	loginVerifyKey   string
 	loginVerifyValue string
-	signURL          string
-	hotSpotBrowseURL string
-	hotSpotSignURL   string
 
 	client    *http.Client
 	cookieURL *url.URL
@@ -97,10 +91,11 @@ func (tou *ToucherIQiYi) Login() bool {
 		return false
 	}
 	rawText := doc.Find(tou.loginVerifyKey).Text()
-	if strings.TrimSpace(rawText) == tou.loginVerifyValue {
-		return true
+	if strings.TrimSpace(rawText) != tou.loginVerifyValue {
+		log.MyLogger.Error("%s rawText: %s", log.Log_IQiYi, rawText)
+		return false
 	}
-	return false
+	return true
 }
 
 func (tou *ToucherIQiYi) Sign() bool {
@@ -115,12 +110,7 @@ func (tou *ToucherIQiYi) Sign() bool {
 }
 
 func (tou *ToucherIQiYi) checkIn() bool {
-	signURL, err := tou.realSignURL(tou.client.Jar.Cookies(tou.cookieURL))
-	if err != nil {
-		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
-		return false
-	}
-
+	signURL := tou.conf.CheckInSign
 	req, err := utils.NewRequestWithUserAgent("GET", signURL, nil)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
@@ -146,20 +136,15 @@ func (tou *ToucherIQiYi) checkIn() bool {
 		return false
 	}
 
-	if cip.Code == "A00000" {
-		return true
+	if cip.Code != "A00000" {
+		log.MyLogger.Error("%s part: %s, resp: %s", log.Log_IQiYi, "check in", data)
+		return false
 	}
-	return false
+	return true
 }
 
 func (tou *ToucherIQiYi) hotSpot() bool {
-	// todo: 浏览失败, 需要修复
-	// 模拟浏览热点页
-	hotSpotBrowseURL, err := tou.realHotSpotBrowseURL(tou.client.Jar.Cookies(tou.cookieURL))
-	if err != nil {
-		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
-		return false
-	}
+	hotSpotBrowseURL := tou.conf.HotSpotBrowse
 
 	req, err := utils.NewRequestWithUserAgent("GET", hotSpotBrowseURL, nil)
 	if err != nil {
@@ -186,17 +171,16 @@ func (tou *ToucherIQiYi) hotSpot() bool {
 		return false
 	}
 
-	if cip.Code != "A00000" {
-		log.MyLogger.Debug("%s browse hot spot failed", log.Log_IQiYi)
+	if cip.Code == "A0002" {
+		log.MyLogger.Warn("%s already browsed", log.Log_IQiYi)
+		return true
+	} else if cip.Code != "A00000" {
+		log.MyLogger.Debug("%s browse hot spot failed, resp: %s", log.Log_IQiYi, data)
 		return false
 	}
 
 	// 领取浏览热点页奖励
-	hotSpotSignURL, err := tou.realhotSpotSignURL(tou.client.Jar.Cookies(tou.cookieURL))
-	if err != nil {
-		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
-		return false
-	}
+	hotSpotSignURL := tou.conf.HotSpotSign
 
 	req, err = utils.NewRequestWithUserAgent("GET", hotSpotSignURL, nil)
 	if err != nil {
@@ -223,10 +207,11 @@ func (tou *ToucherIQiYi) hotSpot() bool {
 		return false
 	}
 
-	if cip.Code == "A00000" {
-		return true
+	if cip.Code != "A00000" {
+		log.MyLogger.Error("%s part: %s, resp: %s", log.Log_IQiYi, "hot spot", data)
+		return false
 	}
-	return false
+	return true
 }
 
 var (
@@ -249,88 +234,6 @@ var (
 		"callback":     "cb",
 	}
 )
-
-func (tou *ToucherIQiYi) realSignURL(cookies []*http.Cookie) (string, error) {
-	realSignURL := tou.signURL + "?"
-	cm := utils.CookieArrayToMap(cookies)
-
-	for qpRawK, qpK := range queryParamsCookie {
-		if cookie, ok := cm[qpRawK]; ok {
-			if qpRawK == "__dfp" {
-				realSignURL += qpK + "=" + getDFP(cookie.Value) + "&"
-			} else {
-				realSignURL += qpK + "=" + cookie.Value + "&"
-			}
-		} else {
-			return "", fmt.Errorf("not found query param: %s", qpK)
-		}
-	}
-
-	for qpK, qpV := range queryParamsFixed {
-		realSignURL += qpK + "=" + qpV + "&"
-	}
-	realSignURL += "channelCode=sign_pcw&"
-	realSignURL += "sign=" + tou.conf.CheckInSign
-	return realSignURL, nil
-}
-
-func (tou *ToucherIQiYi) realhotSpotSignURL(cookies []*http.Cookie) (string, error) {
-	realURL := tou.hotSpotSignURL + "?"
-
-	cm := utils.CookieArrayToMap(cookies)
-
-	for qpRawK, qpK := range queryParamsCookie {
-		if cookie, ok := cm[qpRawK]; ok {
-			if qpRawK == "__dfp" {
-				realURL += qpK + "=" + getDFP(cookie.Value) + "&"
-			} else {
-				realURL += qpK + "=" + cookie.Value + "&"
-			}
-		} else {
-			return "", fmt.Errorf("not found query param: %s", qpK)
-		}
-	}
-
-	for qpK, qpV := range queryParamsFixed {
-		realURL += qpK + "=" + qpV + "&"
-	}
-	realURL += "channelCode=paopao_pcw&"
-	realURL += "sign=" + tou.conf.HotSpotSign
-	return realURL, nil
-}
-
-func (tou *ToucherIQiYi) realHotSpotBrowseURL(cookies []*http.Cookie) (string, error) {
-	realURL := tou.hotSpotBrowseURL + "?"
-
-	cm := utils.CookieArrayToMap(cookies)
-
-	for qpRawK, qpK := range queryParamsCookie {
-		if cookie, ok := cm[qpRawK]; ok {
-			if qpRawK == "__dfp" {
-				realURL += qpK + "=" + getDFP(cookie.Value) + "&"
-			} else {
-				realURL += qpK + "=" + cookie.Value + "&"
-			}
-		} else {
-			return "", fmt.Errorf("not found query param: %s", qpK)
-		}
-	}
-
-	for qpK, qpV := range queryParamsFixed {
-		realURL += qpK + "=" + qpV + "&"
-	}
-	realURL += "channelCode=paopao_pcw&"
-	realURL += "sign=" + tou.conf.HotSpotSign
-	return realURL, nil
-}
-
-func getDFP(v string) string {
-	vs := strings.Split(v, "@")
-	if len(vs) < 1 {
-		return ""
-	}
-	return vs[0]
-}
 
 type checkInResp struct {
 	Code    string `json:"code"`
