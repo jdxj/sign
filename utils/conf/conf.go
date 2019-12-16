@@ -112,7 +112,8 @@ type IQiYiConf struct {
 
 func (iqy *IQiYiConf) CheckValidity() bool {
 	if iqy.Name == "" || iqy.Cookies == "" || iqy.To == "" ||
-		iqy.CheckInSign == "" || iqy.HotSpotSign == "" {
+		iqy.CheckInSign == "" || iqy.HotSpotSign == "" ||
+		iqy.HotSpotBrowse == "" {
 		return false
 	}
 
