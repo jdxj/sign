@@ -96,7 +96,8 @@ func (tou *ToucherHacPai) Login() bool {
 
 	respDate := make(map[string]interface{})
 	if err = json.Unmarshal(respBytes, &respDate); err != nil {
-		log.MyLogger.Error("%s err when unmarshal login resp: %s", log.Log_HacPai, err)
+		log.MyLogger.Error("%s err when unmarshal login resp, err: %s, data: %+v",
+			log.Log_HacPai, err, respDate)
 		return false
 	}
 
