@@ -71,6 +71,8 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 				msg.Subject = email.SignFailed
 				msg.Content = fmt.Sprintf("标记: %s, 阶段: %s", tou.Name(), "登录阶段")
 				email.SendEmail(msg)
+
+				exe.DelToucherByName(tou.Name())
 				return
 			}
 			if !tou.Sign() {
@@ -79,6 +81,8 @@ func (exe *Executor) AddTaskFromApi(tou modules.Toucher) error {
 				msg.Subject = email.SignFailed
 				msg.Content = fmt.Sprintf("标记: %s, 阶段: %s", tou.Name(), "签到阶段")
 				email.SendEmail(msg)
+
+				exe.DelToucherByName(tou.Name())
 				return
 			}
 
@@ -123,6 +127,14 @@ func (exe *Executor) NotifyStop() {
 		msg.To = emailAddr
 		email.SendEmail(msg)
 	}
+}
+
+func (exe *Executor) DelToucherByName(name string) {
+	exe.locker.Lock()
+	defer exe.locker.Unlock()
+
+	delete(exe.touchers, name)
+	log.MyLogger.Debug("%s delete toucher: %s", log.Log_HacPai, name)
 }
 
 // randTime 返回明天的某个时刻
