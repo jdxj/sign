@@ -54,7 +54,7 @@ func (tou *ToucherV2ex) Email() string {
 }
 
 func (tou *ToucherV2ex) Boot() bool {
-	cookies, err := utils.StrToCookies(tou.conf.Cookies, utils.V2exCookieDomain)
+	cookies, err := utils.StringToCookies(tou.conf.Cookies, utils.V2exCookieDomain)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_V2ex, err)
 		return false

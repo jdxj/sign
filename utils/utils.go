@@ -23,9 +23,9 @@ const (
 	IQiYiCookieDomain    = ".iqiyi.com"
 )
 
-// StrToCookies 将给定的 cookie 字符串转换成 http.Cookie,
+// StringToCookies 将给定的 cookie 字符串转换成 http.Cookie,
 // domain 是 http.Cookie 所必须的.
-func StrToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
+func StringToCookies(cookiesStr, domain string) ([]*http.Cookie, error) {
 	if domain == "" {
 		return nil, fmt.Errorf("invaild domain")
 	}

@@ -55,7 +55,7 @@ func (tou *Toucher58pic) Email() string {
 }
 
 func (tou *Toucher58pic) Boot() bool {
-	cookies, err := utils.StrToCookies(tou.conf.Cookies, utils.Pic58CookieDomain)
+	cookies, err := utils.StringToCookies(tou.conf.Cookies, utils.Pic58CookieDomain)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_58pic, err)
 		return false

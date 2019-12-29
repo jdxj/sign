@@ -55,7 +55,7 @@ func (tou *ToucherBilibili) Email() string {
 }
 
 func (tou *ToucherBilibili) Boot() bool {
-	cookies, err := utils.StrToCookies(tou.conf.Cookies, utils.BilibiliCookieDomain)
+	cookies, err := utils.StringToCookies(tou.conf.Cookies, utils.BilibiliCookieDomain)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_Bilibili, err)
 		return false

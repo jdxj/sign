@@ -47,7 +47,7 @@ func TestStrToCookies(t *testing.T) {
 	//cooStr := ``
 	// 正常 cookie
 	cooStr := ``
-	cookies, err := StrToCookies(cooStr, V2exCookieDomain)
+	cookies, err := StringToCookies(cooStr, V2exCookieDomain)
 	if err != nil {
 		panic(err)
 	}

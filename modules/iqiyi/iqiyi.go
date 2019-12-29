@@ -60,7 +60,7 @@ func (tou *ToucherIQiYi) Email() string {
 }
 
 func (tou *ToucherIQiYi) Boot() bool {
-	cookies, err := utils.StrToCookies(tou.conf.Cookies, utils.IQiYiCookieDomain)
+	cookies, err := utils.StringToCookies(tou.conf.Cookies, utils.IQiYiCookieDomain)
 	if err != nil {
 		log.MyLogger.Error("%s %s", log.Log_IQiYi, err)
 		return false

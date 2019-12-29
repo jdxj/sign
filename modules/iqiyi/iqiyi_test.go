@@ -8,6 +8,7 @@ import (
 	"testing"
 )
 
+//http://community.iqiyi.com/openApi/lottery/multiDraw?userId=1813046165&authCookie=e7Fw6m1lyRAMrh0m2g72kWJm2vJ4187IeI4IFrIykzxlhO5yrfedYDtlJGfxOm1rJqZL9f26&agenttype=21&agentversion=9.3.0&srcplatform=21&appver=9.3.0&lotteryCode=m012801&times=5&appKey=lottery_h5&sign=bf49e9387a9dc627595982aa17e0ebf9
 func newIQiYi() (*ToucherIQiYi, error) {
 	cfg := &conf.IQiYiConf{
 		Name:          "nil",
