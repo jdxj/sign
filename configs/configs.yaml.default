@@ -1,0 +1,10 @@
+bot:
+  token: ""
+  chat_id: 0
+user:
+  - id: ""
+    domain: ""
+    key: ""
+  - id: ""
+    domain: ""
+    key: ""
