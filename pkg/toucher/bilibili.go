@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	DefaultBilibili = NewBilibili()
+	BiliTch = NewBilibili()
 )
 
 type AuthRespBilibili struct {

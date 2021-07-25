@@ -7,35 +7,70 @@ import (
 )
 
 var (
-	DefaultStorage = NewMemory()
+	Default = NewMemory()
 )
+
+func NewUserData(id, domain, key string) (*UserData, error) {
+	var tch toucher.Toucher
+	switch domain {
+	case toucher.DomainBili:
+		tch = toucher.BiliTch
+	default:
+		return nil, toucher.ErrorUnsupportedDomain
+	}
+
+	jar, err := tch.Auth(key)
+	if err != nil {
+		return nil, err
+	}
+
+	ud := &UserData{
+		ID:     id,
+		Domain: domain,
+		jar:    jar,
+		tch:    tch,
+	}
+	return ud, nil
+}
 
 type UserData struct {
 	ID     string
 	Domain string
 
 	jar *cookiejar.Jar
-	toucher.Toucher
+	tch toucher.Toucher
+}
+
+func (ud *UserData) Execute() error {
+	err := ud.tch.SignIn(ud.jar)
+	if err != nil {
+		return err
+	}
+	return ud.tch.Verify(ud.jar)
 }
 
 func NewMemory() *Memory {
 	m := &Memory{
-		uds: make(map[int]toucher.Toucher),
+		uds: make(map[int]*UserData),
 	}
 	return m
 }
 
 type Memory struct {
 	num int
-	uds map[int]toucher.Toucher
+	uds map[int]*UserData
 }
 
-func (m *Memory) AddToucher(tch toucher.Toucher) error {
+func (m *Memory) AddUserData(ud *UserData) error {
 	m.num++
-	m.uds[m.num] = tch
+	m.uds[m.num] = ud
 	return nil
 }
 
-func (m *Memory) GetAllUserData() map[int]toucher.Toucher {
+func (m *Memory) DelUserData(num int) {
+	delete(m.uds, num)
+}
+
+func (m *Memory) GetAllUserData() map[int]*UserData {
 	return m.uds
 }
