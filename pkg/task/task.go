@@ -7,6 +7,7 @@ import (
 	"github.com/robfig/cron/v3"
 
 	"github.com/jdxj/sign/internal/bot"
+	"github.com/jdxj/sign/internal/logger"
 	"github.com/jdxj/sign/pkg/storage"
 	"github.com/jdxj/sign/pkg/toucher"
 )
@@ -16,13 +17,17 @@ var (
 	tplSignInFailed  = `%s 在域 %s 签到失败`
 )
 
+func handleErr(err error) {
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
 func Run() {
 	c := cron.New()
 	//_, err := c.AddFunc("0 8 * * *", testCmd)
-	_, err := c.AddFunc("* * * * *", testCmd)
-	if err != nil {
-		// todo: 通知
-	}
+	_, err := c.AddFunc("* * * * *", cmd)
+	handleErr(err)
 	c.Run()
 }
 
@@ -62,7 +67,11 @@ func retry(val toucher.Validator) {
 		text = fmt.Sprintf(tplSignInFailed+", err: %s",
 			val.ID(), val.Domain(), err)
 	}
-	bot.Send(text)
+
+	err = bot.Send(text)
+	if err != nil {
+		logger.Errorf("send %s err: %s", text, err)
+	}
 }
 
 func testCmd() {

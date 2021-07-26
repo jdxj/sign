@@ -55,9 +55,6 @@ func ResolveCookies(raw, domain string) []*http.Cookie {
 	return cookies
 }
 
-// Empty 用于不想解析具体数据时使用
-type Empty struct{}
-
 func ParseBody(client *http.Client, u string, v interface{}) error {
 	req, err := http.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
