@@ -1,6 +1,6 @@
 output = _output/bin
 name = sign.out
-wssign = cmd/start
+wssign = cmd/sign
 
 sign:
 	mkdir -p $(output)

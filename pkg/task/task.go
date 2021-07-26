@@ -26,7 +26,7 @@ func handleErr(err error) {
 func Run() {
 	c := cron.New()
 	//_, err := c.AddFunc("0 8 * * *", testCmd)
-	_, err := c.AddFunc("* * * * *", cmd)
+	_, err := c.AddFunc("0 8 * * *", cmd)
 	handleErr(err)
 	c.Run()
 }
