@@ -48,11 +48,11 @@ func (bili *Bili) ID() string {
 }
 
 func (bili *Bili) Domain() string {
-	return domainBili
+	return DomainBili
 }
 
 func (bili *Bili) Auth(cookies string) error {
-	jar := NewJar(cookies, domainBili, urlBili)
+	jar := NewJar(cookies, DomainBili, urlBili)
 	bili.client.Jar = jar
 
 	authResp := &AuthRespBili{}

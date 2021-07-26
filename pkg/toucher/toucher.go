@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	domainBili = ".bilibili.com"
+	DomainBili = ".bilibili.com"
 	urlBili    = "https://www.bilibili.com/"
 	authBili   = "https://api.bilibili.com/x/member/web/account"
 	verifyBili = "https://api.bilibili.com/x/member/web/coin/log?jsonp=jsonp"
