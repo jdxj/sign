@@ -9,29 +9,6 @@ import (
 var key1 = ""
 var key2 = ""
 
-func TestParseCookies(t *testing.T) {
-	cookies := ParseCookies(key2, ".bilibili.com")
-	for _, v := range cookies {
-		fmt.Printf("%#v\n", v)
-	}
-}
-
-func TestBilibili_Auth(t *testing.T) {
-	bili := NewBilibili()
-	jar, err := bili.Auth(key1)
-	if err != nil {
-		t.Fatalf("err: %s\n", err)
-	}
-	fmt.Printf("%#v\n", jar)
-
-	jar, err = bili.Auth(key2)
-	if err != nil {
-		t.Fatalf("err: %s\n", err)
-	}
-
-	fmt.Printf("%#v\n", jar)
-}
-
 func TestYearDay(t *testing.T) {
 	now := time.Now()
 	fmt.Printf("now: %d\n", now.YearDay())
@@ -40,15 +17,17 @@ func TestYearDay(t *testing.T) {
 	fmt.Printf("befor: %d\n", befor.YearDay())
 }
 
-func TestBilibili_Verify(t *testing.T) {
-	bili := NewBilibili()
-	jar, err := bili.Auth(key1)
+func TestValidatorBili(t *testing.T) {
+	bili, err := NewBili("abc", key1)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("%s\n", err)
 	}
-	fmt.Printf("--\n")
-	err = bili.Verify(jar)
+	err = bili.SignIn()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("%s\n", err)
+	}
+	err = bili.Verify()
+	if err != nil {
+		t.Fatalf("%s\n", err)
 	}
 }

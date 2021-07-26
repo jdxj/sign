@@ -2,15 +2,10 @@ package toucher
 
 import (
 	"net/http"
-	"net/http/cookiejar"
 	"time"
 )
 
-var (
-	BiliTch = NewBilibili()
-)
-
-type AuthRespBilibili struct {
+type AuthRespBili struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	TTL     int    `json:"ttl"`
@@ -21,7 +16,7 @@ type AuthRespBilibili struct {
 	} `json:"data"`
 }
 
-type VerifyRespBilibili struct {
+type VerifyRespBili struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	TTL     int    `json:"ttl"`
@@ -35,59 +30,50 @@ type VerifyRespBilibili struct {
 	} `json:"data"`
 }
 
-func NewBilibili() *Bilibili {
-	bili := &Bilibili{
+func NewBili(id, cookies string) (*Bili, error) {
+	bili := &Bili{
+		id:     id,
 		client: &http.Client{},
 	}
-	return bili
+	return bili, bili.Auth(cookies)
 }
 
-type Bilibili struct {
+type Bili struct {
+	id     string
 	client *http.Client
 }
 
-func (bili *Bilibili) RemoveJar() {
-	bili.client.Jar = nil
+func (bili *Bili) ID() string {
+	return bili.id
 }
 
-func (bili *Bilibili) Domain() string {
-	return DomainBili
+func (bili *Bili) Domain() string {
+	return domainBili
 }
 
-func (bili *Bilibili) Auth(key string) (*cookiejar.Jar, error) {
-	c := bili.client
+func (bili *Bili) Auth(cookies string) error {
+	jar := NewJar(cookies, domainBili, urlBili)
+	bili.client.Jar = jar
 
-	jar := NewJar(key, DomainBili, urlBili)
-	c.Jar = jar
-	defer bili.RemoveJar()
-
-	authResp := &AuthRespBilibili{}
-	err := ParseBody(c, authBili, authResp)
+	authResp := &AuthRespBili{}
+	err := ParseBody(bili.client, authBili, authResp)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if authResp.Code != 0 {
-		return nil, ErrorAuthFailed
+		return ErrorAuthFailed
 	}
-	return jar, nil
+	return nil
 }
 
-func (bili *Bilibili) SignIn(jar *cookiejar.Jar) error {
-	c := bili.client
-	c.Jar = jar
-	defer bili.RemoveJar()
-
-	return ParseBody(c, urlBili, &Empty{})
+func (bili *Bili) SignIn() error {
+	return ParseBody(bili.client, urlBili, nil)
 }
 
-func (bili *Bilibili) Verify(jar *cookiejar.Jar) error {
-	c := bili.client
-	c.Jar = jar
-	defer bili.RemoveJar()
-
-	verifyResp := &VerifyRespBilibili{}
-	err := ParseBody(c, verifyBili, verifyResp)
+func (bili *Bili) Verify() error {
+	verifyResp := &VerifyRespBili{}
+	err := ParseBody(bili.client, verifyBili, verifyResp)
 	if err != nil {
 		return err
 	}
