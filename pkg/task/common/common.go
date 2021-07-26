@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -15,6 +16,11 @@ const (
 	BiliDomain  = iota + 100
 	BiliSign
 	BiliBCount
+
+	biliEnd
+
+	HPIDomain = iota + 300 - biliEnd
+	HPISign
 )
 
 var (
@@ -102,6 +108,26 @@ func ParseBody(client *http.Client, u string, v interface{}) error {
 		return nil
 	}
 	return json.Unmarshal(body, v)
+}
+
+func ParseBodyPost(client *http.Client, u string, reader io.Reader, v interface{}) error {
+	req, err := http.NewRequest(http.MethodPost, u, reader)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36")
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(d, v)
 }
 
 func NewJar(key, domain, u string) *cookiejar.Jar {
