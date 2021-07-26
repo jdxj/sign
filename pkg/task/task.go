@@ -26,24 +26,28 @@ func handleErr(err error) {
 func Run() {
 	c := cron.New()
 	//_, err := c.AddFunc("0 8 * * *", testCmd)
-	_, err := c.AddFunc("0 8 * * *", cmd)
+	_, err := c.AddFunc("0 8 * * *", cmdSign)
 	handleErr(err)
 	c.Run()
 }
 
-func cmd() {
+func cmdSign() {
 	ds := storage.Default
 	uds := ds.GetAllUserData()
 
-	for _, ud := range uds {
-		retry(ud)
+	for num, ud := range uds {
+		keep := retry(ud)
+		if !keep {
+			ds.DelUserData(num)
+		}
 	}
 }
 
-func retry(val toucher.Validator) {
+func retry(val toucher.Validator) bool {
 	var (
 		count = 3
 
+		keep = true
 		err  error
 		text string
 	)
@@ -66,12 +70,14 @@ func retry(val toucher.Validator) {
 	} else {
 		text = fmt.Sprintf(tplSignInFailed+", err: %s",
 			val.ID(), val.Domain(), err)
+		keep = false
 	}
 
 	err = bot.Send(text)
 	if err != nil {
 		logger.Errorf("send %s err: %s", text, err)
 	}
+	return keep
 }
 
 func testCmd() {
