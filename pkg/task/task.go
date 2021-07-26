@@ -3,87 +3,86 @@ package task
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/robfig/cron/v3"
 
 	"github.com/jdxj/sign/internal/bot"
 	"github.com/jdxj/sign/internal/logger"
-	"github.com/jdxj/sign/pkg/storage"
-	"github.com/jdxj/sign/pkg/toucher"
+	"github.com/jdxj/sign/pkg/task/bili"
+)
+
+const (
+	unknownTask = iota
+	BiliSign
+	BiliBCount
 )
 
 var (
-	tplSignInSuccess = `%s 在域 %s 签到成功`
-	tplSignInFailed  = `%s 在域 %s 签到失败`
+	typeMap = map[int]string{
+		BiliSign: "b站签到",
+	}
 )
 
-func handleErr(err error) {
-	if err != nil {
-		log.Fatalln(err)
-	}
+var (
+	tplSuccess = `%s 的 %s 任务执行成功`
+	tplFailed  = `%s 的 %s 任务执行失败`
+)
+
+var (
+	num   int
+	tasks = make(map[int]*Task)
+)
+
+func AddTask(t *Task) {
+	num++
+	tasks[num] = t
+}
+
+func DelTask(num int) {
+	delete(tasks, num)
+}
+
+type Task struct {
+	ID     string
+	Type   int
+	Client *http.Client
 }
 
 func Run() {
 	c := cron.New()
-	//_, err := c.AddFunc("0 8 * * *", testCmd)
-	_, err := c.AddFunc("0 8 * * *", cmdSign)
-	handleErr(err)
+	_, err := c.AddFunc("0 8 * * *", bSignTask)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	c.Run()
 }
 
-func cmdSign() {
-	ds := storage.Default
-	uds := ds.GetAllUserData()
-
-	for num, ud := range uds {
-		keep := retry(ud)
-		if !keep {
-			ds.DelUserData(num)
-		}
-	}
-}
-
-func retry(val toucher.Validator) bool {
+func bSignTask() {
 	var (
-		count = 3
-
-		keep = true
 		err  error
 		text string
 	)
-
-	for i := 0; i < count; i++ {
-		err = val.SignIn()
-		if err != nil {
+	for num, task := range tasks {
+		switch task.Type {
+		case BiliSign:
+			err = bili.SignIn(task.Client)
+		default:
+			logger.Warnf("unsupported task type: %d", task.Type)
 			continue
 		}
-		err = val.Verify()
-		if err != nil {
-			continue
+
+		if err == nil {
+			text = fmt.Sprintf(tplSuccess, task.ID, typeMap[task.Type])
+		} else {
+			text = fmt.Sprintf(tplFailed+", err: %s",
+				task.ID, typeMap[task.Type], err)
+			DelTask(num)
 		}
-		break
-	}
 
-	if err == nil {
-		text = fmt.Sprintf(tplSignInSuccess,
-			val.ID(), val.Domain())
-	} else {
-		text = fmt.Sprintf(tplSignInFailed+", err: %s",
-			val.ID(), val.Domain(), err)
-		keep = false
+		err = bot.Send(text)
+		if err != nil {
+			logger.Errorf("send err: %s", err)
+		}
 	}
-
-	err = bot.Send(text)
-	if err != nil {
-		logger.Errorf("send %s err: %s", text, err)
-	}
-	return keep
-}
-
-func testCmd() {
-	err := bot.Send("test send message")
-	if err != nil {
-		log.Printf("err: %s\n", err)
-	}
-	log.Printf("send ok!\n")
 }
