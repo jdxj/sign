@@ -6,16 +6,15 @@ import (
 	"github.com/jdxj/sign/internal/bot"
 	"github.com/jdxj/sign/internal/logger"
 	"github.com/jdxj/sign/pkg/config"
-	"github.com/jdxj/sign/pkg/storage"
 	"github.com/jdxj/sign/pkg/task"
-	"github.com/jdxj/sign/pkg/toucher"
+	"github.com/jdxj/sign/pkg/task/bili"
+	"github.com/jdxj/sign/pkg/task/common"
 )
 
 func main() {
 	root := config.ReadConfigs("config.yaml")
-
-	bot.Init(root.Bot.Token, root.Bot.ChatID)
 	logger.Init(root.Logger.Path, logger.WithMode(root.Logger.Mode))
+	bot.Init(root.Bot.Token, root.Bot.ChatID)
 
 	addVal(root.User)
 
@@ -25,25 +24,20 @@ func main() {
 
 // todo: 使用 api
 func addVal(uds []config.User) {
-	var (
-		val toucher.Validator
-		err error
-		ds  = storage.Default
-	)
+	var err error
 
 	for _, ud := range uds {
-		switch ud.Domain {
-		case toucher.DomainBili:
-			val, err = toucher.NewBili(ud.ID, ud.Key)
+		switch ud.Type {
+		case common.BiliSign:
+			err = bili.AddSignTask(ud.ID, ud.Key, ud.Type)
 		default:
-			err = fmt.Errorf("%w: %s",
-				toucher.ErrorUnsupportedDomain, ud.Domain)
+			err = fmt.Errorf("unsupport type: %d", ud.Type)
 		}
 
 		if err != nil {
-			logger.Errorf("addVal err: %s", err)
+			logger.Errorf("addVal err: %s, id: %s, type: %s",
+				err, ud.ID, common.TypeMap[ud.Type])
 			continue
 		}
-		ds.AddUserData(val)
 	}
 }

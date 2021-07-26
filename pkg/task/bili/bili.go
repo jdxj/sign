@@ -1,9 +1,11 @@
 package bili
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/jdxj/sign/internal/bot"
 	"github.com/jdxj/sign/pkg/task/common"
 )
 
@@ -55,13 +57,27 @@ func Auth(cookies string) (*http.Client, error) {
 	return client, nil
 }
 
-func SignIn(client *http.Client) error {
-	err := common.ParseBody(client, SignURL, nil)
+func SignIn(task *common.Task) bool {
+	err := common.ParseBody(task.Client, SignURL, nil)
 	if err != nil {
-		return err
+		text := fmt.Sprintf("访问失败, id: %s, type: %s, err: %s",
+			task.ID, common.TypeMap[task.Type], err)
+		bot.Send(text)
+		return false
 	}
 
-	return verify(client)
+	err = verify(task.Client)
+	if err != nil {
+		text := fmt.Sprintf("验证失败, id: %s, type: %s, err: %s",
+			task.ID, common.TypeMap[task.Type], err)
+		bot.Send(text)
+		return false
+	}
+
+	text := fmt.Sprintf("签到成功: id: %s, type: %s",
+		task.ID, common.TypeMap[task.Type])
+	bot.Send(text)
+	return true
 }
 
 func verify(client *http.Client) error {

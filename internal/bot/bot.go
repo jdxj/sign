@@ -4,6 +4,8 @@ import (
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
+	"github.com/jdxj/sign/internal/logger"
 )
 
 var (
@@ -20,8 +22,10 @@ func Init(token string, chat int64) {
 	chatID = chat
 }
 
-func Send(text string) error {
+func Send(text string) {
 	mc := tgbotapi.NewMessage(chatID, text)
 	_, err := client.Send(mc)
-	return err
+	if err != nil {
+		logger.Errorf("Send err: %s, text: %s", err, text)
+	}
 }

@@ -11,21 +11,16 @@ import (
 )
 
 const (
-	unknownTask = iota
+	UnknownTask = iota
 	BiliSign
 	BiliBCount
 )
 
 var (
-	TplSignInSuccess = `%s 在域 %s 签到成功`
-	TplSignInFailed  = `%s 在域 %s 签到失败`
-)
-
-func NewTasks() *Tasks {
-	return &Tasks{
-		tasks: map[string]*http.Client{},
+	TypeMap = map[int]string{
+		BiliSign: "b站签到",
 	}
-}
+)
 
 type Task struct {
 	ID     string
@@ -33,24 +28,30 @@ type Task struct {
 	Client *http.Client
 }
 
-func (t *Tasks) Add(id string, client *http.Client) {
-	t.tasks[id] = client
+func NewPool() *Pool {
+	return &Pool{
+		num:   0,
+		tasks: make(map[int]*Task),
+	}
 }
 
-func (t *Tasks) Del(id string) {
-	delete(t.tasks, id)
+type Pool struct {
+	num   int
+	tasks map[int]*Task
 }
 
-func (t *Tasks) GetAll() map[string]*http.Client {
-	return t.tasks
+func (p *Pool) AddTask(t *Task) {
+	p.num++
+	p.tasks[p.num] = t
 }
 
-const (
-	DomainBili = ".bilibili.com"
-	urlBili    = "https://www.bilibili.com/"
-	authBili   = "https://api.bilibili.com/x/member/web/account"
-	verifyBili = "https://api.bilibili.com/x/member/web/coin/log?jsonp=jsonp"
-)
+func (p *Pool) DelTask(num int) {
+	delete(p.tasks, num)
+}
+
+func (p *Pool) GetAll() map[int]*Task {
+	return p.tasks
+}
 
 // 验证过程的错误
 var (
@@ -64,19 +65,6 @@ var (
 var (
 	ErrorUnsupportedDomain = errors.New("unsupported domain")
 )
-
-// 签到通用流程:
-//     1. 身份验证
-//     2. 执行签到
-//     3. 验证签到
-
-type Validator interface {
-	ID() string
-	Domain() string    // 返回所签到的网站
-	Auth(string) error // 身份验证
-	SignIn() error     // 执行签到
-	Verify() error     // 验证签到
-}
 
 func ResolveCookies(raw, domain string) []*http.Cookie {
 	req, _ := http.NewRequest("", "", nil)
