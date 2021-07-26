@@ -10,11 +10,18 @@ import (
 func Run() {
 	c := cron.New()
 	//spec := "* * * * *"
-	spec := "0 8 * * *"
-	_, err := c.AddFunc(spec, bili.RunSignTask)
+	//spec := "0 8 * * *"
+	_, err := c.AddFunc("0 8 * * *", bili.RunSignTask)
 	if err != nil {
 		logger.Errorf("add func: %s", err)
 		return
 	}
+
+	_, err = c.AddFunc("0 20 * * *", bili.RunBCountTask)
+	if err != nil {
+		logger.Errorf("add func: %s", err)
+		return
+	}
+
 	c.Run()
 }

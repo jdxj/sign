@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/jdxj/sign/internal/bot"
 	"github.com/jdxj/sign/internal/logger"
@@ -24,20 +25,47 @@ func main() {
 
 // todo: 使用 api
 func addVal(uds []config.User) {
-	var err error
+	var (
+		err    error
+		client *http.Client
+	)
 
 	for _, ud := range uds {
-		switch ud.Type {
-		case common.BiliSign:
-			err = bili.AddSignTask(ud.ID, ud.Key, ud.Type)
+		switch ud.Domain {
+		case common.BiliDomain:
+			client, err = bili.Auth(ud.Key)
+
 		default:
-			err = fmt.Errorf("unsupport type: %d", ud.Type)
+			err = fmt.Errorf("unsupport domain: %d", ud.Domain)
 		}
 
 		if err != nil {
-			logger.Errorf("addVal err: %s, id: %s, type: %s",
-				err, ud.ID, common.TypeMap[ud.Type])
+			logger.Errorf("addVal err: %s, id: %s, domain: %s",
+				err, ud.ID, ud.Domain)
 			continue
+		}
+
+		for _, typ := range ud.Type {
+			task := &common.Task{
+				ID:     ud.ID,
+				Type:   typ,
+				Client: client,
+			}
+
+			switch typ {
+			case common.BiliSign:
+				bili.AddSignTask(task)
+			case common.BiliBCount:
+				bili.AddBCountTask(task)
+			default:
+				err = fmt.Errorf("unsupport type: %d", typ)
+			}
+
+			if err != nil {
+				logger.Warnf("addVal err: %s, id: %s, type: %d",
+					err, ud.ID, typ)
+				continue
+			}
 		}
 	}
 }

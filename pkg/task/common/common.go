@@ -11,14 +11,16 @@ import (
 )
 
 const (
-	UnknownTask = iota
+	UnknownTask = iota - 1
+	BiliDomain  = iota + 100
 	BiliSign
 	BiliBCount
 )
 
 var (
 	TypeMap = map[int]string{
-		BiliSign: "b站签到",
+		BiliSign:   "B站签到",
+		BiliBCount: "B币查询",
 	}
 )
 

@@ -24,6 +24,7 @@ func Init(token string, chat int64) {
 
 func Send(text string) {
 	mc := tgbotapi.NewMessage(chatID, text)
+	// todo: 并发执行?
 	_, err := client.Send(mc)
 	if err != nil {
 		logger.Errorf("Send err: %s, text: %s", err, text)

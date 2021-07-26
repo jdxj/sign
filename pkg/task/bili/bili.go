@@ -14,6 +14,8 @@ const (
 	SignURL   = "https://www.bilibili.com/"
 	AuthURL   = "https://api.bilibili.com/x/member/web/account"
 	VerifyURL = "https://api.bilibili.com/x/member/web/coin/log?jsonp=jsonp"
+
+	BiURL = "https://account.bilibili.com/site/getCoin"
 )
 
 type AuthResp struct {
@@ -109,4 +111,35 @@ func verify(client *http.Client) error {
 		return common.ErrorSignInFailed
 	}
 	return nil
+}
+
+type BiResp struct {
+	Code   int  `json:"code"`
+	Status bool `json:"status"`
+	Data   struct {
+		Money int `json:"money"`
+	} `json:"data"`
+}
+
+func QueryBi(task *common.Task) bool {
+	biResp := &BiResp{}
+	err := common.ParseBody(task.Client, BiURL, biResp)
+	if err != nil {
+		text := fmt.Sprintf("查询失败, id: %s, type: %s, err: %s",
+			task.ID, common.TypeMap[task.Type], err)
+		bot.Send(text)
+		return false
+	}
+
+	if biResp.Code != 0 {
+		text := fmt.Sprintf("查询失败, id: %s, type: %s, err: %s",
+			task.ID, common.TypeMap[task.Type], common.ErrorAuthFailed)
+		bot.Send(text)
+		return false
+	}
+
+	text := fmt.Sprintf("查询成功, id: %s, type: %s, money: %d",
+		task.ID, common.TypeMap[task.Type], biResp.Data.Money)
+	bot.Send(text)
+	return true
 }

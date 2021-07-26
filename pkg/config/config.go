@@ -25,9 +25,10 @@ type Logger struct {
 }
 
 type User struct {
-	ID   string `yaml:"id"`
-	Type int    `yaml:"type"`
-	Key  string `yaml:"key"`
+	ID     string `yaml:"id"`
+	Domain int    `yaml:"domain"`
+	Type   []int  `yaml:"type"`
+	Key    string `yaml:"key"`
 }
 
 func ReadConfigs(path string) Root {

@@ -5,21 +5,12 @@ import (
 )
 
 var (
-	signTasks = common.NewPool()
+	signTasks   = common.NewPool()
+	bCountTasks = common.NewPool()
 )
 
-func AddSignTask(id, cookies string, typ int) error {
-	client, err := Auth(cookies)
-	if err != nil {
-		return err
-	}
-	task := &common.Task{
-		ID:     id,
-		Type:   typ,
-		Client: client,
-	}
+func AddSignTask(task *common.Task) {
 	signTasks.AddTask(task)
-	return nil
 }
 
 func RunSignTask() {
@@ -34,6 +25,26 @@ func RunSignTask() {
 
 		if !success {
 			signTasks.DelTask(num)
+		}
+	}
+}
+
+func AddBCountTask(task *common.Task) {
+	bCountTasks.AddTask(task)
+}
+
+func RunBCountTask() {
+	for num, task := range bCountTasks.GetAll() {
+		success := false
+		for i := 0; i < 3; i++ {
+			if QueryBi(task) {
+				success = true
+				break
+			}
+		}
+
+		if !success {
+			bCountTasks.DelTask(num)
 		}
 	}
 }

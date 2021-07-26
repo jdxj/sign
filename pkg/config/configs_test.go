@@ -12,7 +12,7 @@ func TestNewConfigs(t *testing.T) {
 		Bot:    Bot{},
 		Logger: Logger{},
 		User: []User{
-			{},
+			{Type: []int{1, 2}},
 			{},
 		},
 	}
