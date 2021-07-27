@@ -27,6 +27,7 @@ var (
 	TypeMap = map[int]string{
 		BiliSign:   "B站签到",
 		BiliBCount: "B币查询",
+		HPISign:    "黑客派签到",
 	}
 )
 
@@ -66,6 +67,7 @@ var (
 	ErrorAuthFailed   = errors.New("auth failed")
 	ErrorLogNotFound  = errors.New("log not found")
 	ErrorSignInFailed = errors.New("sign in failed")
+	ErrorDateNotMatch = errors.New("date not match")
 )
 
 // 其他错误
@@ -130,10 +132,43 @@ func ParseBodyPost(client *http.Client, u string, reader io.Reader, v interface{
 	return json.Unmarshal(d, v)
 }
 
+func ParseRawBody(client *http.Client, u string) ([]byte, error) {
+	req, err := http.NewRequest(http.MethodGet, u, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return ioutil.ReadAll(resp.Body)
+}
+
 func NewJar(key, domain, u string) *cookiejar.Jar {
 	cookies := ResolveCookies(key, domain)
 	URL, _ := url.Parse(u)
 	jar, _ := cookiejar.New(nil)
 	jar.SetCookies(URL, cookies)
 	return jar
+}
+
+func VerifyDate(raw string) error {
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		return err
+	}
+	now := time.Now().In(loc)
+	last, err := time.ParseInLocation("2006-01-02", raw, loc)
+	if err != nil {
+		return err
+	}
+
+	if now.YearDay() != last.YearDay() {
+		return ErrorSignInFailed
+	}
+	return nil
 }

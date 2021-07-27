@@ -10,6 +10,7 @@ import (
 	"github.com/jdxj/sign/pkg/task"
 	"github.com/jdxj/sign/pkg/task/bili"
 	"github.com/jdxj/sign/pkg/task/common"
+	"github.com/jdxj/sign/pkg/task/hpi"
 )
 
 func main() {
@@ -35,6 +36,9 @@ func addVal(uds []config.User) {
 		case common.BiliDomain:
 			client, err = bili.Auth(ud.Key)
 
+		case common.HPIDomain:
+			client, err = hpi.Auth(ud.Key)
+
 		default:
 			err = fmt.Errorf("unsupport domain: %d", ud.Domain)
 		}
@@ -46,7 +50,7 @@ func addVal(uds []config.User) {
 		}
 
 		for _, typ := range ud.Type {
-			task := &common.Task{
+			t := &common.Task{
 				ID:     ud.ID,
 				Type:   typ,
 				Client: client,
@@ -54,9 +58,14 @@ func addVal(uds []config.User) {
 
 			switch typ {
 			case common.BiliSign:
-				bili.AddSignTask(task)
+				bili.AddSignTask(t)
+
 			case common.BiliBCount:
-				bili.AddBCountTask(task)
+				bili.AddBCountTask(t)
+
+			case common.HPISign:
+				hpi.AddSignTask(t)
+
 			default:
 				err = fmt.Errorf("unsupport type: %d", typ)
 			}
