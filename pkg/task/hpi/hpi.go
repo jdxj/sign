@@ -16,7 +16,7 @@ const (
 	AuthURL      = "https://ld246.com/notifications/unread/count?_=%d"
 	SignTokenURL = "https://ld246.com/activity/checkin"
 	SignURL      = "https://ld246.com/activity/daily-checkin?token=%s"
-	VerifyURL    = "https://ld246.com/member/jdxj/points?p=1&pjax=true"
+	VerifyURL    = "https://ld246.com/member/%s/points?p=1&pjax=true"
 )
 
 var (
@@ -66,7 +66,7 @@ func SignIn(task *common.Task) bool {
 		return false
 	}
 
-	err = verify(task.Client)
+	err = verify(task.Client, task.ID)
 	if err != nil {
 		text := fmt.Sprintf("签到失败, id: %s, type: %s, err: %s",
 			task.ID, common.TypeMap[task.Type], err)
@@ -95,11 +95,15 @@ func getSignToken(client *http.Client) (string, error) {
 
 func accessSignURL(client *http.Client, token string) error {
 	u := fmt.Sprintf(SignURL, token)
-	return common.ParseBody(client, u, nil)
+	header := map[string]string{
+		"Referer": SignTokenURL,
+	}
+	return common.ParseBodyHeader(client, u, header)
 }
 
-func verify(client *http.Client) error {
-	d, err := common.ParseRawBody(client, VerifyURL)
+func verify(client *http.Client, id string) error {
+	u := fmt.Sprintf(VerifyURL, id)
+	d, err := common.ParseRawBody(client, u)
 	if err != nil {
 		return err
 	}

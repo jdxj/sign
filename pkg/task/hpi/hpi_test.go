@@ -29,7 +29,7 @@ func TestAuth(t *testing.T) {
 	}
 
 	task := &common.Task{
-		ID:     "test",
+		ID:     "jdxj2",
 		Type:   202,
 		Client: client,
 	}
@@ -39,20 +39,27 @@ func TestAuth(t *testing.T) {
 
 }
 
-func TestSignTokenURLBody(t *testing.T) {
+func TestSignByStep(t *testing.T) {
+	bot.Init(botKey, chatID)
 	client, err := Auth(tmp)
 	if err != nil {
 		t.Fatalf("err: %s\n", err)
 	}
-	st, err := getSignToken(client)
+
+	task := &common.Task{
+		ID:     "jdxj2",
+		Type:   202,
+		Client: client,
+	}
+	_ = task
+
+	token, err := getSignToken(client)
 	if err != nil {
 		t.Fatalf("err: %s\n", err)
 	}
-	err = accessSignURL(client, st)
-	if err != nil {
-		t.Fatalf("err: %s\n", err)
-	}
-	err = verify(client)
+	fmt.Printf("token: %s\n", token)
+
+	err = accessSignURL(client, token)
 	if err != nil {
 		t.Fatalf("err: %s\n", err)
 	}

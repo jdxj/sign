@@ -112,6 +112,28 @@ func ParseBody(client *http.Client, u string, v interface{}) error {
 	return json.Unmarshal(body, v)
 }
 
+func ParseBodyHeader(client *http.Client, u string, header map[string]string) error {
+	req, err := http.NewRequest(http.MethodGet, u, nil)
+	if err != nil {
+		return err
+	}
+
+	// 通用 User-Agent
+	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36")
+	for k, v := range header {
+		req.Header.Add(k, v)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	return nil
+}
+
 func ParseBodyPost(client *http.Client, u string, reader io.Reader, v interface{}) error {
 	req, err := http.NewRequest(http.MethodPost, u, reader)
 	if err != nil {
