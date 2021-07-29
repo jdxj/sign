@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jdxj/sign/internal/bot"
-	"github.com/jdxj/sign/pkg/task/common"
+	"github.com/jdxj/sign/internal/pkg/bot"
+	"github.com/jdxj/sign/internal/task/common"
 )
 
 const (

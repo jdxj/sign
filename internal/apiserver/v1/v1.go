@@ -6,11 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	task "github.com/jdxj/sign/pkg/task/common"
-	"github.com/jdxj/sign/pkg/task/hpi"
-
-	"github.com/jdxj/sign/pkg/apiserver/common"
-	"github.com/jdxj/sign/pkg/task/bili"
+	"github.com/jdxj/sign/internal/apiserver/common"
+	"github.com/jdxj/sign/internal/task/bili"
+	task "github.com/jdxj/sign/internal/task/common"
+	"github.com/jdxj/sign/internal/task/hpi"
 )
 
 func RegisterV1(r gin.IRouter) {

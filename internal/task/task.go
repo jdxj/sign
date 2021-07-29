@@ -3,8 +3,8 @@ package task
 import (
 	"github.com/robfig/cron/v3"
 
-	"github.com/jdxj/sign/pkg/task/bili"
-	"github.com/jdxj/sign/pkg/task/hpi"
+	"github.com/jdxj/sign/internal/task/bili"
+	"github.com/jdxj/sign/internal/task/hpi"
 )
 
 func Run() {

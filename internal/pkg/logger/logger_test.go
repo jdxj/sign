@@ -3,7 +3,7 @@ package logger
 import (
 	"testing"
 
-	"github.com/jdxj/sign/pkg/config"
+	"github.com/jdxj/sign/internal/pkg/config"
 )
 
 func TestDebugf(t *testing.T) {

@@ -1,8 +1,6 @@
 package hpi
 
-import (
-	"github.com/jdxj/sign/pkg/task/common"
-)
+import "github.com/jdxj/sign/internal/task/common"
 
 var (
 	signTasks = common.NewPool()

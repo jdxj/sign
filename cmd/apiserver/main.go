@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/jdxj/sign/internal/logger"
-	"github.com/jdxj/sign/pkg/apiserver"
-	"github.com/jdxj/sign/pkg/config"
+	"github.com/jdxj/sign/internal/apiserver"
+	"github.com/jdxj/sign/internal/pkg/config"
+	"github.com/jdxj/sign/internal/pkg/logger"
 )
 
 func main() {

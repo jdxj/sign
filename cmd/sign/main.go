@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jdxj/sign/internal/bot"
-	"github.com/jdxj/sign/internal/logger"
-	"github.com/jdxj/sign/pkg/config"
-	"github.com/jdxj/sign/pkg/task"
-	"github.com/jdxj/sign/pkg/task/bili"
-	"github.com/jdxj/sign/pkg/task/common"
-	"github.com/jdxj/sign/pkg/task/hpi"
+	"github.com/jdxj/sign/internal/pkg/bot"
+	"github.com/jdxj/sign/internal/pkg/config"
+	"github.com/jdxj/sign/internal/pkg/logger"
+	"github.com/jdxj/sign/internal/task"
+	"github.com/jdxj/sign/internal/task/bili"
+	"github.com/jdxj/sign/internal/task/common"
+	"github.com/jdxj/sign/internal/task/hpi"
 )
 
 func main() {
