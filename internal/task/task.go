@@ -7,11 +7,23 @@ import (
 	"github.com/jdxj/sign/internal/task/hpi"
 )
 
+var (
+	ic = cron.New()
+)
+
 func Run() {
-	c := cron.New()
+	addTask(ic)
+	ic.Run()
+}
+
+func Start() {
+	addTask(ic)
+	ic.Start()
+}
+
+func addTask(c *cron.Cron) {
 	_, _ = c.AddFunc("0 20 * * *", bili.RunSignTask)
 	_, _ = c.AddFunc("1 20 * * *", bili.RunBCountTask)
 
 	_, _ = c.AddFunc("0 20 * * *", hpi.RunSignTask)
-	c.Run()
 }

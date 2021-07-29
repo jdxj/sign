@@ -24,7 +24,6 @@ func main() {
 	task.Run()
 }
 
-// todo: 使用 api
 func addVal(uds []config.User) {
 	var (
 		err    error

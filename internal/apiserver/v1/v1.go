@@ -14,10 +14,9 @@ import (
 )
 
 func RegisterV1(r gin.IRouter) {
-	r.GET("/", hello)
-
 	v1 := r.Group("/v1")
 	{
+		v1.GET("/", hello)
 		v1.POST("/task", addTask)
 	}
 }
