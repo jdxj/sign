@@ -7,24 +7,31 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/jdxj/sign/internal/apiserver/common"
+	"github.com/jdxj/sign/internal/pkg/code"
 	"github.com/jdxj/sign/internal/task/bili"
 	task "github.com/jdxj/sign/internal/task/common"
 	"github.com/jdxj/sign/internal/task/hpi"
 )
 
 func RegisterV1(r gin.IRouter) {
-	r = r.Group("/v1")
-	r.POST("/task", addTask)
+	r.GET("/", hello)
+
+	v1 := r.Group("/v1")
+	{
+		v1.POST("/task", addTask)
+	}
+}
+
+func hello(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, common.NewResponse(0, "v1", nil))
 }
 
 func addTask(ctx *gin.Context) {
 	req := &common.AddTaskReq{}
 	err := ctx.BindJSON(req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, &common.AddTaskResp{
-			Code:    1,
-			Message: err.Error(),
-		})
+		ctx.JSON(http.StatusBadRequest,
+			common.NewResponse(code.ErrBindReqFailed, err.Error(), nil))
 		return
 	}
 
@@ -43,10 +50,8 @@ func addTask(ctx *gin.Context) {
 	}
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, &common.AddTaskResp{
-			Code:    1,
-			Message: err.Error(),
-		})
+		ctx.JSON(http.StatusBadRequest,
+			common.NewResponse(code.ErrAuthFailed, err.Error(), nil))
 		return
 	}
 
@@ -72,16 +77,10 @@ func addTask(ctx *gin.Context) {
 		}
 
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, &common.AddTaskResp{
-				Code:    1,
-				Message: err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest,
+				common.NewResponse(code.ErrAddTaskFailed, err.Error(), nil))
 			return
 		}
 	}
-
-	ctx.JSON(http.StatusOK, &common.AddTaskResp{
-		Code:    0,
-		Message: "",
-	})
+	ctx.JSON(http.StatusOK, common.NewResponse(0, "ok", nil))
 }

@@ -35,6 +35,8 @@ type User struct {
 type APIServer struct {
 	Host string `json:"host"`
 	Port string `json:"port"`
+	User string `json:"user"`
+	Pass string `json:"pass"`
 }
 
 func ReadConfigs(path string) Root {
