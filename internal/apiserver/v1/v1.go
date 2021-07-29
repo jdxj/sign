@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/jdxj/sign/internal/apiserver/common"
+	"github.com/jdxj/sign/internal/pkg/bot"
 	"github.com/jdxj/sign/internal/pkg/code"
 	"github.com/jdxj/sign/internal/task/bili"
 	task "github.com/jdxj/sign/internal/task/common"
@@ -80,6 +81,12 @@ func addTask(ctx *gin.Context) {
 				common.NewResponse(code.ErrAddTaskFailed, err.Error(), nil))
 			return
 		}
+
+		tmp := typ
+		go func() {
+			text := fmt.Sprintf("新任务被添加, id: %s, type: %s", req.ID, task.TypeMap[tmp])
+			bot.Send(text)
+		}()
 	}
 	ctx.JSON(http.StatusOK, common.NewResponse(0, "ok", nil))
 }
