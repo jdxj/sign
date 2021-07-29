@@ -9,9 +9,10 @@ import (
 )
 
 type Root struct {
-	Bot    Bot    `yaml:"bot"`
-	Logger Logger `yaml:"logger"`
-	User   []User `yaml:"user"`
+	Bot       Bot       `yaml:"bot"`
+	Logger    Logger    `yaml:"logger"`
+	User      []User    `yaml:"user"`
+	APIServer APIServer `json:"api_server"`
 }
 
 type Bot struct {
@@ -25,10 +26,15 @@ type Logger struct {
 }
 
 type User struct {
-	ID     string `yaml:"id"`
-	Domain int    `yaml:"domain"`
-	Type   []int  `yaml:"type"`
-	Key    string `yaml:"key"`
+	ID     string `yaml:"id" json:"id"`
+	Domain int    `yaml:"domain" json:"domain"`
+	Type   []int  `yaml:"type" json:"type"`
+	Key    string `yaml:"key" json:"key"`
+}
+
+type APIServer struct {
+	Host string `json:"host"`
+	Port string `json:"port"`
 }
 
 func ReadConfigs(path string) Root {
