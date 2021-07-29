@@ -1,18 +1,13 @@
-output := _output/bin
-
-sign: name := sign.out
-sign: package := cmd/sign
-sign:
+build.%: output := _output/build
+build.%:
 	mkdir -p $(output)
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$(name) $(package)/*.go
-	upx --best $(output)/$(name)
+	go build -o $(output)/$*.out cmd/$*/*.go
 
-api: name := apiserver.out
-api: package := cmd/apiserver
-api:
+cross.%: output := _output/cross
+cross.%:
 	mkdir -p $(output)
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$(name) $(package)/*.go
-	upx --best $(output)/$(name)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$*.out cmd/$*/*.go
+	upx --best $(output)/$*.out
 
 .PHONY: clean
 clean:

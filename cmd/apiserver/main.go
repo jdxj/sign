@@ -10,7 +10,7 @@ func main() {
 	root := config.ReadConfigs("config.yaml")
 	logger.Init(root.Logger.Path, logger.WithMode(root.Logger.Mode))
 
-	err := apiserver.Run(root.APIServer.Host, root.APIServer.Port)
+	err := apiserver.Run(root.APIServer)
 	if err != nil {
 		logger.Errorf("api server run err: %s", err)
 	}
