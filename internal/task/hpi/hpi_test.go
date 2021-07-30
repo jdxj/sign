@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/jdxj/sign/internal/pkg/bot"
-	"github.com/jdxj/sign/internal/task/common"
 )
 
 func TestMSecond(t *testing.T) {
@@ -28,12 +27,7 @@ func TestAuth(t *testing.T) {
 		t.Fatalf("err: %s\n", err)
 	}
 
-	task := &common.Task{
-		ID:     "jdxj2",
-		Type:   202,
-		Client: client,
-	}
-	if !SignIn(task) {
+	if err := SignIn(client, "jdxj"); err != nil {
 		t.Fatalf("%s\n", "sign failed")
 	}
 
@@ -45,13 +39,6 @@ func TestSignByStep(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err: %s\n", err)
 	}
-
-	task := &common.Task{
-		ID:     "jdxj2",
-		Type:   202,
-		Client: client,
-	}
-	_ = task
 
 	token, err := getSignToken(client)
 	if err != nil {

@@ -1,16 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/jdxj/sign/internal/pkg/bot"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/task"
-	"github.com/jdxj/sign/internal/task/bili"
-	"github.com/jdxj/sign/internal/task/common"
-	"github.com/jdxj/sign/internal/task/hpi"
 )
 
 func main() {
@@ -25,55 +19,19 @@ func main() {
 }
 
 func addVal(uds []config.User) {
-	var (
-		err    error
-		client *http.Client
-	)
-
+	var err error
 	for _, ud := range uds {
-		switch ud.Domain {
-		case common.BiliDomain:
-			client, err = bili.Auth(ud.Key)
-
-		case common.HPIDomain:
-			client, err = hpi.Auth(ud.Key)
-
-		default:
-			err = fmt.Errorf("unsupport domain: %d", ud.Domain)
+		t := &task.Task{
+			ID:     ud.ID,
+			Domain: ud.Domain,
+			Types:  ud.Type,
+			Key:    ud.Key,
 		}
-
+		err = task.Add(t)
 		if err != nil {
 			logger.Errorf("addVal err: %s, id: %s, domain: %s",
 				err, ud.ID, ud.Domain)
 			continue
-		}
-
-		for _, typ := range ud.Type {
-			t := &common.Task{
-				ID:     ud.ID,
-				Type:   typ,
-				Client: client,
-			}
-
-			switch typ {
-			case common.BiliSign:
-				bili.AddSignTask(t)
-
-			case common.BiliBCount:
-				bili.AddBCountTask(t)
-
-			case common.HPISign:
-				hpi.AddSignTask(t)
-
-			default:
-				err = fmt.Errorf("unsupport type: %d", typ)
-			}
-
-			if err != nil {
-				logger.Warnf("addVal err: %s, id: %s, type: %d",
-					err, ud.ID, typ)
-				continue
-			}
 		}
 	}
 }

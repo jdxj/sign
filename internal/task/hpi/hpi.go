@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/jdxj/sign/internal/pkg/bot"
 	"github.com/jdxj/sign/internal/task/common"
 )
 
@@ -49,35 +48,22 @@ func Auth(cookies string) (*http.Client, error) {
 //   2. 访问 sign url
 //   3. 验证
 
-func SignIn(task *common.Task) bool {
-	st, err := getSignToken(task.Client)
+func SignIn(c *http.Client, id string) error {
+	st, err := getSignToken(c)
 	if err != nil {
-		text := fmt.Sprintf("签到失败, id: %s, type: %s, err: %s",
-			task.ID, common.TypeMap[task.Type], err)
-		bot.Send(text)
-		return false
+		return fmt.Errorf("stage: %s, err: %w", common.GetToken, err)
 	}
 
-	err = accessSignURL(task.Client, st)
+	err = accessSignURL(c, st)
 	if err != nil {
-		text := fmt.Sprintf("签到失败, id: %s, type: %s, err: %s",
-			task.ID, common.TypeMap[task.Type], err)
-		bot.Send(text)
-		return false
+		return fmt.Errorf("stage: %s, err: %w", common.Access, err)
 	}
 
-	err = verify(task.Client, task.ID)
+	err = verify(c, id)
 	if err != nil {
-		text := fmt.Sprintf("签到失败, id: %s, type: %s, err: %s",
-			task.ID, common.TypeMap[task.Type], err)
-		bot.Send(text)
-		return false
+		return fmt.Errorf("stage: %s, err: %w", common.Verify, err)
 	}
-
-	text := fmt.Sprintf("签到成功, id: %s, type: %s",
-		task.ID, common.TypeMap[task.Type])
-	bot.Send(text)
-	return true
+	return nil
 }
 
 func getSignToken(client *http.Client) (string, error) {

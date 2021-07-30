@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jdxj/sign/internal/pkg/bot"
 	"github.com/jdxj/sign/internal/task/common"
 )
 
@@ -59,27 +58,27 @@ func Auth(cookies string) (*http.Client, error) {
 	return client, nil
 }
 
-func SignIn(task *common.Task) bool {
-	err := common.ParseBody(task.Client, SignURL, nil)
+func SignIn(c *http.Client) (err error) {
+	for i := 0; i < common.RetryNumber; i++ {
+		if err = signIn(c); err == nil {
+			return
+		}
+		time.Sleep(common.RetryInterval)
+	}
+	return
+}
+
+func signIn(c *http.Client) error {
+	err := common.ParseBody(c, SignURL, nil)
 	if err != nil {
-		text := fmt.Sprintf("访问失败, id: %s, type: %s, err: %s",
-			task.ID, common.TypeMap[task.Type], err)
-		bot.Send(text)
-		return false
+		return fmt.Errorf("stage: %s, err: %w", common.SignIn, err)
 	}
 
-	err = verify(task.Client)
+	err = verify(c)
 	if err != nil {
-		text := fmt.Sprintf("验证失败, id: %s, type: %s, err: %s",
-			task.ID, common.TypeMap[task.Type], err)
-		bot.Send(text)
-		return false
+		return fmt.Errorf("stage: %s, err: %w", common.Verify, err)
 	}
-
-	text := fmt.Sprintf("签到成功: id: %s, type: %s",
-		task.ID, common.TypeMap[task.Type])
-	bot.Send(text)
-	return true
+	return nil
 }
 
 func verify(client *http.Client) error {
@@ -121,25 +120,25 @@ type BiResp struct {
 	} `json:"data"`
 }
 
-func QueryBi(task *common.Task) bool {
+func QueryBi(c *http.Client) (err error) {
+	for i := 0; i < common.RetryNumber; i++ {
+		if err = queryBi(c); err == nil {
+			return
+		}
+		time.Sleep(common.RetryInterval)
+	}
+	return
+}
+
+func queryBi(c *http.Client) error {
 	biResp := &BiResp{}
-	err := common.ParseBody(task.Client, BiURL, biResp)
+	err := common.ParseBody(c, BiURL, biResp)
 	if err != nil {
-		text := fmt.Sprintf("查询失败, id: %s, type: %s, err: %s",
-			task.ID, common.TypeMap[task.Type], err)
-		bot.Send(text)
-		return false
+		return fmt.Errorf("stage: %s, err: %w", common.Query, err)
 	}
 
 	if biResp.Code != 0 {
-		text := fmt.Sprintf("查询失败, id: %s, type: %s, err: %s",
-			task.ID, common.TypeMap[task.Type], common.ErrorAuthFailed)
-		bot.Send(text)
-		return false
+		return fmt.Errorf("stage: %s, err: %w", common.Verify, err)
 	}
-
-	text := fmt.Sprintf("查询成功, id: %s, type: %s, money: %d",
-		task.ID, common.TypeMap[task.Type], biResp.Data.Money)
-	bot.Send(text)
-	return true
+	return nil
 }

@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// XxxDomain 用于 Auth
 const (
 	UnknownTask = iota - 1
 	BiliDomain  = iota + 100
@@ -23,43 +24,22 @@ const (
 	HPISign
 )
 
-var (
-	TypeMap = map[int]string{
-		BiliSign:   "B站签到",
-		BiliBCount: "B币查询",
-		HPISign:    "黑客派签到",
-	}
+// 访问阶段定义
+const (
+	Access = "access"
+	SignIn = "sign in"
+	Verify = "verify"
+
+	Query = "query"
+
+	GetToken = "get token"
 )
 
-type Task struct {
-	ID     string
-	Type   int
-	Client *http.Client
-}
-
-func NewPool() *Pool {
-	return &Pool{
-		num:   0,
-		tasks: make(map[int]*Task),
-	}
-}
-
-type Pool struct {
-	num   int
-	tasks map[int]*Task
-}
-
-func (p *Pool) AddTask(t *Task) {
-	p.num++
-	p.tasks[p.num] = t
-}
-
-func (p *Pool) DelTask(num int) {
-	delete(p.tasks, num)
-}
-
-func (p *Pool) GetAll() map[int]*Task {
-	return p.tasks
+// TypeMap 任务字符串描述
+var TypeMap = map[int]string{
+	BiliSign:   "B站签到",
+	BiliBCount: "B币查询",
+	HPISign:    "黑客派签到",
 }
 
 // 验证过程的错误
@@ -71,11 +51,18 @@ var (
 )
 
 // 其他错误
-
 var (
 	ErrorUnsupportedDomain = errors.New("unsupported domain")
+	ErrorUnsupportedType   = errors.New("unsupported type")
 )
 
+// 重试配置
+var (
+	RetryNumber   = 3
+	RetryInterval = 100 * time.Millisecond
+)
+
+// ResolveCookies 从字符构造 http.Cookie
 func ResolveCookies(raw, domain string) []*http.Cookie {
 	req, _ := http.NewRequest("", "", nil)
 	req.Header.Add("Cookie", raw)
@@ -88,6 +75,7 @@ func ResolveCookies(raw, domain string) []*http.Cookie {
 	return cookies
 }
 
+// ParseBody 解析 body 中的 json 数据到 v
 func ParseBody(client *http.Client, u string, v interface{}) error {
 	req, err := http.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
@@ -112,6 +100,7 @@ func ParseBody(client *http.Client, u string, v interface{}) error {
 	return json.Unmarshal(body, v)
 }
 
+// ParseBodyHeader 用于访问一个 url, 并且可以指定 http.Request header
 func ParseBodyHeader(client *http.Client, u string, header map[string]string) error {
 	req, err := http.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
@@ -134,6 +123,7 @@ func ParseBodyHeader(client *http.Client, u string, header map[string]string) er
 	return nil
 }
 
+// ParseBodyPost 可以指定 http.Request body
 func ParseBodyPost(client *http.Client, u string, reader io.Reader, v interface{}) error {
 	req, err := http.NewRequest(http.MethodPost, u, reader)
 	if err != nil {
@@ -154,6 +144,7 @@ func ParseBodyPost(client *http.Client, u string, reader io.Reader, v interface{
 	return json.Unmarshal(d, v)
 }
 
+// ParseRawBody 读取 body 为 []byte
 func ParseRawBody(client *http.Client, u string) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
@@ -170,6 +161,7 @@ func ParseRawBody(client *http.Client, u string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
+// NewJar 从给定 cookie 字符串构造 jar
 func NewJar(key, domain, u string) *cookiejar.Jar {
 	cookies := ResolveCookies(key, domain)
 	URL, _ := url.Parse(u)
@@ -178,6 +170,7 @@ func NewJar(key, domain, u string) *cookiejar.Jar {
 	return jar
 }
 
+// VerifyDate 验证指定时间字符串与当前时间的日期是否相同
 func VerifyDate(raw string) error {
 	loc, err := time.LoadLocation("Asia/Shanghai")
 	if err != nil {
