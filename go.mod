@@ -19,6 +19,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/shiena/ansicolor v0.0.0-20151119151921-a422bbe96644 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/ugorji/go v1.2.6 // indirect
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.2.0 // indirect
