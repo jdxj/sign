@@ -1,8 +1,6 @@
 package task
 
 import (
-	"fmt"
-
 	"github.com/robfig/cron/v3"
 
 	"github.com/jdxj/sign/internal/pkg/bot"
@@ -36,6 +34,6 @@ func addTask(c *cron.Cron) {
 }
 
 func testNotify() {
-	text := fmt.Sprintf("测试 apiserver 版本")
+	text := `测试 apiserver, jenkins`
 	bot.Send(text)
 }
