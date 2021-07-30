@@ -115,6 +115,9 @@ func run(t *Task) (del bool) {
 
 		case common.HPISign:
 			err = hpi.SignIn(t.Client, t.ID)
+
+		case common.STGSign:
+			err = stg.SignIn(t.Client)
 		}
 
 		if err != nil {
