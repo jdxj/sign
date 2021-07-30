@@ -11,5 +11,4 @@ cross.%:
 
 .PHONY: clean
 clean:
-	find . -name "*.log" | xargs rm -f
-	find . -name "*.out" | xargs rm -f
+	rm -rf ./_output
