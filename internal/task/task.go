@@ -34,6 +34,6 @@ func addTask(c *cron.Cron) {
 }
 
 func testNotify() {
-	text := `测试 apiserver, jenkins, retest`
+	text := `测试 apiserver, jenkins, retest1`
 	bot.Send(text)
 }
