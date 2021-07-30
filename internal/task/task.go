@@ -10,6 +10,7 @@ import (
 	"github.com/jdxj/sign/internal/task/bili"
 	"github.com/jdxj/sign/internal/task/common"
 	"github.com/jdxj/sign/internal/task/hpi"
+	"github.com/jdxj/sign/internal/task/stg"
 )
 
 var (
@@ -70,6 +71,9 @@ func (m *Manager) Add(t *Task) (err error) {
 
 	case common.HPIDomain:
 		t.Client, err = hpi.Auth(t.Key)
+
+	case common.STGDomain:
+		t.Client, err = stg.Auth(t.Key)
 
 	default:
 		err = common.ErrorUnsupportedDomain

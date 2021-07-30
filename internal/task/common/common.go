@@ -12,16 +12,24 @@ import (
 )
 
 // XxxDomain 用于 Auth
+
+// B 站相关任务
 const (
-	UnknownTask = iota - 1
-	BiliDomain  = iota + 100
-	BiliSign
-	BiliBCount
+	BiliDomain = iota + 101
+	BiliSign   // 签到
+	BiliBCount // 获取 B 币数量
+)
 
-	biliEnd
+// 黑客派相关任务
+const (
+	HPIDomain = iota + 201
+	HPISign   // 签到
+)
 
-	HPIDomain = iota + 300 - biliEnd
-	HPISign
+// Go 语言中文网相关任务
+const (
+	STGDomain = iota + 301
+	STGSign   // 签到
 )
 
 // 访问阶段定义
@@ -40,6 +48,7 @@ var TypeMap = map[int]string{
 	BiliSign:   "B站签到",
 	BiliBCount: "B币查询",
 	HPISign:    "黑客派签到",
+	STGSign:    "Go 语言中文网签到",
 }
 
 // 验证过程的错误
