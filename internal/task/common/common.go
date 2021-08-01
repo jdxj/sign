@@ -32,9 +32,14 @@ const (
 	STGSign   // 签到
 )
 
+// v2ex 相关任务
+const (
+	V2exDomain = iota + 401
+	V2exSign   // 签到
+)
+
 // 访问阶段定义
 const (
-	Access = "access"
 	SignIn = "sign in"
 	Verify = "verify"
 
@@ -48,7 +53,8 @@ var TypeMap = map[int]string{
 	BiliSign:   "B站签到",
 	BiliBCount: "B币查询",
 	HPISign:    "黑客派签到",
-	STGSign:    "Go 语言中文网签到",
+	STGSign:    "Go语言中文网签到",
+	V2exSign:   "v2ex签到",
 }
 
 // 验证过程的错误

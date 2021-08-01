@@ -56,7 +56,7 @@ func SignIn(c *http.Client, id string) error {
 
 	err = accessSignURL(c, st)
 	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.Access, err)
+		return fmt.Errorf("stage: %s, err: %w", common.SignIn, err)
 	}
 
 	err = verify(c, id)

@@ -11,6 +11,7 @@ import (
 	"github.com/jdxj/sign/internal/task/common"
 	"github.com/jdxj/sign/internal/task/hpi"
 	"github.com/jdxj/sign/internal/task/stg"
+	"github.com/jdxj/sign/internal/task/v2ex"
 )
 
 var (
@@ -75,6 +76,9 @@ func (m *Manager) Add(t *Task) (err error) {
 	case common.STGDomain:
 		t.Client, err = stg.Auth(t.Key)
 
+	case common.V2exDomain:
+		t.Client, err = v2ex.Auth(t.Key)
+
 	default:
 		err = common.ErrorUnsupportedDomain
 	}
@@ -118,6 +122,9 @@ func run(t *Task) (del bool) {
 
 		case common.STGSign:
 			err = stg.SignIn(t.Client)
+
+		case common.V2exSign:
+			err = v2ex.SignIn(t.Client)
 		}
 
 		if err != nil {
