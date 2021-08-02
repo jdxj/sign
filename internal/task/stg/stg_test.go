@@ -3,6 +3,7 @@ package stg
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/jdxj/sign/internal/task/common"
@@ -21,9 +22,19 @@ var (
 )
 
 func TestAuth(t *testing.T) {
-	c, err := Auth("a=b")
+	c, err := Auth(tmp)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
-	_ = c
+	URL, _ := url.Parse(HomeURL)
+	req, err := http.NewRequest("", "", nil)
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	cookies := c.Jar.Cookies(URL)
+	for _, cookie := range cookies {
+		req.AddCookie(cookie)
+	}
+	res := req.Header.Get("Cookie")
+	fmt.Println(res)
 }

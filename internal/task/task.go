@@ -1,12 +1,16 @@
 package task
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/robfig/cron/v3"
 
 	"github.com/jdxj/sign/internal/pkg/bot"
+	"github.com/jdxj/sign/internal/pkg/logger"
+	"github.com/jdxj/sign/internal/storage"
 	"github.com/jdxj/sign/internal/task/bili"
 	"github.com/jdxj/sign/internal/task/common"
 	"github.com/jdxj/sign/internal/task/hpi"
@@ -35,14 +39,15 @@ func Start() {
 
 func addFunc(c *cron.Cron) {
 	_, _ = c.AddFunc("0 20 * * *", manager.Run)
+	_, _ = c.AddFunc("* * * * *", saveTasks)
 }
 
 type Task struct {
-	ID     string
-	Domain int
-	Types  []int
-	Key    string
-	Client *http.Client
+	ID     string       `json:"id"`
+	Domain int          `json:"domain"`
+	Types  []int        `json:"types"`
+	Key    string       `json:"key"`
+	Client *http.Client `json:"-"`
 }
 
 func NewManager() *Manager {
@@ -141,4 +146,101 @@ func run(t *Task) (del bool) {
 		}
 	}
 	return
+}
+
+func (m *Manager) Marshal() ([]byte, error) {
+	tasks := make([]*Task, 0, len(m.tasks))
+	for _, v := range m.tasks {
+		req, _ := http.NewRequest("", "", nil)
+		u := getHomeURL(v.Domain)
+		cookies := v.Client.Jar.Cookies(u)
+		for _, cookie := range cookies {
+			req.AddCookie(cookie)
+		}
+		v.Key = req.Header.Get("Cookie")
+		tasks = append(tasks, v)
+	}
+	return json.Marshal(tasks)
+}
+
+func getHomeURL(domain int) *url.URL {
+	var (
+		u    *url.URL
+		home string
+	)
+	switch domain {
+	case common.BiliDomain:
+		home = bili.SignURL
+	case common.HPIDomain:
+		home = hpi.URL
+	case common.STGDomain:
+		home = stg.HomeURL
+	case common.V2exDomain:
+		home = v2ex.Home
+	}
+	u, _ = url.Parse(home)
+	return u
+}
+
+func (m *Manager) Unmarshal(data []byte) error {
+	var tasks []*Task
+	err := json.Unmarshal(data, &tasks)
+	if err != nil {
+		return err
+	}
+
+	for _, t := range tasks {
+		err = m.Add(t)
+		if err != nil {
+			return fmt.Errorf("unmarshal task failed, id: %s, types: %v, err: %w",
+				t.ID, t.Types, err)
+		}
+	}
+	return nil
+}
+
+func saveTasks() {
+	data, err := manager.Marshal()
+	if err != nil {
+		logger.Errorf("marshal tasks failed, err: %s", err)
+		text := fmt.Sprintf("marshal tasks failed, err: %s", err)
+		bot.Send(text)
+		return
+	}
+
+	err = storage.Write(data)
+	if err != nil {
+		logger.Errorf("write data failed, err: %s", err)
+		text := fmt.Sprintf("write data failed, err: %s", err)
+		bot.Send(text)
+		return
+	}
+
+	text := "save tasks success"
+	bot.Send(text)
+}
+
+func RecoverTasks() {
+	data, err := storage.Read()
+	if err != nil {
+		logger.Errorf("read data failed, err: %s", err)
+		text := fmt.Sprintf("read data failed, err: %s", err)
+		bot.Send(text)
+		return
+	}
+	if len(data) == 0 {
+		logger.Infof("have no tasks to recover")
+		return
+	}
+
+	err = manager.Unmarshal(data)
+	if err != nil {
+		logger.Errorf("unmarshal task failed, err: %s", err)
+		text := fmt.Sprintf("unmarshal task failed, err: %s", err)
+		bot.Send(text)
+		return
+	}
+
+	text := "recover tasks success"
+	bot.Send(text)
 }

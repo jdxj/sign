@@ -23,3 +23,5 @@
 
 configs.yaml
 config.yaml
+
+*.bak

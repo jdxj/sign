@@ -12,7 +12,8 @@ type Root struct {
 	Bot       Bot       `yaml:"bot"`
 	Logger    Logger    `yaml:"logger"`
 	User      []User    `yaml:"user"`
-	APIServer APIServer `json:"api_server"`
+	APIServer APIServer `yaml:"api_server"`
+	Storage   Storage   `yaml:"storage"`
 }
 
 type Bot struct {
@@ -33,10 +34,14 @@ type User struct {
 }
 
 type APIServer struct {
-	Host string `json:"host"`
-	Port string `json:"port"`
-	User string `json:"user"`
-	Pass string `json:"pass"`
+	Host string `yaml:"host"`
+	Port string `yaml:"port"`
+	User string `yaml:"user"`
+	Pass string `yaml:"pass"`
+}
+
+type Storage struct {
+	Path string `yaml:"path"`
 }
 
 func ReadConfigs(path string) Root {

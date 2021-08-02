@@ -8,6 +8,7 @@ import (
 	"github.com/jdxj/sign/internal/pkg/bot"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
+	"github.com/jdxj/sign/internal/storage"
 	"github.com/jdxj/sign/internal/task"
 )
 
@@ -19,10 +20,12 @@ func main() {
 	root := config.ReadConfigs(*file)
 	logger.Init(root.Logger.Path, logger.WithMode(root.Logger.Mode))
 	bot.Init(root.Bot.Token, root.Bot.ChatID)
+	storage.Init(root.Storage.Path)
 
 	addVal(root.User)
 
 	logger.Infof("started")
+	task.RecoverTasks()
 	task.Run()
 }
 
