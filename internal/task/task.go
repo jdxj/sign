@@ -39,7 +39,7 @@ func Start() {
 
 func addFunc(c *cron.Cron) {
 	_, _ = c.AddFunc("0 20 * * *", manager.Run)
-	_, _ = c.AddFunc("* * * * *", saveTasks)
+	_, _ = c.AddFunc("0 23 * * *", saveTasks)
 }
 
 type Task struct {
