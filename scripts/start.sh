@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-pid=$(ps -ef | grep "apiserver" | grep -v "grep" | awk '{print $2}')
+pid=$(ps -ef | grep "apiserver.out" | grep -v "grep" | awk '{print $2}')
 if [ -n "${pid}" ]; then
   kill "$pid"
 fi
