@@ -15,6 +15,10 @@ user:
       domain: 0
       type: []
       key: ""
-apiserver:
+api_server:
     host: ""
-    port: "
+    port: ""
+    user: ""
+    pass: ""
+storage:
+    path: ""
