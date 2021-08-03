@@ -1,0 +1,15 @@
+# kubectl create -f persistent_volume.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: apiserver-pv
+spec:
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/app/sign/apiserver-pv
+    type: Directory
