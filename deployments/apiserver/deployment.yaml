@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: apiserver
-          image: jdxj/sign:v0.1
+          image: jdxj/sign:v0.2.0
           command: ["/sign/apiserver.out"]
           args: ["-f", "/sign/config/config.yaml"]
           env:
