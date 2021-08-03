@@ -113,6 +113,7 @@ func run(t *Task) (del bool) {
 	for _, typ := range t.Types {
 		var (
 			text string
+			msg  string
 			err  error
 		)
 		switch typ {
@@ -120,7 +121,7 @@ func run(t *Task) (del bool) {
 			err = bili.SignIn(t.Client)
 
 		case common.BiliBCount:
-			err = bili.QueryBi(t.Client)
+			msg, err = bili.QueryBi(t.Client)
 
 		case common.HPISign:
 			err = hpi.SignIn(t.Client, t.ID)
@@ -139,8 +140,13 @@ func run(t *Task) (del bool) {
 		} else {
 			text = fmt.Sprintf("任务执行成功, id: %s, task: %s",
 				t.ID, common.TypeMap[typ])
+			if len(msg) != 0 {
+				text = fmt.Sprintf("%s, msg: %s", text, msg)
+			}
 		}
+
 		bot.Send(text)
+
 		if del {
 			return
 		}

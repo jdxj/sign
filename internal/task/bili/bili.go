@@ -120,9 +120,9 @@ type BiResp struct {
 	} `json:"data"`
 }
 
-func QueryBi(c *http.Client) (err error) {
+func QueryBi(c *http.Client) (msg string, err error) {
 	for i := 0; i < common.RetryNumber; i++ {
-		if err = queryBi(c); err == nil {
+		if msg, err = queryBi(c); err == nil {
 			return
 		}
 		time.Sleep(common.RetryInterval)
@@ -130,15 +130,17 @@ func QueryBi(c *http.Client) (err error) {
 	return
 }
 
-func queryBi(c *http.Client) error {
+func queryBi(c *http.Client) (string, error) {
 	biResp := &BiResp{}
 	err := common.ParseBody(c, BiURL, biResp)
 	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.Query, err)
+		return "", fmt.Errorf("stage: %s, err: %w", common.Query, err)
 	}
 
 	if biResp.Code != 0 {
-		return fmt.Errorf("stage: %s, err: %w", common.Verify, err)
+		return "", fmt.Errorf("stage: %s, err: %w", common.Verify, err)
 	}
-	return nil
+
+	msg := fmt.Sprintf("硬币: %d", biResp.Data.Money)
+	return msg, nil
 }
