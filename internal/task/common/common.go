@@ -69,6 +69,7 @@ var (
 var (
 	ErrorUnsupportedDomain = errors.New("unsupported domain")
 	ErrorUnsupportedType   = errors.New("unsupported type")
+	ErrorSignTokenNotFound = errors.New("sign token not found")
 )
 
 // 重试配置

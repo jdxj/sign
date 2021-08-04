@@ -74,7 +74,8 @@ func getSignToken(client *http.Client) (string, error) {
 
 	matched := regSignToken.FindStringSubmatch(string(body))
 	if len(matched) != 2 {
-		return "", fmt.Errorf("sign token not found: %v", matched)
+		return "", fmt.Errorf("err: %w, matched: %v",
+			common.ErrorSignTokenNotFound, matched)
 	}
 	return matched[1], nil
 }

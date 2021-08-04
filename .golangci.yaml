@@ -1,0 +1,26 @@
+linters:
+  disable-all: true
+  enable:
+    - deadcode
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unused
+    - varcheck # default end
+    - bodyclose
+    - cyclop
+    - errorlint
+    - exportloopref
+    - goerr113
+    - makezero
+    - unparam
+
+linters-settings:
+  errorlint:
+    errorf: true
+    asserts: true
+    comparison: true

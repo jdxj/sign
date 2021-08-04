@@ -30,12 +30,10 @@ func main() {
 	task.Start()
 	apiserver.Start(root.APIServer)
 
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	select {
-	case s := <-quit:
-		logger.Infof("receive signal: %d", s)
-	}
+	s := <-quit
+	logger.Infof("receive signal: %d", s)
 
 	apiserver.Stop()
 	task.Stop()
