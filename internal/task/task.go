@@ -39,7 +39,11 @@ func Start() {
 
 func addFunc(c *cron.Cron) {
 	_, _ = c.AddFunc("0 8 * * *", manager.Run)
-	_, _ = c.AddFunc("0 23 * * *", saveTasks)
+	_, _ = c.AddFunc("0 23 * * *", SaveTasks)
+}
+
+func Stop() {
+	<-ic.Stop().Done()
 }
 
 type Task struct {
@@ -205,7 +209,7 @@ func (m *Manager) Unmarshal(data []byte) error {
 	return nil
 }
 
-func saveTasks() {
+func SaveTasks() {
 	data, err := manager.Marshal()
 	if err != nil {
 		logger.Errorf("marshal tasks failed, err: %s", err)

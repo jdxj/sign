@@ -2,6 +2,8 @@ package main
 
 import (
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/pflag"
 
@@ -26,9 +28,16 @@ func main() {
 
 	task.RecoverTasks()
 	task.Start()
+	apiserver.Start(root.APIServer)
 
-	err := apiserver.Run(root.APIServer)
-	if err != nil {
-		logger.Errorf("api server run err: %s", err)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	select {
+	case s := <-quit:
+		logger.Infof("receive signal: %d", s)
 	}
+
+	apiserver.Stop()
+	task.Stop()
+	task.SaveTasks()
 }

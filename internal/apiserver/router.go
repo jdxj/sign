@@ -1,21 +1,48 @@
 package apiserver
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
 	v1 "github.com/jdxj/sign/internal/apiserver/v1"
 	"github.com/jdxj/sign/internal/pkg/config"
+	"github.com/jdxj/sign/internal/pkg/logger"
 )
 
-func Run(conf config.APIServer) error {
+var (
+	srv *http.Server
+)
+
+func Start(conf config.APIServer) {
 	r := gin.Default()
 	registerRouter(r, conf)
 
 	addr := fmt.Sprintf("%s:%s", conf.Host, conf.Port)
-	return r.Run(addr)
+	srv = &http.Server{
+		Addr:    addr,
+		Handler: r,
+	}
+	go func() {
+		err := srv.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			logger.Errorf("stop api server err: %s", err)
+		}
+	}()
+}
+
+func Stop() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Errorf("shutdown api server err: %s", err)
+		return
+	}
+	logger.Infof("api server already stop")
 }
 
 func registerRouter(r gin.IRouter, conf config.APIServer) {
