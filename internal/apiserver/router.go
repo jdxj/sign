@@ -47,6 +47,7 @@ func Stop() {
 
 func registerRouter(r gin.IRouter, conf config.APIServer) {
 	r.GET("/", hello)
+	r.GET("/healthz", healthz)
 
 	acc := gin.Accounts{conf.User: conf.Pass}
 	api := r.Group("/api", gin.BasicAuth(acc))
@@ -57,6 +58,14 @@ func registerRouter(r gin.IRouter, conf config.APIServer) {
 }
 
 func hello(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "ok",
+	})
+}
+
+func healthz(ctx *gin.Context) {
+	logger.Debugf("receive healthz")
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "ok",
