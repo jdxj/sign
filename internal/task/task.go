@@ -38,7 +38,7 @@ func Start() {
 }
 
 func addFunc(c *cron.Cron) {
-	_, _ = c.AddFunc("0 20 * * *", manager.Run)
+	_, _ = c.AddFunc("0 8 * * *", manager.Run)
 	_, _ = c.AddFunc("0 23 * * *", saveTasks)
 }
 

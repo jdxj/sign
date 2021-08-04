@@ -135,7 +135,7 @@ func ParseBodyHeader(client *http.Client, u string, header map[string]string) er
 	defer resp.Body.Close()
 
 	_, err = ioutil.ReadAll(resp.Body)
-	return nil
+	return err
 }
 
 // ParseBodyPost 可以指定 http.Request body
