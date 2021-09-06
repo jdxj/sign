@@ -44,6 +44,14 @@ type Storage struct {
 	Path string `yaml:"path"`
 }
 
+type DB struct {
+	User   string `yaml:"user"`
+	Pass   string `yaml:"pass"`
+	Host   string `yaml:"host"`
+	Port   int    `yaml:"port"`
+	Dbname string `yaml:"dbname"`
+}
+
 func ReadConfigs(path string) Root {
 	f, err := os.Open(path)
 	if err != nil {
