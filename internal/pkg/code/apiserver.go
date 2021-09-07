@@ -5,3 +5,7 @@ const (
 	ErrAuthFailed
 	ErrAddTaskFailed
 )
+
+const (
+	Hello = iota + 120101
+)

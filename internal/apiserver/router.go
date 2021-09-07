@@ -50,8 +50,7 @@ func registerRouter(r gin.IRouter, conf config.APIServer) {
 	r.GET("/", hello)
 	r.GET("/healthz", healthz)
 
-	acc := gin.Accounts{conf.User: conf.Pass}
-	api := r.Group("/api", gin.BasicAuth(acc))
+	api := r.Group("/api")
 	{
 		v1.RegisterV1(api)
 	}
