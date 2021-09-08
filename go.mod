@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/validator/v10 v10.8.0 // indirect
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.0.0-rc1.0.20210608165722-fb1de2fb48dd

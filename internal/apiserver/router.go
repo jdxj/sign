@@ -54,7 +54,6 @@ func registerRouter(r gin.IRouter, conf config.APIServer) {
 	{
 		v1.RegisterV1(api)
 	}
-
 }
 
 func hello(ctx *gin.Context) {

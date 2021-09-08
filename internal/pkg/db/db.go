@@ -13,13 +13,12 @@ var (
 	Gorm *gorm.DB
 )
 
-func InitGorm(conf config.DB) error {
+func InitGorm(conf config.DB) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		conf.User, conf.Pass, conf.Host, conf.Port, conf.Dbname)
 	db, err := gorm.Open(mysql.Open(dsn))
 	if err != nil {
-		return err
+		panic(err)
 	}
 	Gorm = db
-	return nil
 }

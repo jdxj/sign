@@ -17,10 +17,7 @@ func TestMain(t *testing.M) {
 		Port:   3306,
 		Dbname: "sign",
 	}
-	err := db.InitGorm(conf)
-	if err != nil {
-		panic(err)
-	}
+	db.InitGorm(conf)
 	os.Exit(t.Run())
 }
 

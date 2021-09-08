@@ -1,9 +1,11 @@
-package common
+package comm
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
 	"github.com/jdxj/sign/internal/pkg/code"
@@ -47,4 +49,33 @@ func UnmarshalRequest(ctx *gin.Context, req interface{}) error {
 				err))
 	}
 	return err
+}
+
+type Claim struct {
+	UserID   int64
+	Nickname string
+	jwt.StandardClaims
+}
+
+func GenerateToken(claim *Claim) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	// todo: 从配置中获取
+	key := []byte("20210910")
+	return token.SignedString(key)
+}
+
+func CheckToken(sign string) (*Claim, error) {
+	token, err := jwt.ParseWithClaims(sign, &Claim{}, func(token *jwt.Token) (interface{}, error) {
+		key := []byte("20210910")
+		return key, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	claim, ok := token.Claims.(*Claim)
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("parse token failed")
+	}
+	return claim, nil
 }
