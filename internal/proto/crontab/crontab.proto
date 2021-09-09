@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "github.com/jdxj/sign/internal/proto/crontab";
+
+service TestService {
+  rpc Hello(TestReq) returns(TestRsp);
+}
+
+message TestReq {
+  string Nickname = 1;
+}
+
+message TestRsp {
+  string Reply = 1;
+}
