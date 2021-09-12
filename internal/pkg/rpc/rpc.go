@@ -136,7 +136,7 @@ func (s *Server) Stop() {
 	logger.Infof("server stopped")
 }
 
-func NewClient(service string, newClient func(conn *grpc.ClientConn)) {
+func NewClient(service string, newClient func(cc *grpc.ClientConn)) {
 	cc, err := grpc.Dial(DSN(service), grpc.WithInsecure())
 	if err != nil {
 		panic(err)

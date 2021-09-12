@@ -67,8 +67,8 @@ func TestSignScheme(t *testing.T) {
 
 func TestNewClient(t *testing.T) {
 	var client crontab.TestServiceClient
-	NewClient("crontab", func(conn *grpc.ClientConn) {
-		client = crontab.NewTestServiceClient(conn)
+	NewClient("crontab", func(cc *grpc.ClientConn) {
+		client = crontab.NewTestServiceClient(cc)
 	})
 	rsp, err := client.Hello(context.Background(), &crontab.TestReq{
 		Nickname: "jdxj-man",
