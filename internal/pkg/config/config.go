@@ -14,6 +14,7 @@ type Root struct {
 	User      []User    `yaml:"user"`
 	APIServer APIServer `yaml:"api_server"`
 	Storage   Storage   `yaml:"storage"`
+	RPC       RPC       `yaml:"rpc"`
 }
 
 type Bot struct {
@@ -50,6 +51,12 @@ type DB struct {
 	Host   string `yaml:"host"`
 	Port   int    `yaml:"port"`
 	Dbname string `yaml:"dbname"`
+}
+
+type RPC struct {
+	EtcdAddr    string `yaml:"etcd_addr"`
+	CrontabPort int    `yaml:"crontab_port"`
+	SecretPort  int    `yaml:"secret_port"`
 }
 
 func ReadConfigs(path string) Root {

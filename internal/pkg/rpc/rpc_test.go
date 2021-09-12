@@ -22,7 +22,8 @@ func TestMain(t *testing.M) {
 }
 
 func TestServer_Register(t *testing.T) {
-	server, err := NewServer("hello", "127.0.0.1:49152", "127.0.0.1:2379")
+	server, err := NewServer("hello",
+		"127.0.0.1:2379", 49152)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
@@ -78,4 +79,12 @@ func TestNewClient(t *testing.T) {
 	}
 	fmt.Printf("rsp: %+v\n", rsp)
 	time.Sleep(time.Hour)
+}
+
+func TestGetListenAddr(t *testing.T) {
+	addr, err := GetListenAddr(49152, "release")
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	fmt.Printf("addr: %s\n", addr)
 }

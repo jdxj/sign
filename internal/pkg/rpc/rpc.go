@@ -22,7 +22,20 @@ func DSN(service string) string {
 	return fmt.Sprintf("%s:///%s", SignScheme, service)
 }
 
-func NewServer(service, listenAddr, etcdAddr string) (*Server, error) {
+type Options struct {
+	Mod string
+}
+
+type OptionFunc func(opts *Options)
+
+func NewServer(service, etcdAddr string, listenPort int, optsF ...OptionFunc) (*Server, error) {
+	opts := &Options{
+		Mod: "debug",
+	}
+	for _, optF := range optsF {
+		optF(opts)
+	}
+
 	if service == "" {
 		return nil, fmt.Errorf("invalid service name")
 	}
@@ -34,6 +47,10 @@ func NewServer(service, listenAddr, etcdAddr string) (*Server, error) {
 		return nil, err
 	}
 
+	listenAddr, err := GetListenAddr(listenPort, opts.Mod)
+	if err != nil {
+		return nil, err
+	}
 	l, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		return nil, err
@@ -142,4 +159,30 @@ func NewClient(service string, newClient func(cc *grpc.ClientConn)) {
 		panic(err)
 	}
 	newClient(cc)
+}
+
+func GetListenAddr(port int, mod string) (string, error) {
+	switch mod {
+	default:
+		return fmt.Sprintf("%s:%d", "127.0.0.1", port), nil
+	case "release":
+	}
+
+	addresses, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+	for _, addr := range addresses {
+		ipNet, ok := addr.(*net.IPNet)
+		if !ok {
+			continue
+		}
+
+		ip := ipNet.IP
+		if !ip.IsLoopback() && ip.To4() != nil {
+			listenAddr := fmt.Sprintf("%s:%d", ip.To4(), port)
+			return listenAddr, nil
+		}
+	}
+	return "", fmt.Errorf("can not get ip")
 }

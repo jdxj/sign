@@ -1,24 +1,28 @@
 bot:
-    token: ""
-    chat_id: 0
+  token: ""
+  chat_id: 0
 logger:
-    path: ""
-    mode: ""
+  path: ""
+  mode: ""
 user:
-    - id: ""
-      domain: 0
-      type:
-        - 1
-        - 2
-      key: ""
-    - id: ""
-      domain: 0
-      type: []
-      key: ""
+  - id: ""
+    domain: 0
+    type:
+      - 1
+      - 2
+    key: ""
+  - id: ""
+    domain: 0
+    type: []
+    key: ""
 api_server:
-    host: ""
-    port: ""
-    user: ""
-    pass: ""
+  host: ""
+  port: ""
+  user: ""
+  pass: ""
 storage:
-    path: ""
+  path: ""
+rpc:
+  etcd_addr: ""
+  crontab_port: 0
+  secret_port: 0
