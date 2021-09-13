@@ -61,7 +61,7 @@ func NewServer(service, etcdAddr string, listenPort int, optsF ...OptionFunc) (*
 		listener:   l,
 		grpcServer: grpc.NewServer(),
 		listenAddr: listenAddr,
-		node:       time.Now().UnixNano(),
+		node:       time.Now().UnixNano(), // todo: 使用配置或其他方式
 		service:    service,
 		stop:       make(chan int),
 		wg:         &sync.WaitGroup{},

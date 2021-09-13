@@ -1,15 +1,67 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/jdxj/sign/internal/proto/crontab";
 
-service TestService {
-  rpc Hello(TestReq) returns(TestRsp);
+service CrontabService {
+  rpc CreateTask(CreateTaskRep) returns(CreateTaskRsp);
+  rpc GetTasks(GetTasksReq) returns(GetTasksRsp);
+  rpc UpdateTask(UpdateTaskReq) returns(google.protobuf.Empty);
+  rpc DeleteTask(DeleteTaskReq) returns(google.protobuf.Empty);
 }
 
-message TestReq {
-  string Nickname = 1;
+enum Domain {
+  UnknownDomain = 0;
+
+  BILI = 101;
+  HPI  = 201;
+  STG  = 301;
+  V2EX = 401;
 }
 
-message TestRsp {
-  string Reply = 1;
+enum TaskKind {
+  UnknownTaskKind = 0;
+  // bili
+  BILISign   = 102;
+  BILIBCount = 103;
+  // 黑客派
+  HPISign = 202;
+  // Go 语言中文网
+  STGSign = 302;
+  // V2ex
+  V2EXSign = 402;
+}
+
+message Task {
+  string Describe = 1;
+  TaskKind Kind = 2;
+  string Spec = 3;
+  int64 SecretID = 4;
+}
+
+message CreateTaskRep {
+  int64 UserID = 1;
+  Task Task = 2;
+}
+
+message CreateTaskRsp {
+  int64 TaskID = 1;
+}
+
+message GetTasksReq {
+  int64 UserID = 1;
+}
+
+message GetTasksRsp {
+  repeated Task Record = 1;
+}
+
+message UpdateTaskReq {
+  int64 TaskID = 1;
+  Task Task = 2;
+}
+
+message DeleteTaskReq {
+  int64 TaskID = 1;
 }

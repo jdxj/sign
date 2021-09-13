@@ -1,30 +1,34 @@
-package secret
+package task
 
 import (
 	"github.com/jdxj/sign/internal/pkg/db"
 )
 
-type Secret struct {
-	SecretID int64 `gorm:"primaryKey"`
+type Task struct {
+	TaskID   int64 `gorm:"primaryKey"`
 	UserID   int64
-	Domain   int32
-	Key      string
+	Describe string
+	Kind     int
+	SpecID   int64
+	SecretID int64
 }
 
-const TableName = "secret"
+const (
+	TableName = "task"
+)
 
-func Insert(sec *Secret) (int64, error) {
+func Insert(data *Task) error {
 	query := db.Gorm.Table(TableName)
-	return sec.SecretID, query.Create(sec).Error
+	return query.Create(data).Error
 }
 
-func Find(where map[string]interface{}) ([]Secret, error) {
+func Find(where map[string]interface{}) ([]Task, error) {
 	query := db.Gorm.Table(TableName)
 	for cond, param := range where {
 		query = query.Where(cond, param)
 	}
 
-	var rows []Secret
+	var rows []Task
 	return rows, query.Find(&rows).Error
 }
 

@@ -9,6 +9,7 @@ package crontab
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 )
@@ -20,16 +21,136 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type TestReq struct {
+type Domain int32
+
+const (
+	Domain_UnknownDomain Domain = 0
+	Domain_BILI          Domain = 101
+	Domain_HPI           Domain = 201
+	Domain_STG           Domain = 301
+	Domain_V2EX          Domain = 401
+)
+
+// Enum value maps for Domain.
+var (
+	Domain_name = map[int32]string{
+		0:   "UnknownDomain",
+		101: "BILI",
+		201: "HPI",
+		301: "STG",
+		401: "V2EX",
+	}
+	Domain_value = map[string]int32{
+		"UnknownDomain": 0,
+		"BILI":          101,
+		"HPI":           201,
+		"STG":           301,
+		"V2EX":          401,
+	}
+)
+
+func (x Domain) Enum() *Domain {
+	p := new(Domain)
+	*p = x
+	return p
+}
+
+func (x Domain) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Domain) Descriptor() protoreflect.EnumDescriptor {
+	return file_crontab_crontab_proto_enumTypes[0].Descriptor()
+}
+
+func (Domain) Type() protoreflect.EnumType {
+	return &file_crontab_crontab_proto_enumTypes[0]
+}
+
+func (x Domain) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Domain.Descriptor instead.
+func (Domain) EnumDescriptor() ([]byte, []int) {
+	return file_crontab_crontab_proto_rawDescGZIP(), []int{0}
+}
+
+type TaskKind int32
+
+const (
+	TaskKind_UnknownTaskKind TaskKind = 0
+	// bili
+	TaskKind_BILISign   TaskKind = 102
+	TaskKind_BILIBCount TaskKind = 103
+	// 黑客派
+	TaskKind_HPISign TaskKind = 202
+	// Go 语言中文网
+	TaskKind_STGSign TaskKind = 302
+	// V2ex
+	TaskKind_V2EXSign TaskKind = 402
+)
+
+// Enum value maps for TaskKind.
+var (
+	TaskKind_name = map[int32]string{
+		0:   "UnknownTaskKind",
+		102: "BILISign",
+		103: "BILIBCount",
+		202: "HPISign",
+		302: "STGSign",
+		402: "V2EXSign",
+	}
+	TaskKind_value = map[string]int32{
+		"UnknownTaskKind": 0,
+		"BILISign":        102,
+		"BILIBCount":      103,
+		"HPISign":         202,
+		"STGSign":         302,
+		"V2EXSign":        402,
+	}
+)
+
+func (x TaskKind) Enum() *TaskKind {
+	p := new(TaskKind)
+	*p = x
+	return p
+}
+
+func (x TaskKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TaskKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_crontab_crontab_proto_enumTypes[1].Descriptor()
+}
+
+func (TaskKind) Type() protoreflect.EnumType {
+	return &file_crontab_crontab_proto_enumTypes[1]
+}
+
+func (x TaskKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TaskKind.Descriptor instead.
+func (TaskKind) EnumDescriptor() ([]byte, []int) {
+	return file_crontab_crontab_proto_rawDescGZIP(), []int{1}
+}
+
+type Task struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Nickname string `protobuf:"bytes,1,opt,name=Nickname,proto3" json:"Nickname,omitempty"`
+	Describe string   `protobuf:"bytes,1,opt,name=Describe,proto3" json:"Describe,omitempty"`
+	Kind     TaskKind `protobuf:"varint,2,opt,name=Kind,proto3,enum=TaskKind" json:"Kind,omitempty"`
+	Spec     string   `protobuf:"bytes,3,opt,name=Spec,proto3" json:"Spec,omitempty"`
+	SecretID int64    `protobuf:"varint,4,opt,name=SecretID,proto3" json:"SecretID,omitempty"`
 }
 
-func (x *TestReq) Reset() {
-	*x = TestReq{}
+func (x *Task) Reset() {
+	*x = Task{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_crontab_crontab_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -37,13 +158,13 @@ func (x *TestReq) Reset() {
 	}
 }
 
-func (x *TestReq) String() string {
+func (x *Task) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TestReq) ProtoMessage() {}
+func (*Task) ProtoMessage() {}
 
-func (x *TestReq) ProtoReflect() protoreflect.Message {
+func (x *Task) ProtoReflect() protoreflect.Message {
 	mi := &file_crontab_crontab_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -55,28 +176,50 @@ func (x *TestReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TestReq.ProtoReflect.Descriptor instead.
-func (*TestReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use Task.ProtoReflect.Descriptor instead.
+func (*Task) Descriptor() ([]byte, []int) {
 	return file_crontab_crontab_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *TestReq) GetNickname() string {
+func (x *Task) GetDescribe() string {
 	if x != nil {
-		return x.Nickname
+		return x.Describe
 	}
 	return ""
 }
 
-type TestRsp struct {
+func (x *Task) GetKind() TaskKind {
+	if x != nil {
+		return x.Kind
+	}
+	return TaskKind_UnknownTaskKind
+}
+
+func (x *Task) GetSpec() string {
+	if x != nil {
+		return x.Spec
+	}
+	return ""
+}
+
+func (x *Task) GetSecretID() int64 {
+	if x != nil {
+		return x.SecretID
+	}
+	return 0
+}
+
+type CreateTaskRep struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Reply string `protobuf:"bytes,1,opt,name=Reply,proto3" json:"Reply,omitempty"`
+	UserID int64 `protobuf:"varint,1,opt,name=UserID,proto3" json:"UserID,omitempty"`
+	Task   *Task `protobuf:"bytes,2,opt,name=Task,proto3" json:"Task,omitempty"`
 }
 
-func (x *TestRsp) Reset() {
-	*x = TestRsp{}
+func (x *CreateTaskRep) Reset() {
+	*x = CreateTaskRep{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_crontab_crontab_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -84,13 +227,13 @@ func (x *TestRsp) Reset() {
 	}
 }
 
-func (x *TestRsp) String() string {
+func (x *CreateTaskRep) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TestRsp) ProtoMessage() {}
+func (*CreateTaskRep) ProtoMessage() {}
 
-func (x *TestRsp) ProtoReflect() protoreflect.Message {
+func (x *CreateTaskRep) ProtoReflect() protoreflect.Message {
 	mi := &file_crontab_crontab_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,30 +245,325 @@ func (x *TestRsp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TestRsp.ProtoReflect.Descriptor instead.
-func (*TestRsp) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateTaskRep.ProtoReflect.Descriptor instead.
+func (*CreateTaskRep) Descriptor() ([]byte, []int) {
 	return file_crontab_crontab_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TestRsp) GetReply() string {
+func (x *CreateTaskRep) GetUserID() int64 {
 	if x != nil {
-		return x.Reply
+		return x.UserID
 	}
-	return ""
+	return 0
+}
+
+func (x *CreateTaskRep) GetTask() *Task {
+	if x != nil {
+		return x.Task
+	}
+	return nil
+}
+
+type CreateTaskRsp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TaskID int64 `protobuf:"varint,1,opt,name=TaskID,proto3" json:"TaskID,omitempty"`
+}
+
+func (x *CreateTaskRsp) Reset() {
+	*x = CreateTaskRsp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_crontab_crontab_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateTaskRsp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTaskRsp) ProtoMessage() {}
+
+func (x *CreateTaskRsp) ProtoReflect() protoreflect.Message {
+	mi := &file_crontab_crontab_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTaskRsp.ProtoReflect.Descriptor instead.
+func (*CreateTaskRsp) Descriptor() ([]byte, []int) {
+	return file_crontab_crontab_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreateTaskRsp) GetTaskID() int64 {
+	if x != nil {
+		return x.TaskID
+	}
+	return 0
+}
+
+type GetTasksReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	UserID int64 `protobuf:"varint,1,opt,name=UserID,proto3" json:"UserID,omitempty"`
+}
+
+func (x *GetTasksReq) Reset() {
+	*x = GetTasksReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_crontab_crontab_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetTasksReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTasksReq) ProtoMessage() {}
+
+func (x *GetTasksReq) ProtoReflect() protoreflect.Message {
+	mi := &file_crontab_crontab_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTasksReq.ProtoReflect.Descriptor instead.
+func (*GetTasksReq) Descriptor() ([]byte, []int) {
+	return file_crontab_crontab_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetTasksReq) GetUserID() int64 {
+	if x != nil {
+		return x.UserID
+	}
+	return 0
+}
+
+type GetTasksRsp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Record []*Task `protobuf:"bytes,1,rep,name=Record,proto3" json:"Record,omitempty"`
+}
+
+func (x *GetTasksRsp) Reset() {
+	*x = GetTasksRsp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_crontab_crontab_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetTasksRsp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTasksRsp) ProtoMessage() {}
+
+func (x *GetTasksRsp) ProtoReflect() protoreflect.Message {
+	mi := &file_crontab_crontab_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTasksRsp.ProtoReflect.Descriptor instead.
+func (*GetTasksRsp) Descriptor() ([]byte, []int) {
+	return file_crontab_crontab_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetTasksRsp) GetRecord() []*Task {
+	if x != nil {
+		return x.Record
+	}
+	return nil
+}
+
+type UpdateTaskReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TaskID int64 `protobuf:"varint,1,opt,name=TaskID,proto3" json:"TaskID,omitempty"`
+	Task   *Task `protobuf:"bytes,2,opt,name=Task,proto3" json:"Task,omitempty"`
+}
+
+func (x *UpdateTaskReq) Reset() {
+	*x = UpdateTaskReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_crontab_crontab_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdateTaskReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateTaskReq) ProtoMessage() {}
+
+func (x *UpdateTaskReq) ProtoReflect() protoreflect.Message {
+	mi := &file_crontab_crontab_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateTaskReq.ProtoReflect.Descriptor instead.
+func (*UpdateTaskReq) Descriptor() ([]byte, []int) {
+	return file_crontab_crontab_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateTaskReq) GetTaskID() int64 {
+	if x != nil {
+		return x.TaskID
+	}
+	return 0
+}
+
+func (x *UpdateTaskReq) GetTask() *Task {
+	if x != nil {
+		return x.Task
+	}
+	return nil
+}
+
+type DeleteTaskReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TaskID int64 `protobuf:"varint,1,opt,name=TaskID,proto3" json:"TaskID,omitempty"`
+}
+
+func (x *DeleteTaskReq) Reset() {
+	*x = DeleteTaskReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_crontab_crontab_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteTaskReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteTaskReq) ProtoMessage() {}
+
+func (x *DeleteTaskReq) ProtoReflect() protoreflect.Message {
+	mi := &file_crontab_crontab_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteTaskReq.ProtoReflect.Descriptor instead.
+func (*DeleteTaskReq) Descriptor() ([]byte, []int) {
+	return file_crontab_crontab_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DeleteTaskReq) GetTaskID() int64 {
+	if x != nil {
+		return x.TaskID
+	}
+	return 0
 }
 
 var File_crontab_crontab_proto protoreflect.FileDescriptor
 
 var file_crontab_crontab_proto_rawDesc = []byte{
 	0x0a, 0x15, 0x63, 0x72, 0x6f, 0x6e, 0x74, 0x61, 0x62, 0x2f, 0x63, 0x72, 0x6f, 0x6e, 0x74, 0x61,
-	0x62, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x25, 0x0a, 0x07, 0x54, 0x65, 0x73, 0x74, 0x52,
-	0x65, 0x71, 0x12, 0x1a, 0x0a, 0x08, 0x4e, 0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x4e, 0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x1f,
-	0x0a, 0x07, 0x54, 0x65, 0x73, 0x74, 0x52, 0x73, 0x70, 0x12, 0x14, 0x0a, 0x05, 0x52, 0x65, 0x70,
-	0x6c, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x32,
-	0x2a, 0x0a, 0x0b, 0x54, 0x65, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x1b,
-	0x0a, 0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x12, 0x08, 0x2e, 0x54, 0x65, 0x73, 0x74, 0x52, 0x65,
-	0x71, 0x1a, 0x08, 0x2e, 0x54, 0x65, 0x73, 0x74, 0x52, 0x73, 0x70, 0x42, 0x2d, 0x5a, 0x2b, 0x67,
+	0x62, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1b, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x65, 0x6d, 0x70, 0x74, 0x79, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x22, 0x71, 0x0a, 0x04, 0x54, 0x61, 0x73, 0x6b, 0x12, 0x1a, 0x0a, 0x08,
+	0x44, 0x65, 0x73, 0x63, 0x72, 0x69, 0x62, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08,
+	0x44, 0x65, 0x73, 0x63, 0x72, 0x69, 0x62, 0x65, 0x12, 0x1d, 0x0a, 0x04, 0x4b, 0x69, 0x6e, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x09, 0x2e, 0x54, 0x61, 0x73, 0x6b, 0x4b, 0x69, 0x6e,
+	0x64, 0x52, 0x04, 0x4b, 0x69, 0x6e, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x53, 0x70, 0x65, 0x63, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x53, 0x70, 0x65, 0x63, 0x12, 0x1a, 0x0a, 0x08, 0x53,
+	0x65, 0x63, 0x72, 0x65, 0x74, 0x49, 0x44, 0x18, 0x04, 0x20, 0x01, 0x28, 0x03, 0x52, 0x08, 0x53,
+	0x65, 0x63, 0x72, 0x65, 0x74, 0x49, 0x44, 0x22, 0x42, 0x0a, 0x0d, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x65, 0x70, 0x12, 0x16, 0x0a, 0x06, 0x55, 0x73, 0x65, 0x72,
+	0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44,
+	0x12, 0x19, 0x0a, 0x04, 0x54, 0x61, 0x73, 0x6b, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x05,
+	0x2e, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x04, 0x54, 0x61, 0x73, 0x6b, 0x22, 0x27, 0x0a, 0x0d, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x73, 0x70, 0x12, 0x16, 0x0a, 0x06,
+	0x54, 0x61, 0x73, 0x6b, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x54, 0x61,
+	0x73, 0x6b, 0x49, 0x44, 0x22, 0x25, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x54, 0x61, 0x73, 0x6b, 0x73,
+	0x52, 0x65, 0x71, 0x12, 0x16, 0x0a, 0x06, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x03, 0x52, 0x06, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x22, 0x2c, 0x0a, 0x0b, 0x47,
+	0x65, 0x74, 0x54, 0x61, 0x73, 0x6b, 0x73, 0x52, 0x73, 0x70, 0x12, 0x1d, 0x0a, 0x06, 0x52, 0x65,
+	0x63, 0x6f, 0x72, 0x64, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x54, 0x61, 0x73,
+	0x6b, 0x52, 0x06, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x22, 0x42, 0x0a, 0x0d, 0x55, 0x70, 0x64,
+	0x61, 0x74, 0x65, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x65, 0x71, 0x12, 0x16, 0x0a, 0x06, 0x54, 0x61,
+	0x73, 0x6b, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x54, 0x61, 0x73, 0x6b,
+	0x49, 0x44, 0x12, 0x19, 0x0a, 0x04, 0x54, 0x61, 0x73, 0x6b, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x05, 0x2e, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x04, 0x54, 0x61, 0x73, 0x6b, 0x22, 0x27, 0x0a,
+	0x0d, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x65, 0x71, 0x12, 0x16,
+	0x0a, 0x06, 0x54, 0x61, 0x73, 0x6b, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06,
+	0x54, 0x61, 0x73, 0x6b, 0x49, 0x44, 0x2a, 0x44, 0x0a, 0x06, 0x44, 0x6f, 0x6d, 0x61, 0x69, 0x6e,
+	0x12, 0x11, 0x0a, 0x0d, 0x55, 0x6e, 0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x44, 0x6f, 0x6d, 0x61, 0x69,
+	0x6e, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x42, 0x49, 0x4c, 0x49, 0x10, 0x65, 0x12, 0x08, 0x0a,
+	0x03, 0x48, 0x50, 0x49, 0x10, 0xc9, 0x01, 0x12, 0x08, 0x0a, 0x03, 0x53, 0x54, 0x47, 0x10, 0xad,
+	0x02, 0x12, 0x09, 0x0a, 0x04, 0x56, 0x32, 0x45, 0x58, 0x10, 0x91, 0x03, 0x2a, 0x68, 0x0a, 0x08,
+	0x54, 0x61, 0x73, 0x6b, 0x4b, 0x69, 0x6e, 0x64, 0x12, 0x13, 0x0a, 0x0f, 0x55, 0x6e, 0x6b, 0x6e,
+	0x6f, 0x77, 0x6e, 0x54, 0x61, 0x73, 0x6b, 0x4b, 0x69, 0x6e, 0x64, 0x10, 0x00, 0x12, 0x0c, 0x0a,
+	0x08, 0x42, 0x49, 0x4c, 0x49, 0x53, 0x69, 0x67, 0x6e, 0x10, 0x66, 0x12, 0x0e, 0x0a, 0x0a, 0x42,
+	0x49, 0x4c, 0x49, 0x42, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x10, 0x67, 0x12, 0x0c, 0x0a, 0x07, 0x48,
+	0x50, 0x49, 0x53, 0x69, 0x67, 0x6e, 0x10, 0xca, 0x01, 0x12, 0x0c, 0x0a, 0x07, 0x53, 0x54, 0x47,
+	0x53, 0x69, 0x67, 0x6e, 0x10, 0xae, 0x02, 0x12, 0x0d, 0x0a, 0x08, 0x56, 0x32, 0x45, 0x58, 0x53,
+	0x69, 0x67, 0x6e, 0x10, 0x92, 0x03, 0x32, 0xd2, 0x01, 0x0a, 0x0e, 0x43, 0x72, 0x6f, 0x6e, 0x74,
+	0x61, 0x62, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x2c, 0x0a, 0x0a, 0x43, 0x72, 0x65,
+	0x61, 0x74, 0x65, 0x54, 0x61, 0x73, 0x6b, 0x12, 0x0e, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x54, 0x61, 0x73, 0x6b, 0x52, 0x65, 0x70, 0x1a, 0x0e, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x54, 0x61, 0x73, 0x6b, 0x52, 0x73, 0x70, 0x12, 0x26, 0x0a, 0x08, 0x47, 0x65, 0x74, 0x54, 0x61,
+	0x73, 0x6b, 0x73, 0x12, 0x0c, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x61, 0x73, 0x6b, 0x73, 0x52, 0x65,
+	0x71, 0x1a, 0x0c, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x61, 0x73, 0x6b, 0x73, 0x52, 0x73, 0x70, 0x12,
+	0x34, 0x0a, 0x0a, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x61, 0x73, 0x6b, 0x12, 0x0e, 0x2e,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e,
+	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
+	0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x34, 0x0a, 0x0a, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54,
+	0x61, 0x73, 0x6b, 0x12, 0x0e, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x61, 0x73, 0x6b,
+	0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x42, 0x2d, 0x5a, 0x2b, 0x67,
 	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6a, 0x64, 0x78, 0x6a, 0x2f, 0x73,
 	0x69, 0x67, 0x6e, 0x2f, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x2f, 0x63, 0x72, 0x6f, 0x6e, 0x74, 0x61, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
@@ -144,19 +582,38 @@ func file_crontab_crontab_proto_rawDescGZIP() []byte {
 	return file_crontab_crontab_proto_rawDescData
 }
 
-var file_crontab_crontab_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_crontab_crontab_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_crontab_crontab_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_crontab_crontab_proto_goTypes = []interface{}{
-	(*TestReq)(nil), // 0: TestReq
-	(*TestRsp)(nil), // 1: TestRsp
+	(Domain)(0),           // 0: Domain
+	(TaskKind)(0),         // 1: TaskKind
+	(*Task)(nil),          // 2: Task
+	(*CreateTaskRep)(nil), // 3: CreateTaskRep
+	(*CreateTaskRsp)(nil), // 4: CreateTaskRsp
+	(*GetTasksReq)(nil),   // 5: GetTasksReq
+	(*GetTasksRsp)(nil),   // 6: GetTasksRsp
+	(*UpdateTaskReq)(nil), // 7: UpdateTaskReq
+	(*DeleteTaskReq)(nil), // 8: DeleteTaskReq
+	(*emptypb.Empty)(nil), // 9: google.protobuf.Empty
 }
 var file_crontab_crontab_proto_depIdxs = []int32{
-	0, // 0: TestService.Hello:input_type -> TestReq
-	1, // 1: TestService.Hello:output_type -> TestRsp
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	1, // 0: Task.Kind:type_name -> TaskKind
+	2, // 1: CreateTaskRep.Task:type_name -> Task
+	2, // 2: GetTasksRsp.Record:type_name -> Task
+	2, // 3: UpdateTaskReq.Task:type_name -> Task
+	3, // 4: CrontabService.CreateTask:input_type -> CreateTaskRep
+	5, // 5: CrontabService.GetTasks:input_type -> GetTasksReq
+	7, // 6: CrontabService.UpdateTask:input_type -> UpdateTaskReq
+	8, // 7: CrontabService.DeleteTask:input_type -> DeleteTaskReq
+	4, // 8: CrontabService.CreateTask:output_type -> CreateTaskRsp
+	6, // 9: CrontabService.GetTasks:output_type -> GetTasksRsp
+	9, // 10: CrontabService.UpdateTask:output_type -> google.protobuf.Empty
+	9, // 11: CrontabService.DeleteTask:output_type -> google.protobuf.Empty
+	8, // [8:12] is the sub-list for method output_type
+	4, // [4:8] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_crontab_crontab_proto_init() }
@@ -166,7 +623,7 @@ func file_crontab_crontab_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_crontab_crontab_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TestReq); i {
+			switch v := v.(*Task); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -178,7 +635,67 @@ func file_crontab_crontab_proto_init() {
 			}
 		}
 		file_crontab_crontab_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TestRsp); i {
+			switch v := v.(*CreateTaskRep); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_crontab_crontab_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateTaskRsp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_crontab_crontab_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetTasksReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_crontab_crontab_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetTasksRsp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_crontab_crontab_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateTaskReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_crontab_crontab_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteTaskReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -195,13 +712,14 @@ func file_crontab_crontab_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_crontab_crontab_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   2,
+			NumEnums:      2,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_crontab_crontab_proto_goTypes,
 		DependencyIndexes: file_crontab_crontab_proto_depIdxs,
+		EnumInfos:         file_crontab_crontab_proto_enumTypes,
 		MessageInfos:      file_crontab_crontab_proto_msgTypes,
 	}.Build()
 	File_crontab_crontab_proto = out.File
