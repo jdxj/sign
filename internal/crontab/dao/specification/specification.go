@@ -15,22 +15,25 @@ type Specification struct {
 
 const (
 	TableName = "specification"
+
+	DuplicateEntry    = 1
+	NotDuplicateEntry = 2
 )
 
-func Insert(data *Specification) error {
+func Insert(data *Specification) (int, error) {
 	query := db.Gorm.Table(TableName)
 	err := query.Create(data).Error
 	if err == nil {
-		return nil
+		return NotDuplicateEntry, nil
 	}
 	var mysqlError *mysql.MySQLError
 	if !errors.As(err, &mysqlError) || mysqlError.Number != 1062 {
-		return err
+		return NotDuplicateEntry, err
 	}
 
 	row, err := FindOne(map[string]interface{}{"spec = ?": data.Spec})
 	data.SpecID = row.SpecID
-	return err
+	return DuplicateEntry, err
 }
 
 func FindOne(where map[string]interface{}) (Specification, error) {

@@ -14,6 +14,8 @@ type Root struct {
 	User      []User    `yaml:"user"`
 	APIServer APIServer `yaml:"api_server"`
 	Storage   Storage   `yaml:"storage"`
+	DB        DB        `yaml:"db"`
+	RDB       RDB       `yaml:"rdb"`
 	RPC       RPC       `yaml:"rpc"`
 }
 
@@ -51,6 +53,13 @@ type DB struct {
 	Host   string `yaml:"host"`
 	Port   int    `yaml:"port"`
 	Dbname string `yaml:"dbname"`
+}
+
+type RDB struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+	Pass string `yaml:"pass"`
+	DB   int    `yaml:"db"`
 }
 
 type RPC struct {

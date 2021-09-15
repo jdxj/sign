@@ -24,7 +24,7 @@ func TestInsert(t *testing.T) {
 	data := &Specification{
 		Spec: "abc",
 	}
-	err := Insert(data)
+	_, err := Insert(data)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

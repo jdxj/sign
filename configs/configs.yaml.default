@@ -22,6 +22,17 @@ api_server:
   pass: ""
 storage:
   path: ""
+db:
+  user: ""
+  pass: ""
+  host: ""
+  port: 0
+  dbname: ""
+rdb:
+  host: ""
+  port: 0
+  pass: ""
+  db: 0
 rpc:
   etcd_addr: ""
   crontab_port: 0
