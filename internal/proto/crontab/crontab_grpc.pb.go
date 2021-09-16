@@ -21,7 +21,6 @@ const _ = grpc.SupportPackageIsVersion7
 type CrontabServiceClient interface {
 	CreateTask(ctx context.Context, in *CreateTaskRep, opts ...grpc.CallOption) (*CreateTaskRsp, error)
 	GetTasks(ctx context.Context, in *GetTasksReq, opts ...grpc.CallOption) (*GetTasksRsp, error)
-	UpdateTask(ctx context.Context, in *UpdateTaskReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteTask(ctx context.Context, in *DeleteTaskReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -51,15 +50,6 @@ func (c *crontabServiceClient) GetTasks(ctx context.Context, in *GetTasksReq, op
 	return out, nil
 }
 
-func (c *crontabServiceClient) UpdateTask(ctx context.Context, in *UpdateTaskReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/CrontabService/UpdateTask", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *crontabServiceClient) DeleteTask(ctx context.Context, in *DeleteTaskReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/CrontabService/DeleteTask", in, out, opts...)
@@ -75,7 +65,6 @@ func (c *crontabServiceClient) DeleteTask(ctx context.Context, in *DeleteTaskReq
 type CrontabServiceServer interface {
 	CreateTask(context.Context, *CreateTaskRep) (*CreateTaskRsp, error)
 	GetTasks(context.Context, *GetTasksReq) (*GetTasksRsp, error)
-	UpdateTask(context.Context, *UpdateTaskReq) (*emptypb.Empty, error)
 	DeleteTask(context.Context, *DeleteTaskReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCrontabServiceServer()
 }
@@ -89,9 +78,6 @@ func (UnimplementedCrontabServiceServer) CreateTask(context.Context, *CreateTask
 }
 func (UnimplementedCrontabServiceServer) GetTasks(context.Context, *GetTasksReq) (*GetTasksRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTasks not implemented")
-}
-func (UnimplementedCrontabServiceServer) UpdateTask(context.Context, *UpdateTaskReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateTask not implemented")
 }
 func (UnimplementedCrontabServiceServer) DeleteTask(context.Context, *DeleteTaskReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTask not implemented")
@@ -145,24 +131,6 @@ func _CrontabService_GetTasks_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CrontabService_UpdateTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateTaskReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CrontabServiceServer).UpdateTask(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/CrontabService/UpdateTask",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CrontabServiceServer).UpdateTask(ctx, req.(*UpdateTaskReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _CrontabService_DeleteTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteTaskReq)
 	if err := dec(in); err != nil {
@@ -195,10 +163,6 @@ var CrontabService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTasks",
 			Handler:    _CrontabService_GetTasks_Handler,
-		},
-		{
-			MethodName: "UpdateTask",
-			Handler:    _CrontabService_UpdateTask_Handler,
 		},
 		{
 			MethodName: "DeleteTask",

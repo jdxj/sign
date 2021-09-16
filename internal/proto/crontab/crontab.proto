@@ -7,7 +7,6 @@ option go_package = "github.com/jdxj/sign/internal/proto/crontab";
 service CrontabService {
   rpc CreateTask(CreateTaskRep) returns(CreateTaskRsp);
   rpc GetTasks(GetTasksReq) returns(GetTasksRsp);
-  rpc UpdateTask(UpdateTaskReq) returns(google.protobuf.Empty);
   rpc DeleteTask(DeleteTaskReq) returns(google.protobuf.Empty);
 }
 
@@ -34,15 +33,16 @@ enum TaskKind {
 }
 
 message Task {
-  string Describe = 1;
-  TaskKind Kind = 2;
-  string Spec = 3;
-  int64 SecretID = 4;
+  int64 TaskID = 1;
+  int64 UserID = 2;
+  string Describe = 3;
+  TaskKind Kind = 4;
+  string Spec = 5;
+  int64 SecretID = 6;
 }
 
 message CreateTaskRep {
-  int64 UserID = 1;
-  Task Task = 2;
+  Task Task = 1;
 }
 
 message CreateTaskRsp {
@@ -54,12 +54,7 @@ message GetTasksReq {
 }
 
 message GetTasksRsp {
-  repeated Task Record = 1;
-}
-
-message UpdateTaskReq {
-  int64 TaskID = 1;
-  Task Task = 2;
+  repeated Task List = 1;
 }
 
 message DeleteTaskReq {
