@@ -6,11 +6,11 @@ import (
 
 type Task struct {
 	TaskID   int64 `gorm:"primaryKey"`
-	UserID   int64
 	Describe string
-	Kind     int
-	SpecID   int64
+	UserID   int64
 	SecretID int64
+	Kind     int
+	Spec     string
 }
 
 const (

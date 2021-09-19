@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"github.com/panjf2000/ants/v2"
 	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -11,67 +10,48 @@ import (
 
 	"github.com/jdxj/sign/internal/crontab/dao/specification"
 	"github.com/jdxj/sign/internal/crontab/dao/task"
-	"github.com/jdxj/sign/internal/crontab/model"
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 func NewService() *Service {
 	srv := &Service{
-		cron: cron.New(),
 		cronParser: cron.NewParser(
 			cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow),
 	}
-	gPool, err := ants.NewPool(1000, ants.WithNonblocking(true))
-	if err != nil {
-		panic(err)
-	}
-	srv.gPool = gPool
-
-	// todo: 从数据库中恢复 timer
 	return srv
 }
 
 type Service struct {
 	crontab.UnimplementedCrontabServiceServer
 
-	cron       *cron.Cron
 	cronParser cron.Parser
-
-	gPool *ants.Pool
 }
 
 func (srv *Service) Start() {
-	srv.cron.Start()
 	logger.Infof("cron started")
 }
 
 func (srv *Service) Stop() {
-	<-srv.cron.Stop().Done()
-	srv.gPool.Release()
 	logger.Infof("cron stopped")
 }
 
-func (srv *Service) CreateTask(ctx context.Context, req *crontab.CreateTaskRep) (*crontab.CreateTaskRsp, error) {
-	t := req.Task
-	if t == nil {
-		return nil, status.Errorf(codes.InvalidArgument, "empty task define")
-	}
-	if t.UserID == 0 {
+func (srv *Service) CreateTask(ctx context.Context, req *crontab.CreateTaskReq) (*crontab.CreateTaskRsp, error) {
+	if req.UserID == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "empty user id")
 	}
-	if _, ok := crontab.TaskKind_name[int32(t.Kind)]; !ok {
-		return nil, status.Errorf(codes.InvalidArgument, "kind not found: %d", req.Task.Kind)
+	if _, ok := crontab.TaskKind_name[int32(req.Kind)]; !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "kind not found: %d", req.Kind)
 	}
-	_, err := srv.cronParser.Parse(t.Spec)
+	_, err := srv.cronParser.Parse(req.Spec)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid cron spec")
 	}
-	if t.SecretID == 0 {
+	if req.SecretID == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid secret id")
 	}
 
-	return srv.createTask(t)
+	return srv.createTask(req)
 }
 
 func (srv *Service) GetTasks(ctx context.Context, req *crontab.GetTasksReq) (*crontab.GetTasksRsp, error) {
@@ -79,7 +59,24 @@ func (srv *Service) GetTasks(ctx context.Context, req *crontab.GetTasksReq) (*cr
 		return nil, status.Errorf(codes.InvalidArgument, "empty user id")
 	}
 
-	return model.GetTasks(req)
+	tasks, err := task.Find(map[string]interface{}{"user_id = ?": req.UserID})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "get tasks failed: %s", err)
+	}
+
+	rsp := &crontab.GetTasksRsp{}
+	for _, t := range tasks {
+		pbTask := &crontab.Task{
+			TaskID:   t.TaskID,
+			UserID:   t.UserID,
+			Describe: t.Describe,
+			Kind:     crontab.TaskKind(t.Kind),
+			Spec:     t.Spec,
+			SecretID: t.SecretID,
+		}
+		rsp.List = append(rsp.List, pbTask)
+	}
+	return rsp, nil
 }
 
 func (srv *Service) DeleteTask(ctx context.Context, req *crontab.DeleteTaskReq) (*emptypb.Empty, error) {
@@ -90,40 +87,25 @@ func (srv *Service) DeleteTask(ctx context.Context, req *crontab.DeleteTaskReq) 
 	return &emptypb.Empty{}, err
 }
 
-func (srv *Service) createTask(newTask *crontab.Task) (*crontab.CreateTaskRsp, error) {
+func (srv *Service) createTask(req *crontab.CreateTaskReq) (*crontab.CreateTaskRsp, error) {
 	spec := &specification.Specification{
-		Spec: newTask.Spec,
+		Spec: req.Spec,
 	}
-	dup, err := specification.Insert(spec)
+	err := specification.Insert(spec)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "insert spec failed: %s", err)
 	}
 
 	t := &task.Task{
-		UserID:   newTask.UserID,
-		Describe: newTask.Describe,
-		Kind:     int(newTask.Kind),
-		SpecID:   spec.SpecID,
-		SecretID: newTask.SecretID,
+		Describe: req.Describe,
+		UserID:   req.UserID,
+		SecretID: req.SecretID,
+		Kind:     int(req.Kind),
+		Spec:     req.Spec,
 	}
 	err = task.Insert(t)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "insert task failed: %s", err)
-	}
-
-	// 只创建一个 spec 就行
-	if dup == specification.NotDuplicateEntry {
-		j := &job{
-			specID: spec.SpecID,
-			gPool:  srv.gPool,
-		}
-		_, err = srv.cron.AddJob(newTask.Spec, j)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "add timer failed: %s", err)
-		}
-	} else {
-		logger.Debugf("found duplicate spec, taskID: %d, specID: %d",
-			t.TaskID, spec.SpecID)
 	}
 
 	rsp := &crontab.CreateTaskRsp{

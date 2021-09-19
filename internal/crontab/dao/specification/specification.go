@@ -1,9 +1,7 @@
 package specification
 
 import (
-	"errors"
-
-	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm/clause"
 
 	"github.com/jdxj/sign/internal/pkg/db"
 )
@@ -15,25 +13,12 @@ type Specification struct {
 
 const (
 	TableName = "specification"
-
-	DuplicateEntry    = 1
-	NotDuplicateEntry = 2
 )
 
-func Insert(data *Specification) (int, error) {
-	query := db.Gorm.Table(TableName)
-	err := query.Create(data).Error
-	if err == nil {
-		return NotDuplicateEntry, nil
-	}
-	var mysqlError *mysql.MySQLError
-	if !errors.As(err, &mysqlError) || mysqlError.Number != 1062 {
-		return NotDuplicateEntry, err
-	}
-
-	row, err := FindOne(map[string]interface{}{"spec = ?": data.Spec})
-	data.SpecID = row.SpecID
-	return DuplicateEntry, err
+func Insert(data *Specification) error {
+	query := db.Gorm.Table(TableName).
+		Clauses(clause.Insert{Modifier: "IGNORE"})
+	return query.Create(data).Error
 }
 
 func FindOne(where map[string]interface{}) (Specification, error) {

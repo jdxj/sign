@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CrontabServiceClient interface {
-	CreateTask(ctx context.Context, in *CreateTaskRep, opts ...grpc.CallOption) (*CreateTaskRsp, error)
+	CreateTask(ctx context.Context, in *CreateTaskReq, opts ...grpc.CallOption) (*CreateTaskRsp, error)
 	GetTasks(ctx context.Context, in *GetTasksReq, opts ...grpc.CallOption) (*GetTasksRsp, error)
 	DeleteTask(ctx context.Context, in *DeleteTaskReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -32,7 +32,7 @@ func NewCrontabServiceClient(cc grpc.ClientConnInterface) CrontabServiceClient {
 	return &crontabServiceClient{cc}
 }
 
-func (c *crontabServiceClient) CreateTask(ctx context.Context, in *CreateTaskRep, opts ...grpc.CallOption) (*CreateTaskRsp, error) {
+func (c *crontabServiceClient) CreateTask(ctx context.Context, in *CreateTaskReq, opts ...grpc.CallOption) (*CreateTaskRsp, error) {
 	out := new(CreateTaskRsp)
 	err := c.cc.Invoke(ctx, "/CrontabService/CreateTask", in, out, opts...)
 	if err != nil {
@@ -63,7 +63,7 @@ func (c *crontabServiceClient) DeleteTask(ctx context.Context, in *DeleteTaskReq
 // All implementations must embed UnimplementedCrontabServiceServer
 // for forward compatibility
 type CrontabServiceServer interface {
-	CreateTask(context.Context, *CreateTaskRep) (*CreateTaskRsp, error)
+	CreateTask(context.Context, *CreateTaskReq) (*CreateTaskRsp, error)
 	GetTasks(context.Context, *GetTasksReq) (*GetTasksRsp, error)
 	DeleteTask(context.Context, *DeleteTaskReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCrontabServiceServer()
@@ -73,7 +73,7 @@ type CrontabServiceServer interface {
 type UnimplementedCrontabServiceServer struct {
 }
 
-func (UnimplementedCrontabServiceServer) CreateTask(context.Context, *CreateTaskRep) (*CreateTaskRsp, error) {
+func (UnimplementedCrontabServiceServer) CreateTask(context.Context, *CreateTaskReq) (*CreateTaskRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTask not implemented")
 }
 func (UnimplementedCrontabServiceServer) GetTasks(context.Context, *GetTasksReq) (*GetTasksRsp, error) {
@@ -96,7 +96,7 @@ func RegisterCrontabServiceServer(s grpc.ServiceRegistrar, srv CrontabServiceSer
 }
 
 func _CrontabService_CreateTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateTaskRep)
+	in := new(CreateTaskReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func _CrontabService_CreateTask_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/CrontabService/CreateTask",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CrontabServiceServer).CreateTask(ctx, req.(*CreateTaskRep))
+		return srv.(CrontabServiceServer).CreateTask(ctx, req.(*CreateTaskReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -5,7 +5,7 @@ import "google/protobuf/empty.proto";
 option go_package = "github.com/jdxj/sign/internal/proto/crontab";
 
 service CrontabService {
-  rpc CreateTask(CreateTaskRep) returns(CreateTaskRsp);
+  rpc CreateTask(CreateTaskReq) returns(CreateTaskRsp);
   rpc GetTasks(GetTasksReq) returns(GetTasksRsp);
   rpc DeleteTask(DeleteTaskReq) returns(google.protobuf.Empty);
 }
@@ -41,8 +41,12 @@ message Task {
   int64 SecretID = 6;
 }
 
-message CreateTaskRep {
-  Task Task = 1;
+message CreateTaskReq {
+  int64 UserID = 1;
+  string Describe = 2;
+  TaskKind Kind = 3;
+  string Spec = 4;
+  int64 SecretID = 5;
 }
 
 message CreateTaskRsp {

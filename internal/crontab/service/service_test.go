@@ -25,14 +25,12 @@ func TestService_CreateTask(t *testing.T) {
 		client = crontab.NewCrontabServiceClient(cc)
 	})
 
-	rsp, err := client.CreateTask(context.Background(), &crontab.CreateTaskRep{
-		UserID: 1,
-		Task: &crontab.Task{
-			Describe: "test create task 2",
-			Kind:     102,
-			Spec:     "* * * * *",
-			SecretID: 1,
-		},
+	rsp, err := client.CreateTask(context.Background(), &crontab.CreateTaskReq{
+		UserID:   1,
+		Describe: "test create task 3",
+		Kind:     102,
+		Spec:     "* * * * *",
+		SecretID: 1,
 	})
 	if err != nil {
 		t.Fatalf("%s\n", err)
