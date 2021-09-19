@@ -37,3 +37,8 @@ rpc:
   etcd_addr: ""
   crontab_port: 0
   secret_port: 0
+rabbit:
+  host: ""
+  port: 0
+  user: ""
+  pass: ""

@@ -17,6 +17,7 @@ type Root struct {
 	DB        DB        `yaml:"db"`
 	RDB       RDB       `yaml:"rdb"`
 	RPC       RPC       `yaml:"rpc"`
+	Rabbit    Rabbit    `yaml:"rabbit"`
 }
 
 type Bot struct {
@@ -66,6 +67,13 @@ type RPC struct {
 	EtcdAddr    string `yaml:"etcd_addr"`
 	CrontabPort int    `yaml:"crontab_port"`
 	SecretPort  int    `yaml:"secret_port"`
+}
+
+type Rabbit struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+	User string `yaml:"user"`
+	Pass string `yaml:"pass"`
 }
 
 func ReadConfigs(path string) Root {
