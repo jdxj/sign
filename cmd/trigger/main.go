@@ -28,7 +28,7 @@ func main() {
 	dbConf := root.DB
 	db.InitGorm(dbConf)
 
-	trg := trigger.New()
+	trg := trigger.New(dbConf)
 	trg.Start()
 	util.Hold()
 	trg.Stop()
