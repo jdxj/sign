@@ -2,37 +2,36 @@ package main
 
 import (
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/spf13/pflag"
 	"google.golang.org/grpc"
 
 	"github.com/jdxj/sign/internal/pkg/config"
+	"github.com/jdxj/sign/internal/pkg/db"
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/rpc"
+	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/proto/secret"
 	"github.com/jdxj/sign/internal/secret/service"
 )
 
-const (
-	serviceName = "secret"
-)
-
 func main() {
-	flagSet := pflag.NewFlagSet(serviceName, pflag.ExitOnError)
+	flagSet := pflag.NewFlagSet(secret.ServiceName, pflag.ExitOnError)
 	file := flagSet.StringP("file", "f", "config.yaml", "configure path")
 	_ = flagSet.Parse(os.Args) // 忽略 err, 因为使用了 ExitOnError
 
 	root := config.ReadConfigs(*file)
-	logger.Init(root.Logger.Path+serviceName+".log",
+	logger.Init(root.Logger.Path+secret.ServiceName+".log",
 		logger.WithMode(root.Logger.Mode))
 
+	dbConf := root.DB
+	db.InitGorm(dbConf)
+
 	rpcConf := root.RPC
-	server, err := rpc.NewServer(serviceName,
+	server, err := rpc.NewServer(secret.ServiceName,
 		rpcConf.EtcdAddr, rpcConf.SecretPort)
 	if err != nil {
-		logger.Errorf("new %s rpc server err: %s", serviceName, err)
+		logger.Errorf("new %s rpc server err: %s", secret.ServiceName, err)
 		return
 	}
 
@@ -41,10 +40,7 @@ func main() {
 	})
 	server.Serve()
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	s := <-quit
-	logger.Infof("receive signal: %d", s)
+	util.Hold()
 
 	server.Stop()
 }

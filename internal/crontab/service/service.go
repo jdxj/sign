@@ -40,8 +40,8 @@ func (srv *Service) CreateTask(ctx context.Context, req *crontab.CreateTaskReq) 
 	if req.UserID == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "empty user id")
 	}
-	if _, ok := crontab.TaskKind_name[int32(req.Kind)]; !ok {
-		return nil, status.Errorf(codes.InvalidArgument, "kind not found: %d", req.Kind)
+	if req.Kind == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "empty kind")
 	}
 	_, err := srv.cronParser.Parse(req.Spec)
 	if err != nil {

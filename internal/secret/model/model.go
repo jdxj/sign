@@ -1,7 +1,7 @@
 package model
 
 import (
-	crontabPb "github.com/jdxj/sign/internal/proto/crontab"
+	"github.com/jdxj/sign/internal/proto/crontab"
 	secretPb "github.com/jdxj/sign/internal/proto/secret"
 	secretDao "github.com/jdxj/sign/internal/secret/dao/secret"
 )
@@ -21,21 +21,17 @@ func CreateSecret(req *secretPb.CreateSecretReq) (*secretPb.CreateSecretRsp, err
 
 func GetSecret(req *secretPb.GetSecretReq) (*secretPb.GetSecretRsp, error) {
 	where := map[string]interface{}{
-		"user_id = ?": req.UserID,
+		"secret_id = ?": req.SecretID,
 	}
-	rows, err := secretDao.Find(where)
+
+	secret, err := secretDao.FindOne(where)
 	if err != nil {
 		return nil, err
 	}
-
-	rsp := &secretPb.GetSecretRsp{}
-	for _, row := range rows {
-		record := &secretPb.SecretRecord{
-			SecretID: row.SecretID,
-			Domain:   crontabPb.Domain(row.Domain),
-			Key:      row.Key,
-		}
-		rsp.Records = append(rsp.Records, record)
+	rsp := &secretPb.GetSecretRsp{
+		SecretID: secret.SecretID,
+		Domain:   crontab.Domain(secret.Domain),
+		Key:      secret.Key,
 	}
 	return rsp, nil
 }

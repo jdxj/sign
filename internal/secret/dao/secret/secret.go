@@ -18,6 +18,16 @@ func Insert(sec *Secret) (int64, error) {
 	return sec.SecretID, query.Create(sec).Error
 }
 
+func FindOne(where map[string]interface{}) (Secret, error) {
+	query := db.Gorm.Table(TableName)
+	for cond, param := range where {
+		query = query.Where(cond, param)
+	}
+
+	s := Secret{}
+	return s, query.First(&s).Error
+}
+
 func Find(where map[string]interface{}) ([]Secret, error) {
 	query := db.Gorm.Table(TableName)
 	for cond, param := range where {

@@ -27,8 +27,8 @@ func TestService_CreateTask(t *testing.T) {
 
 	rsp, err := client.CreateTask(context.Background(), &crontab.CreateTaskReq{
 		UserID:   1,
-		Describe: "test create task 3",
-		Kind:     102,
+		Describe: "test union",
+		Kind:     1001,
 		Spec:     "* * * * *",
 		SecretID: 1,
 	})

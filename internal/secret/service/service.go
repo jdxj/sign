@@ -29,8 +29,8 @@ func (srv *Service) CreateSecret(ctx context.Context, req *secret.CreateSecretRe
 }
 
 func (srv *Service) GetSecret(ctx context.Context, req *secret.GetSecretReq) (*secret.GetSecretRsp, error) {
-	if req.UserID == 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "empty user id")
+	if req.SecretID == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "empty secret id")
 	}
 	return model.GetSecret(req)
 }
