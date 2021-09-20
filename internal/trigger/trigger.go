@@ -10,6 +10,7 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
+	"github.com/jdxj/sign/internal/pkg/mq"
 	"github.com/jdxj/sign/internal/trigger/dao/specification"
 )
 
@@ -41,6 +42,12 @@ func New(conf config.DB) *Trigger {
 	can.SetEventHandler(trg)
 	trg.canal = can
 
+	tq, err := mq.NewTaskQueue()
+	if err != nil {
+		panic(err)
+	}
+	trg.tq = tq
+
 	return trg
 }
 
@@ -52,6 +59,7 @@ type Trigger struct {
 	canal.DummyEventHandler
 
 	wg *sync.WaitGroup
+	tq *mq.TaskQueue
 
 	specIDs map[int64]struct{}
 }
@@ -72,6 +80,8 @@ func (trg *Trigger) Stop() {
 	trg.canal.Close()
 	<-trg.cron.Stop().Done()
 	trg.gPool.Release()
+	trg.tq.Stop()
+
 	trg.wg.Wait()
 }
 
@@ -79,6 +89,7 @@ func (trg *Trigger) addJob(spec string) error {
 	j := &job{
 		spec:  spec,
 		gPool: trg.gPool,
+		tq:    trg.tq,
 	}
 	_, err := trg.cron.AddJob(spec, j)
 	return err
@@ -102,6 +113,10 @@ func (trg *Trigger) recoverJob() error {
 }
 
 func (trg *Trigger) OnRow(e *canal.RowsEvent) error {
+	if e.Table.Name != "specification" {
+		return nil
+	}
+
 	logger.Debugf("%s %v", e.Action, e.Rows)
 	switch e.Action {
 	default:

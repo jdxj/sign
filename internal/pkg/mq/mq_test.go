@@ -7,8 +7,11 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/protobuf/proto"
+
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
+	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 func TestMain(t *testing.M) {
@@ -81,4 +84,27 @@ func TestNewTaskQueue(t *testing.T) {
 	tq1.Stop()
 	tq2.Stop()
 	tq3.Stop()
+}
+
+func TestTaskQueue_Consume(t *testing.T) {
+	tq, err := NewTaskQueue()
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	defer tq.Stop()
+
+	dataChan, err := tq.Consume()
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+
+	for v := range dataChan {
+		task := &crontab.Task{}
+		err := proto.Unmarshal(v, task)
+		if err != nil {
+			t.Fatalf("%s\n", err)
+		} else {
+			fmt.Printf("%+v\n", task)
+		}
+	}
 }

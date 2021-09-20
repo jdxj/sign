@@ -8,6 +8,7 @@ import (
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/db"
 	"github.com/jdxj/sign/internal/pkg/logger"
+	"github.com/jdxj/sign/internal/pkg/mq"
 	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/trigger"
 )
@@ -27,6 +28,9 @@ func main() {
 
 	dbConf := root.DB
 	db.InitGorm(dbConf)
+
+	rabbitConf := root.Rabbit
+	mq.InitRabbit(rabbitConf)
 
 	trg := trigger.New(dbConf)
 	trg.Start()
