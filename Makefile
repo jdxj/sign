@@ -1,3 +1,11 @@
+components := crontab executor secret trigger
+.PHONY: all
+all: $(components)
+$(components): output := _output/build
+$(components):
+	mkdir -p $(output)
+	go build -o $(output)/$@.out cmd/$@/*.go
+
 build.%: output := _output/build
 build.%:
 	mkdir -p $(output)
