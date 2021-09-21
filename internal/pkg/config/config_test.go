@@ -11,10 +11,6 @@ func TestNewConfigs(t *testing.T) {
 	r := Root{
 		Bot:    Bot{},
 		Logger: Logger{},
-		User: []User{
-			{Type: []int{1, 2}},
-			{},
-		},
 	}
 	d, err := yaml.Marshal(r)
 	if err != nil {

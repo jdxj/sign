@@ -4,17 +4,7 @@ bot:
 logger:
   path: ""
   mode: ""
-user:
-  - id: ""
-    domain: 0
-    type:
-      - 1
-      - 2
-    key: ""
-  - id: ""
-    domain: 0
-    type: []
-    key: ""
+user: []
 api_server:
   host: ""
   port: ""
@@ -37,8 +27,11 @@ rpc:
   etcd_addr: ""
   crontab_port: 0
   secret_port: 0
+  user_port: 0
 rabbit:
   host: ""
   port: 0
   user: ""
   pass: ""
+secret:
+  key: ""

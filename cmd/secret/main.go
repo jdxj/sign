@@ -36,7 +36,7 @@ func main() {
 	}
 
 	server.Register(func(registrar grpc.ServiceRegistrar) {
-		secret.RegisterSecretServiceServer(registrar, &service.Service{})
+		secret.RegisterSecretServiceServer(registrar, service.New(root.Secret))
 	})
 	server.Serve()
 	util.Hold()

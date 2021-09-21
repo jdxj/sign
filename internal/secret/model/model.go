@@ -1,16 +1,17 @@
 package model
 
 import (
+	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/proto/crontab"
 	secretPb "github.com/jdxj/sign/internal/proto/secret"
 	secretDao "github.com/jdxj/sign/internal/secret/dao/secret"
 )
 
-func CreateSecret(req *secretPb.CreateSecretReq) (*secretPb.CreateSecretRsp, error) {
+func CreateSecret(key string, req *secretPb.CreateSecretReq) (*secretPb.CreateSecretRsp, error) {
 	sec := &secretDao.Secret{
 		UserID: req.UserID,
 		Domain: int32(req.Domain),
-		Key:    req.Key, // todo: 加密
+		Key:    util.Encrypt(key, req.Key),
 	}
 	secretID, err := secretDao.Insert(sec)
 	rsp := &secretPb.CreateSecretRsp{
@@ -19,7 +20,7 @@ func CreateSecret(req *secretPb.CreateSecretReq) (*secretPb.CreateSecretRsp, err
 	return rsp, err
 }
 
-func GetSecret(req *secretPb.GetSecretReq) (*secretPb.GetSecretRsp, error) {
+func GetSecret(key string, req *secretPb.GetSecretReq) (*secretPb.GetSecretRsp, error) {
 	where := map[string]interface{}{
 		"secret_id = ?": req.SecretID,
 	}
@@ -31,7 +32,7 @@ func GetSecret(req *secretPb.GetSecretReq) (*secretPb.GetSecretRsp, error) {
 	rsp := &secretPb.GetSecretRsp{
 		SecretID: secret.SecretID,
 		Domain:   crontab.Domain(secret.Domain),
-		Key:      secret.Key,
+		Key:      util.Decrypt(key, secret.Key),
 	}
 	return rsp, nil
 }

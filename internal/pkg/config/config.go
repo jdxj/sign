@@ -18,6 +18,7 @@ type Root struct {
 	RDB       RDB       `yaml:"rdb"`
 	RPC       RPC       `yaml:"rpc"`
 	Rabbit    Rabbit    `yaml:"rabbit"`
+	Secret    Secret    `yaml:"secret"`
 }
 
 type Bot struct {
@@ -30,11 +31,8 @@ type Logger struct {
 	Mode string `yaml:"mode"`
 }
 
+// User 保留用
 type User struct {
-	ID     string `yaml:"id" json:"id"`
-	Domain int    `yaml:"domain" json:"domain"`
-	Type   []int  `yaml:"type" json:"type"`
-	Key    string `yaml:"key" json:"key"`
 }
 
 type APIServer struct {
@@ -75,6 +73,10 @@ type Rabbit struct {
 	Port int    `yaml:"port"`
 	User string `yaml:"user"`
 	Pass string `yaml:"pass"`
+}
+
+type Secret struct {
+	Key string `yaml:"key"`
 }
 
 func ReadConfigs(path string) Root {
