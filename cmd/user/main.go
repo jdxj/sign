@@ -11,32 +11,32 @@ import (
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/rpc"
 	"github.com/jdxj/sign/internal/pkg/util"
-	"github.com/jdxj/sign/internal/proto/secret"
-	"github.com/jdxj/sign/internal/secret/service"
+	"github.com/jdxj/sign/internal/proto/user"
+	"github.com/jdxj/sign/internal/user/service"
 )
 
 func main() {
-	flagSet := pflag.NewFlagSet(secret.ServiceName, pflag.ExitOnError)
+	flagSet := pflag.NewFlagSet(user.ServiceName, pflag.ExitOnError)
 	file := flagSet.StringP("file", "f", "config.yaml", "configure path")
 	_ = flagSet.Parse(os.Args) // 忽略 err, 因为使用了 ExitOnError
 
 	root := config.ReadConfigs(*file)
-	logger.Init(root.Logger.Path+secret.ServiceName+".log",
+	logger.Init(root.Logger.Path+user.ServiceName+".log",
 		logger.WithMode(root.Logger.Mode))
 
 	dbConf := root.DB
 	db.InitGorm(dbConf)
 
 	rpcConf := root.RPC
-	server, err := rpc.NewServer(secret.ServiceName,
-		rpcConf.EtcdAddr, rpcConf.SecretPort)
+	server, err := rpc.NewServer(user.ServiceName,
+		rpcConf.EtcdAddr, rpcConf.UserPort)
 	if err != nil {
-		logger.Errorf("new %s rpc server err: %s", secret.ServiceName, err)
+		logger.Errorf("new %s rpc server err: %s", user.ServiceName, err)
 		return
 	}
 
 	server.Register(func(registrar grpc.ServiceRegistrar) {
-		secret.RegisterSecretServiceServer(registrar, &service.Service{})
+		user.RegisterUserServiceServer(registrar, &service.Service{})
 	})
 	server.Serve()
 	util.Hold()

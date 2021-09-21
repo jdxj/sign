@@ -67,6 +67,7 @@ type RPC struct {
 	EtcdAddr    string `yaml:"etcd_addr"`
 	CrontabPort int    `yaml:"crontab_port"`
 	SecretPort  int    `yaml:"secret_port"`
+	UserPort    int    `yaml:"user_port"`
 }
 
 type Rabbit struct {

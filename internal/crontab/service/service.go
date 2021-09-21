@@ -10,7 +10,6 @@ import (
 
 	"github.com/jdxj/sign/internal/crontab/dao/specification"
 	"github.com/jdxj/sign/internal/crontab/dao/task"
-	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
@@ -26,14 +25,6 @@ type Service struct {
 	crontab.UnimplementedCrontabServiceServer
 
 	cronParser cron.Parser
-}
-
-func (srv *Service) Start() {
-	logger.Infof("cron started")
-}
-
-func (srv *Service) Stop() {
-	logger.Infof("cron stopped")
 }
 
 func (srv *Service) CreateTask(ctx context.Context, req *crontab.CreateTaskReq) (*crontab.CreateTaskRsp, error) {

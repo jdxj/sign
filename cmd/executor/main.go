@@ -34,8 +34,6 @@ func main() {
 
 	e := executor.New()
 	e.Start()
-
 	util.Hold()
-
 	e.Stop()
 }

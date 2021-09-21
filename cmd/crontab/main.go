@@ -35,16 +35,10 @@ func main() {
 		return
 	}
 
-	srv := service.NewService()
-	srv.Start()
-
 	server.Register(func(registrar grpc.ServiceRegistrar) {
-		crontab.RegisterCrontabServiceServer(registrar, srv)
+		crontab.RegisterCrontabServiceServer(registrar, service.NewService())
 	})
 	server.Serve()
-
 	util.Hold()
-
 	server.Stop()
-	srv.Stop()
 }
