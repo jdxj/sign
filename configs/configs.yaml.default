@@ -28,6 +28,7 @@ rpc:
   crontab_port: 0
   secret_port: 0
   user_port: 0
+  notice_port: 0
 rabbit:
   host: ""
   port: 0

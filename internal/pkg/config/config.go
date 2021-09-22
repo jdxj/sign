@@ -66,6 +66,7 @@ type RPC struct {
 	CrontabPort int    `yaml:"crontab_port"`
 	SecretPort  int    `yaml:"secret_port"`
 	UserPort    int    `yaml:"user_port"`
+	NoticePort  int    `yaml:"notice_port"`
 }
 
 type Rabbit struct {
