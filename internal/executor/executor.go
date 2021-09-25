@@ -13,6 +13,7 @@ import (
 	"github.com/jdxj/sign/internal/pkg/mq"
 	"github.com/jdxj/sign/internal/pkg/rpc"
 	"github.com/jdxj/sign/internal/proto/crontab"
+	"github.com/jdxj/sign/internal/proto/notice"
 	"github.com/jdxj/sign/internal/proto/secret"
 	"github.com/jdxj/sign/internal/proto/user"
 )
@@ -39,17 +40,20 @@ func New() *Executor {
 	rpc.NewClient(secret.ServiceName, func(cc *grpc.ClientConn) {
 		e.secretClient = secret.NewSecretServiceClient(cc)
 	})
+	rpc.NewClient(notice.ServiceName, func(cc *grpc.ClientConn) {
+		e.noticeClient = notice.NewNoticeServiceClient(cc)
+	})
 	return e
 }
 
 type Executor struct {
 	gPool *ants.Pool
 	tq    *mq.TaskQueue
+	wg    *sync.WaitGroup
 
 	userClient   user.UserServiceClient
 	secretClient secret.SecretServiceClient
-
-	wg *sync.WaitGroup
+	noticeClient notice.NoticeServiceClient
 }
 
 func (e *Executor) Start() {
@@ -89,7 +93,7 @@ func (e *Executor) Stop() {
 }
 
 func (e *Executor) start(task *crontab.Task) {
-	agent, ok := agents[int(task.Kind)]
+	agent, ok := agents[task.Kind]
 	if !ok {
 		logger.Warnf("agent not register, kind: %d", task.Kind)
 		return
@@ -98,7 +102,6 @@ func (e *Executor) start(task *crontab.Task) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// todo: 失败时发送通知
 	secretRsp, err := e.secretClient.GetSecret(ctx, &secret.GetSecretReq{
 		SecretID: task.SecretID,
 	})
@@ -107,8 +110,17 @@ func (e *Executor) start(task *crontab.Task) {
 		return
 	}
 
-	err = agent.SignIn(secretRsp.Key)
+	text, err := agent.Execute(secretRsp.Key)
 	if err != nil {
-		logger.Errorf("sign failed: %s", err)
+		logger.Errorf("execute failed, userID: %d, taskID: %d, error: %s",
+			task.UserID, task.TaskID, err)
+		return
+	}
+	_, err = e.noticeClient.SendMessage(ctx, &notice.SendMessageReq{
+		UserID: task.UserID,
+		Text:   text,
+	})
+	if err != nil {
+		logger.Errorf("send message failed, error: %s", err)
 	}
 }
