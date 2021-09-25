@@ -1,20 +1,15 @@
 package v2ex
 
 import (
+	"fmt"
 	"testing"
 )
 
-var (
-	tmp = ``
-)
-
-func TestAuth(t *testing.T) {
-	client, err := Auth(tmp)
+func TestSignIn_Execute(t *testing.T) {
+	si := &SignIn{}
+	msg, err := si.Execute(key)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
-	err = SignIn(client)
-	if err != nil {
-		t.Fatalf("%s\n", err)
-	}
+	fmt.Printf("msg: %s\n", msg)
 }

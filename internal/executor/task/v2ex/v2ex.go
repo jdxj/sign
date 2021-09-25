@@ -5,16 +5,17 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/jdxj/sign/internal/task/common"
+	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 const (
-	Domain    = ".v2ex.com"
-	Home      = "https://www.v2ex.com/"
-	AuthURL   = "https://www.v2ex.com/balance"
-	TokenURL  = "https://www.v2ex.com/mission/daily"
-	SignURL   = "https://www.v2ex.com/mission/daily/redeem?once=%s"
-	VerifyURL = "https://www.v2ex.com/balance"
+	domain    = ".v2ex.com"
+	home      = "https://www.v2ex.com/"
+	authURL   = "https://www.v2ex.com/balance"
+	tokenURL  = "https://www.v2ex.com/mission/daily"
+	signURL   = "https://www.v2ex.com/mission/daily/redeem?once=%s"
+	verifyURL = "https://www.v2ex.com/balance"
 )
 
 var (
@@ -29,63 +30,93 @@ func init() {
 	regToken = regexp.MustCompile(`once=(.+)'`)
 }
 
-func Auth(cookies string) (*http.Client, error) {
-	jar := common.NewJar(cookies, Domain, Home)
-	client := &http.Client{Jar: jar}
-
-	body, err := common.ParseRawBody(client, AuthURL)
-	if err != nil {
-		return client, err
-	}
-	target := regAuth.FindString(string(body))
-	if target == "" {
-		return client, common.ErrorAuthFailed
-	}
-	return client, nil
+type SignIn struct {
 }
 
-func SignIn(c *http.Client) error {
-	st, err := getSignToken(c)
-	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.GetToken, err)
-	}
-
-	err = accessSignURL(c, st)
-	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.SignIn, err)
-	}
-
-	err = verify(c)
-	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.Verify, err)
-	}
-	return nil
+func (si *SignIn) Domain() crontab.Domain {
+	return crontab.Domain_V2EX
 }
 
-func getSignToken(c *http.Client) (string, error) {
-	body, err := common.ParseRawBody(c, TokenURL)
+func (si *SignIn) Kind() crontab.Kind {
+	return crontab.Kind_V2EXSign
+}
+
+func (si *SignIn) Execute(key string) (string, error) {
+	c, err := auth(key)
 	if err != nil {
 		return "", err
 	}
 
+	token, err := getSignToken(c)
+	if err != nil {
+		return "", err
+	}
+
+	err = signIn(c, token)
+	if err != nil {
+		return "", err
+	}
+
+	err = verify(c)
+	if err != nil {
+		return "", err
+	}
+	return "V2ex签到成功", nil
+}
+
+func auth(cookies string) (*http.Client, error) {
+	jar := task.NewJar(cookies, domain, home)
+	client := &http.Client{Jar: jar}
+
+	body, err := task.ParseRawBody(client, authURL)
+	if err != nil {
+		return client, fmt.Errorf("stage: %s, error: %w",
+			crontab.Stage_Auth, err)
+	}
+	target := regAuth.FindString(string(body))
+	if target == "" {
+		return client, fmt.Errorf("stage: %s, error: %s",
+			crontab.Stage_Auth, "target not found")
+	}
+	return client, nil
+}
+
+func getSignToken(c *http.Client) (string, error) {
+	body, err := task.ParseRawBody(c, tokenURL)
+	if err != nil {
+		return "", fmt.Errorf("stage: %s, error: %w",
+			crontab.Stage_Query, err)
+	}
+
 	matched := regToken.FindStringSubmatch(string(body))
 	if len(matched) != 2 {
-		return "", fmt.Errorf("err: %w, matched: %v",
-			common.ErrorSignTokenNotFound, matched)
+		return "", fmt.Errorf("stage: %s, error: %s",
+			crontab.Stage_Query, "sign token not found")
 	}
 	return matched[1], nil
 }
 
-func accessSignURL(c *http.Client, token string) error {
-	u := fmt.Sprintf(SignURL, token)
-	return common.ParseBody(c, u, nil)
+func signIn(c *http.Client, token string) error {
+	u := fmt.Sprintf(signURL, token)
+	err := task.ParseBody(c, u, nil)
+	if err != nil {
+		return fmt.Errorf("stage: %s, error: %w",
+			crontab.Stage_SignIn, err)
+	}
+	return nil
 }
 
 func verify(c *http.Client) error {
-	body, err := common.ParseRawBody(c, VerifyURL)
+	body, err := task.ParseRawBody(c, verifyURL)
 	if err != nil {
-		return err
+		return fmt.Errorf("stage: %s, error: %w",
+			crontab.Stage_Verify, err)
 	}
 	date := regVerify.FindString(string(body))
-	return common.VerifyDate(date)
+	err = task.VerifyDate(date)
+	if err != nil {
+		return fmt.Errorf("stage: %s, error: %w",
+			crontab.Stage_Verify, err)
+	}
+	return nil
 }
