@@ -5,15 +5,16 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/jdxj/sign/internal/task/common"
+	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 const (
-	Domain    = ".studygolang.com"
-	HomeURL   = "https://studygolang.com/"
-	AuthURL   = "https://studygolang.com/balance"
-	SignURL   = "https://studygolang.com/mission/daily/redeem"
-	VerifyURL = "https://studygolang.com/balance"
+	domain    = ".studygolang.com"
+	home      = "https://studygolang.com/"
+	authURL   = "https://studygolang.com/balance"
+	signURL   = "https://studygolang.com/mission/daily/redeem"
+	verifyURL = "https://studygolang.com/balance"
 )
 
 var (
@@ -26,43 +27,71 @@ func init() {
 	regVerify = regexp.MustCompile(`202\d-\d{2}-\d{2}`)
 }
 
-func Auth(cookies string) (*http.Client, error) {
-	jar := common.NewJar(cookies, Domain, HomeURL)
+type SignIn struct {
+}
+
+func (si *SignIn) Domain() crontab.Domain {
+	return crontab.Domain_STG
+}
+
+func (si *SignIn) Kind() crontab.Kind {
+	return crontab.Kind_STGSign
+}
+
+func (si *SignIn) Execute(key string) (string, error) {
+	c, err := auth(key)
+	if err != nil {
+		return "", err
+	}
+
+	err = signIn(c)
+	if err != nil {
+		return "", err
+	}
+
+	err = verify(c)
+	if err != nil {
+		return "", err
+	}
+	return "Go语言中文网签到成功", nil
+}
+
+func auth(cookies string) (*http.Client, error) {
+	jar := task.NewJar(cookies, domain, home)
 	client := &http.Client{Jar: jar}
 
-	body, err := common.ParseRawBody(client, AuthURL)
+	body, err := task.ParseRawBody(client, authURL)
 	if err != nil {
 		return client, err
 	}
 	target := regAuth.FindString(string(body))
 	if target == "" {
-		return client, common.ErrorAuthFailed
+		return client, fmt.Errorf("stage: %s, error: %s",
+			crontab.Stage_Auth, "target not found")
 	}
 	return client, nil
 }
 
-func SignIn(c *http.Client) error {
-	err := accessSignURL(c)
+func signIn(c *http.Client) error {
+	err := task.ParseBody(c, signURL, nil)
 	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.SignIn, err)
-	}
-
-	err = verify(c)
-	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.Verify, err)
+		return fmt.Errorf("stage: %s, error: %w",
+			crontab.Stage_SignIn, err)
 	}
 	return nil
 }
 
-func accessSignURL(c *http.Client) error {
-	return common.ParseBody(c, SignURL, nil)
-}
-
 func verify(c *http.Client) error {
-	body, err := common.ParseRawBody(c, VerifyURL)
+	body, err := task.ParseRawBody(c, verifyURL)
 	if err != nil {
-		return err
+		return fmt.Errorf("stage: %s, error: %w",
+			crontab.Stage_Verify, err)
 	}
 	date := regVerify.FindString(string(body))
-	return common.VerifyDate(date)
+	err = task.VerifyDate(date)
+	if err != nil {
+		return fmt.Errorf("stage: %s, error: %w",
+			crontab.Stage_Verify, err)
+	}
+	return nil
 }
