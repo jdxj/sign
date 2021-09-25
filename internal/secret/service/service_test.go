@@ -10,6 +10,7 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/rpc"
+	"github.com/jdxj/sign/internal/proto/crontab"
 	"github.com/jdxj/sign/internal/proto/secret"
 )
 
@@ -30,8 +31,8 @@ func TestService_CreateSecret(t *testing.T) {
 
 	rsp, err := client.CreateSecret(context.Background(), &secret.CreateSecretReq{
 		UserID: 1,
-		Domain: 1000,
-		Key:    "mock cookie",
+		Domain: crontab.Domain_BILI,
+		Key:    key,
 	})
 	if err != nil {
 		t.Fatalf("%s\n", err)

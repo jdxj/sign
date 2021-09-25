@@ -37,7 +37,7 @@ func (j *job) sendTaskToMq() {
 		t := &crontab.Task{
 			TaskID:   row.TaskID,
 			UserID:   row.UserID,
-			Kind:     crontab.TaskKind(row.Kind),
+			Kind:     crontab.Kind(row.Kind),
 			Spec:     row.Spec,
 			SecretID: row.SecretID,
 		}

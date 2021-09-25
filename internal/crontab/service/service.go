@@ -61,7 +61,7 @@ func (srv *Service) GetTasks(ctx context.Context, req *crontab.GetTasksReq) (*cr
 			TaskID:   t.TaskID,
 			UserID:   t.UserID,
 			Describe: t.Describe,
-			Kind:     crontab.TaskKind(t.Kind),
+			Kind:     crontab.Kind(t.Kind),
 			Spec:     t.Spec,
 			SecretID: t.SecretID,
 		}
