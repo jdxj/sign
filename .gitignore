@@ -25,3 +25,5 @@ configs.yaml
 config.yaml
 
 *.bak
+*.dia
+key_test.go

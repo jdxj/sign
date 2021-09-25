@@ -19,10 +19,10 @@ enum Domain {
   V2EX = 401;
 }
 
-enum TaskKind {
-  UnknownTaskKind = 0;
+enum Kind {
+  UnknownKind = 0;
   // bili
-  BILISign   = 102;
+  BILISignIn   = 102;
   BILIBCount = 103;
   // 黑客派
   HPISign = 202;
@@ -32,11 +32,20 @@ enum TaskKind {
   V2EXSign = 402;
 }
 
+enum Stage {
+  UnknownStage = 0;
+
+  Auth = 1;
+  SignIn = 2;
+  Query = 3;
+  Verify = 4;
+}
+
 message Task {
   int64 TaskID = 1;
   int64 UserID = 2;
   string Describe = 3;
-  TaskKind Kind = 4;
+  Kind Kind = 4;
   string Spec = 5;
   int64 SecretID = 6;
 }
@@ -44,7 +53,7 @@ message Task {
 message CreateTaskReq {
   int64 UserID = 1;
   string Describe = 2;
-  TaskKind Kind = 3;
+  Kind Kind = 3;
   string Spec = 4;
   int64 SecretID = 5;
 }
