@@ -6,94 +6,116 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/jdxj/sign/internal/task/common"
+	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 const (
-	Domain       = ".ld246.com"
-	URL          = "https://ld246.com/"
-	AuthURL      = "https://ld246.com/notifications/unread/count?_=%d"
-	SignTokenURL = "https://ld246.com/activity/checkin"
-	SignURL      = "https://ld246.com/activity/daily-checkin?token=%s"
-	VerifyURL    = "https://ld246.com/member/%s/points?p=1&pjax=true"
+	domain       = ".ld246.com"
+	home         = "https://ld246.com/"
+	authURL      = "https://ld246.com/notifications/unread/count?_=%d"
+	signTokenURL = "https://ld246.com/activity/checkin"
+	signURL      = "https://ld246.com/activity/daily-checkin?token=%s"
+	verifyURL    = "https://ld246.com/member/%s/points?p=1&pjax=true"
 )
 
 var (
 	regSignToken *regexp.Regexp
 	regVerify    *regexp.Regexp
+	regUserName  *regexp.Regexp
 )
 
 func init() {
 	regSignToken = regexp.MustCompile(`csrfToken: '(.+)'`)
 	regVerify = regexp.MustCompile(`202\d-\d{2}-\d{2}`)
+	regUserName = regexp.MustCompile(`currentUserName: '(.+)'`)
 }
 
-func Auth(cookies string) (*http.Client, error) {
-	jar := common.NewJar(cookies, Domain, URL)
-	client := &http.Client{Jar: jar}
-	authResp := make(map[string]interface{})
-
-	param := time.Now().UnixNano() / 1000000
-	u := fmt.Sprintf(AuthURL, param)
-	err := common.ParseBody(client, u, &authResp)
-	if err != nil {
-		return client, err
-	}
-	// 解析没问题应该就是成功了
-	return client, nil
+type SignIn struct {
 }
 
-// hpi 签到步骤：
-//   1. 获取 sign token
-//   2. 访问 sign url
-//   3. 验证
-
-func SignIn(c *http.Client, id string) error {
-	st, err := getSignToken(c)
-	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.GetToken, err)
-	}
-
-	err = accessSignURL(c, st)
-	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.SignIn, err)
-	}
-
-	err = verify(c, id)
-	if err != nil {
-		return fmt.Errorf("stage: %s, err: %w", common.Verify, err)
-	}
-	return nil
+func (si *SignIn) Domain() crontab.Domain {
+	return crontab.Domain_HPI
 }
 
-func getSignToken(client *http.Client) (string, error) {
-	body, err := common.ParseRawBody(client, SignTokenURL)
+func (si *SignIn) Kind() crontab.Kind {
+	return crontab.Kind_HPISign
+}
+
+func (si *SignIn) Execute(key string) (string, error) {
+	c, err := auth(key)
 	if err != nil {
 		return "", err
 	}
 
-	matched := regSignToken.FindStringSubmatch(string(body))
-	if len(matched) != 2 {
-		return "", fmt.Errorf("err: %w, matched: %v",
-			common.ErrorSignTokenNotFound, matched)
+	token, userName, err := getSignToken(c)
+	if err != nil {
+		return "", err
 	}
-	return matched[1], nil
+
+	err = signIn(c, token)
+	if err != nil {
+		return "", err
+	}
+
+	err = verify(c, userName)
+	if err != nil {
+		return "", err
+	}
+	return "黑客派签到成功", nil
 }
 
-func accessSignURL(client *http.Client, token string) error {
-	u := fmt.Sprintf(SignURL, token)
-	header := map[string]string{
-		"Referer": SignTokenURL,
+func auth(cookies string) (*http.Client, error) {
+	jar := task.NewJar(cookies, domain, home)
+	client := &http.Client{Jar: jar}
+	authResp := make(map[string]interface{})
+
+	param := time.Now().UnixNano() / 1000000
+	u := fmt.Sprintf(authURL, param)
+	err := task.ParseBody(client, u, &authResp)
+	if err != nil {
+		return client, err
 	}
-	return common.ParseBodyHeader(client, u, header)
+	return client, nil
+}
+
+func getSignToken(client *http.Client) (string, string, error) {
+	body, err := task.ParseRawBody(client, signTokenURL)
+	if err != nil {
+		return "", "", fmt.Errorf("stage: %s, get sign token failed: %s",
+			crontab.Stage_Auth, err)
+	}
+
+	matched := regSignToken.FindStringSubmatch(string(body))
+	if len(matched) != 2 {
+		return "", "", fmt.Errorf("stage: %s, error: %s",
+			crontab.Stage_Auth, "sign token not found")
+	}
+	token := matched[1]
+
+	matched = regUserName.FindStringSubmatch(string(body))
+	if len(matched) != 2 {
+		return token, "", fmt.Errorf("stage: %s, error: %s",
+			crontab.Stage_Auth, "user name not found")
+	}
+	userName := matched[1]
+	return token, userName, nil
+}
+
+func signIn(client *http.Client, token string) error {
+	u := fmt.Sprintf(signURL, token)
+	header := map[string]string{
+		"Referer": signTokenURL,
+	}
+	return task.ParseBodyHeader(client, u, header)
 }
 
 func verify(client *http.Client, id string) error {
-	u := fmt.Sprintf(VerifyURL, id)
-	d, err := common.ParseRawBody(client, u)
+	u := fmt.Sprintf(verifyURL, id)
+	d, err := task.ParseRawBody(client, u)
 	if err != nil {
 		return err
 	}
 	date := regVerify.FindString(string(d))
-	return common.VerifyDate(date)
+	return task.VerifyDate(date)
 }
