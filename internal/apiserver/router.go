@@ -1,14 +1,13 @@
 package apiserver
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/jdxj/sign/internal/apiserver/comm"
 	v1 "github.com/jdxj/sign/internal/apiserver/v1"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
@@ -36,7 +35,7 @@ func Start(conf config.APIServer) {
 }
 
 func Stop() {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := comm.TimeoutContext()
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {

@@ -40,6 +40,7 @@ type APIServer struct {
 	Port string `yaml:"port"`
 	User string `yaml:"user"`
 	Pass string `yaml:"pass"`
+	Key  string `yaml:"key"`
 }
 
 type Storage struct {

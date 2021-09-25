@@ -46,3 +46,25 @@ func (srv *Service) GetUser(ctx context.Context, req *user.GetUserReq) (*user.Ge
 	}
 	return rsp, nil
 }
+
+func (srv *Service) AuthUser(ctx context.Context, req *user.AuthUserReq) (*user.AuthUserRsp, error) {
+	if req.Nickname == "" || req.Password == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "empty nickname or password")
+	}
+
+	where := map[string]interface{}{
+		"nickname = ?": req.Nickname,
+	}
+	u, err := userDao.FindOne(where)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "find one user filed: %s", err)
+	}
+
+	pass := util.WithSalt(req.Password, u.Salt)
+	rsp := &user.AuthUserRsp{}
+	if pass == u.Password {
+		rsp.Valid = true
+		rsp.UserID = u.UserID
+	}
+	return rsp, nil
+}

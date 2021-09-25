@@ -1,15 +1,43 @@
 package comm
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 
 	"github.com/jdxj/sign/internal/pkg/code"
+	"github.com/jdxj/sign/internal/pkg/config"
+	"github.com/jdxj/sign/internal/pkg/rpc"
+	"github.com/jdxj/sign/internal/proto/user"
 )
+
+var (
+	ErrInvalidKey = errors.New("invalid key")
+)
+
+var (
+	cfg config.APIServer
+
+	UserClient user.UserServiceClient
+)
+
+func Init(conf config.APIServer) {
+	cfg = conf
+	if cfg.Key == "" {
+		panic(ErrInvalidKey)
+	}
+
+	rpc.NewClient(user.ServiceName, func(cc *grpc.ClientConn) {
+		UserClient = user.NewUserServiceClient(cc)
+	})
+}
 
 type Request struct {
 	Token string          `json:"token"`
@@ -43,10 +71,8 @@ func UnmarshalRequest(ctx *gin.Context, req interface{}) error {
 	if err != nil {
 		ctx.JSON(
 			http.StatusBadRequest,
-			NewResponse(
-				code.ErrBindReqFailed,
-				"unmarshal request failed",
-				err))
+			NewResponse(code.ErrBindReqFailed, "unmarshal request failed", nil),
+		)
 	}
 	return err
 }
@@ -59,14 +85,13 @@ type Claim struct {
 
 func GenerateToken(claim *Claim) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
-	// todo: 从配置中获取
-	key := []byte("20210910")
+	key := []byte(cfg.Key)
 	return token.SignedString(key)
 }
 
 func CheckToken(sign string) (*Claim, error) {
 	token, err := jwt.ParseWithClaims(sign, &Claim{}, func(token *jwt.Token) (interface{}, error) {
-		key := []byte("20210910")
+		key := []byte(cfg.Key)
 		return key, nil
 	})
 	if err != nil {
@@ -78,4 +103,8 @@ func CheckToken(sign string) (*Claim, error) {
 		return nil, fmt.Errorf("parse token failed")
 	}
 	return claim, nil
+}
+
+func TimeoutContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), 5*time.Second)
 }

@@ -3,8 +3,19 @@ syntax = "proto3";
 option go_package = "github.com/jdxj/sign/internal/proto/user";
 
 service UserService {
+  rpc AuthUser(AuthUserReq) returns(AuthUserRsp);
   rpc CreateUser(CreateUserReq) returns(CreateUserRsp);
   rpc GetUser(GetUserReq) returns(GetUserRsp);
+}
+
+message AuthUserReq {
+  string Nickname = 1;
+  string Password = 2;
+}
+
+message AuthUserRsp {
+  bool Valid = 1;
+  int64 UserID = 2;
 }
 
 message CreateUserReq {
