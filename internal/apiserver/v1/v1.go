@@ -12,8 +12,8 @@ import (
 	"github.com/jdxj/sign/internal/pkg/logger"
 )
 
-func RegisterV1(r gin.IRouter) {
-	v1 := r.Group("/v1")
+func NewRouter(parent gin.IRouter) {
+	v1 := parent.Group("/v1")
 	v1.POST("/token", generateToken)
 
 	test := v1.Group("/test", auth)
