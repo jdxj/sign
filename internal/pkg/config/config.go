@@ -37,9 +37,7 @@ type User struct {
 
 type APIServer struct {
 	Host string `yaml:"host"`
-	Port string `yaml:"port"`
-	User string `yaml:"user"`
-	Pass string `yaml:"pass"`
+	Port int    `yaml:"port"`
 	Key  string `yaml:"key"`
 }
 
