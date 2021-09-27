@@ -1,3 +1,5 @@
+![logo](./docs/images/logo.png)
+
 # 项目介绍
 
 自动签到程序, 纯属娱乐.
