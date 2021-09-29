@@ -1,39 +1,52 @@
 package api
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/jdxj/sign/internal/pkg/code"
 )
 
-type RawRequest struct {
+type rawRequest struct {
 	Token   string      `json:"token"`
 	Request interface{} `json:"request"`
 }
 
-type RawResponse struct {
-	ErrorCode        int         `json:"error_code"`
-	ErrorDescription string      `json:"error_description"`
-	Response         interface{} `json:"response"`
+type rawResponse struct {
+	Code        int         `json:"code"`
+	Description string      `json:"description"`
+	Response    interface{} `json:"response"`
 }
 
-func ParseRawRequest(ctx *gin.Context, req interface{}) (*RawRequest, error) {
-	rawReq := &RawRequest{
+func Handle(ctx *gin.Context, req interface{}, f func(context.Context) (interface{}, error)) {
+	rawReq := &rawRequest{
 		Request: req,
 	}
-	return rawReq, ctx.Bind(rawReq)
+	err := ctx.Bind(rawReq)
+	if err != nil {
+		replyRawResponse(ctx, code.ErrBindReqFailed, err.Error(), nil)
+		return
+	}
+
+	tCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rsp, err := f(tCtx)
+	if err != nil {
+		replyRawResponse(ctx, code.ErrHandle, err.Error(), nil)
+		return
+	}
+	replyRawResponse(ctx, 0, "", rsp)
 }
 
-func ReplyRawResponse(ctx *gin.Context, rsp interface{}, err error) {
-	rawRsp := &RawResponse{
-		ErrorCode:        0,
-		ErrorDescription: "",
-		Response:         rsp,
-	}
-	if err != nil {
-		// todo: 实现自定义 Error
-		rawRsp.ErrorCode = 1
-		rawRsp.ErrorDescription = err.Error()
+func replyRawResponse(ctx *gin.Context, code int, desc string, rsp interface{}) {
+	rawRsp := &rawResponse{
+		Code:        code,
+		Description: desc,
+		Response:    rsp,
 	}
 	ctx.JSON(http.StatusOK, rawRsp)
 }

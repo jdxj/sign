@@ -1,13 +1,155 @@
 package apiserver
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+
+	"github.com/jdxj/sign/internal/pkg/code"
 	"github.com/jdxj/sign/internal/pkg/config"
+	"github.com/jdxj/sign/internal/pkg/rpc"
+	"github.com/jdxj/sign/internal/proto/user"
 )
 
 var (
-	jwtKey string
+	JwtKey     string
+	UserClient user.UserServiceClient
 )
 
 func Init(conf config.APIServer) {
-	jwtKey = conf.Key
+	JwtKey = conf.Key
+
+	rpc.NewClient(user.ServiceName, func(cc *grpc.ClientConn) {
+		UserClient = user.NewUserServiceClient(cc)
+	})
+
+}
+
+type Claim struct {
+	jwt.StandardClaims
+
+	UserID   int64
+	Nickname string
+}
+
+func GenerateToken(claim *Claim) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	return token.SignedString([]byte(JwtKey))
+}
+
+func CheckToken(sign string) (*Claim, error) {
+	token, err := jwt.ParseWithClaims(sign, &Claim{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(JwtKey), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	claim, ok := token.Claims.(*Claim)
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("parse token failed")
+	}
+	return claim, nil
+}
+
+func TimeoutContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), 5*time.Second)
+}
+
+type Request struct {
+	Token string          `json:"token"`
+	Data  json.RawMessage `json:"data"`
+}
+
+type Response struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
+
+func Reply(ctx *gin.Context, code int, msg string, data interface{}) {
+	rsp := &Response{
+		Code:    code,
+		Message: msg,
+		Data:    data,
+	}
+	ctx.JSON(http.StatusOK, rsp)
+}
+
+func Auth(ctx *gin.Context) {
+	req := &Request{}
+	err := ctx.Bind(req)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusOK, &Response{
+			Code:    code.ErrBindReqFailed,
+			Message: err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	claim, err := CheckToken(req.Token)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusOK, &Response{
+			Code:    code.ErrAuthFailed,
+			Message: err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.Set("claim", claim)
+	ctx.Set("data", req.Data)
+}
+
+type LoginReq struct {
+	Nickname string `json:"nickname"`
+	Password string `json:"password"`
+}
+
+type LoginRsp struct {
+	Token string `json:"token"`
+}
+
+func Login(ctx *gin.Context) {
+	req := &LoginReq{}
+	err := ctx.Bind(req)
+	if err != nil {
+		Reply(ctx, code.ErrBindReqFailed, err.Error(), nil)
+		return
+	}
+
+	authRsp, err := UserClient.AuthUser(ctx, &user.AuthUserReq{
+		Nickname: req.Nickname,
+		Password: req.Password,
+	})
+	if err != nil {
+		Reply(ctx, code.ErrRPCRequest, err.Error(), nil)
+		return
+	}
+	if !authRsp.Valid {
+		Reply(ctx, code.ErrAuthFailed, "invalid nickname or password", nil)
+		return
+	}
+
+	claim := &Claim{
+		UserID:   authRsp.UserID,
+		Nickname: req.Nickname,
+		StandardClaims: jwt.StandardClaims{
+			Issuer: "apiserver",
+		},
+	}
+	rsp := &LoginRsp{}
+	rsp.Token, err = GenerateToken(claim)
+	if err != nil {
+		Reply(ctx, code.ErrInternal, err.Error(), nil)
+		return
+	}
+	Reply(ctx, 0, "", rsp)
 }

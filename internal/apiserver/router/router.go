@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	v1 "github.com/jdxj/sign/internal/apiserver/v1"
+	v1 "github.com/jdxj/sign/internal/apiserver/api/v1"
 )
 
 func NewRouter() http.Handler {
