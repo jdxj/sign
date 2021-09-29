@@ -13,13 +13,11 @@ type Updater struct {
 }
 
 func (u *Updater) Domain() crontab.Domain {
-	// todo: proto
-	return 0
+	return crontab.Domain_Evo
 }
 
 func (u *Updater) Kind() crontab.Kind {
-	// todo: proto
-	return 0
+	return crontab.Kind_Raphael
 }
 
 func (u *Updater) Execute(key string) (string, error) {
