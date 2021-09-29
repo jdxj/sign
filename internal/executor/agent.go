@@ -2,6 +2,7 @@ package executor
 
 import (
 	"github.com/jdxj/sign/internal/executor/task/bili"
+	"github.com/jdxj/sign/internal/executor/task/evo"
 	"github.com/jdxj/sign/internal/executor/task/hpi"
 	"github.com/jdxj/sign/internal/executor/task/stg"
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
@@ -20,6 +21,9 @@ func init() {
 
 	v2exSI := &v2ex.SignIn{}
 	agents[v2exSI.Kind()] = v2exSI
+
+	updater := &evo.Updater{}
+	agents[updater.Kind()] = updater
 }
 
 var (

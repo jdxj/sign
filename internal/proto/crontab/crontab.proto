@@ -17,6 +17,7 @@ enum Domain {
   HPI  = 201;
   STG  = 301;
   V2EX = 401;
+  Evo  = 501;
 }
 
 enum Kind {
@@ -26,10 +27,12 @@ enum Kind {
   BILIBCount = 103;
   // 黑客派
   HPISign = 202;
-  // Go 语言中文网
+  // Go语言中文网
   STGSign = 302;
   // V2ex
   V2EXSign = 402;
+  // Evolution X
+  Raphael = 502;
 }
 
 enum Stage {
