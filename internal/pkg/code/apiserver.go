@@ -6,4 +6,5 @@ const (
 	ErrHandle
 	ErrRPCRequest
 	ErrInternal
+	ErrInvalidParam
 )

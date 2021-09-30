@@ -8,8 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/jdxj/sign/internal/pkg/logger"
 )
 
@@ -57,8 +55,4 @@ func (s *Server) Stop() {
 	_ = s.httpServer.Shutdown(ctx)
 	s.wg.Wait()
 	logger.Infof("api server already stop")
-}
-
-func Auth(ctx *gin.Context) {
-
 }

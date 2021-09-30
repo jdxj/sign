@@ -82,32 +82,6 @@ func Reply(ctx *gin.Context, code int, msg string, data interface{}) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
-func Auth(ctx *gin.Context) {
-	req := &Request{}
-	err := ctx.Bind(req)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, &Response{
-			Code:    code.ErrBindReqFailed,
-			Message: err.Error(),
-			Data:    nil,
-		})
-		return
-	}
-
-	claim, err := CheckToken(req.Token)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, &Response{
-			Code:    code.ErrAuthFailed,
-			Message: err.Error(),
-			Data:    nil,
-		})
-		return
-	}
-
-	ctx.Set("claim", claim)
-	ctx.Set("data", req.Data)
-}
-
 type LoginReq struct {
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
@@ -152,4 +126,55 @@ func Login(ctx *gin.Context) {
 		return
 	}
 	Reply(ctx, 0, "", rsp)
+}
+
+const (
+	keyClaim = "claim"
+	keyData  = "data"
+)
+
+func Auth(ctx *gin.Context) {
+	req := &Request{}
+	err := ctx.Bind(req)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusOK, &Response{
+			Code:    code.ErrBindReqFailed,
+			Message: err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	claim, err := CheckToken(req.Token)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusOK, &Response{
+			Code:    code.ErrAuthFailed,
+			Message: err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.Set(keyClaim, claim)
+	ctx.Set(keyData, req.Data)
+}
+
+func Handle(ctx *gin.Context, req interface{}, f func(context.Context) (interface{}, error)) {
+	data, _ := ctx.Get(keyData)
+	rawMsg, _ := data.(json.RawMessage)
+	err := json.Unmarshal(rawMsg, req)
+	if err != nil {
+		Reply(ctx, code.ErrInvalidParam, err.Error(), nil)
+		return
+	}
+
+	tCtx, cancel := TimeoutContext()
+	defer cancel()
+
+	data, err = f(tCtx)
+	if err != nil {
+		Reply(ctx, code.ErrHandle, err.Error(), nil)
+		return
+	}
+	Reply(ctx, 0, "", data)
 }

@@ -6,7 +6,8 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/jdxj/sign/internal/apiserver"
-	"github.com/jdxj/sign/internal/apiserver/comm"
+	"github.com/jdxj/sign/internal/apiserver/router"
+	"github.com/jdxj/sign/internal/pkg/api"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/rpc"
@@ -23,9 +24,13 @@ func main() {
 
 	rpcConf := root.RPC
 	rpc.Init(rpcConf.EtcdAddr)
-	comm.Init(root.APIServer)
 
-	apiserver.Start(root.APIServer)
+	apiConf := root.APIServer
+	apiserver.Init(apiConf)
+
+	r := router.New()
+	server := api.NewServer(apiConf.Host, apiConf.Port, r)
+	server.Start()
 	util.Hold()
-	apiserver.Stop()
+	server.Stop()
 }
