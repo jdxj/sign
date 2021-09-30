@@ -14,12 +14,17 @@ import (
 	"github.com/jdxj/sign/internal/pkg/code"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/rpc"
+	"github.com/jdxj/sign/internal/proto/crontab"
+	"github.com/jdxj/sign/internal/proto/secret"
 	"github.com/jdxj/sign/internal/proto/user"
 )
 
 var (
-	JwtKey     string
-	UserClient user.UserServiceClient
+	JwtKey string
+
+	UserClient   user.UserServiceClient
+	CronClient   crontab.CrontabServiceClient
+	SecretClient secret.SecretServiceClient
 )
 
 func Init(conf config.APIServer) {
@@ -28,7 +33,12 @@ func Init(conf config.APIServer) {
 	rpc.NewClient(user.ServiceName, func(cc *grpc.ClientConn) {
 		UserClient = user.NewUserServiceClient(cc)
 	})
-
+	rpc.NewClient(crontab.ServiceName, func(cc *grpc.ClientConn) {
+		CronClient = crontab.NewCrontabServiceClient(cc)
+	})
+	rpc.NewClient(secret.ServiceName, func(cc *grpc.ClientConn) {
+		SecretClient = secret.NewSecretServiceClient(cc)
+	})
 }
 
 type Claim struct {
@@ -177,4 +187,49 @@ func Handle(ctx *gin.Context, req interface{}, f func(context.Context) (interfac
 		return
 	}
 	Reply(ctx, 0, "", data)
+}
+
+type SignUpReq struct {
+	Nickname string `json:"nickname"`
+	Password string `json:"password"`
+}
+
+type SignUpRsp struct {
+	Token string `json:"token"`
+}
+
+func SignUp(ctx *gin.Context) {
+	req := &SignUpReq{}
+	err := ctx.Bind(req)
+	if err != nil {
+		Reply(ctx, code.ErrBindReqFailed, err.Error(), nil)
+		return
+	}
+
+	tCtx, cancel := TimeoutContext()
+	defer cancel()
+
+	createRsp, err := UserClient.CreateUser(tCtx, &user.CreateUserReq{
+		Nickname: req.Nickname,
+		Password: req.Password,
+	})
+	if err != nil {
+		Reply(ctx, code.ErrInternal, err.Error(), nil)
+		return
+	}
+
+	claim := &Claim{
+		UserID:   createRsp.UserID,
+		Nickname: req.Nickname,
+		StandardClaims: jwt.StandardClaims{
+			Issuer: "apiserver",
+		},
+	}
+	rsp := &SignUpRsp{}
+	rsp.Token, err = GenerateToken(claim)
+	if err != nil {
+		Reply(ctx, code.ErrInternal, err.Error(), nil)
+		return
+	}
+	Reply(ctx, 0, "", rsp)
 }

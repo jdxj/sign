@@ -14,7 +14,9 @@ func New() http.Handler {
 	api := root.Group("/api")
 	{
 		api.POST("/token", apiserver.Login)
-		v1.NewRouter(api)
+		api.POST("/user", apiserver.SignUp)
 	}
+
+	v1.NewRouter(api)
 	return root
 }
