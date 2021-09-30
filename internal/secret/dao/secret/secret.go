@@ -4,6 +4,8 @@ import (
 	"github.com/jdxj/sign/internal/pkg/db"
 )
 
+// todo: 添加 describe 字段
+
 type Secret struct {
 	SecretID int64 `gorm:"primaryKey"`
 	UserID   int64
