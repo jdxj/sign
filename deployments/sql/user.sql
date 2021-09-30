@@ -1,3 +1,4 @@
+-- todo: 同步 salt 列
 CREATE TABLE `user` (
     `user_id` bigint(20) NOT NULL AUTO_INCREMENT,
     `nickname` varchar(64) NOT NULL COMMENT '昵称',

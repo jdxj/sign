@@ -31,7 +31,6 @@ func HandleHello(ctx *gin.Context) {
 }
 
 type CreateTaskReq struct {
-	UserID   int64        `json:"user_id"`
 	Describe string       `json:"describe"`
 	Kind     crontab.Kind `json:"kind"`
 	Spec     string       `json:"spec"`
@@ -43,14 +42,15 @@ type CreateTaskRsp struct {
 
 func CreateTask(ctx *gin.Context) {
 	req := &CreateTaskReq{}
+	value, _ := ctx.Get(apiserver.KeyClaim)
 	apiserver.Handle(ctx, req, func(tCtx context.Context) (interface{}, error) {
-		return createTask(tCtx, req)
+		return createTask(tCtx, req, value.(*apiserver.Claim).UserID)
 	})
 }
 
-func createTask(ctx context.Context, req *CreateTaskReq) (*CreateTaskRsp, error) {
+func createTask(ctx context.Context, req *CreateTaskReq, userID int64) (*CreateTaskRsp, error) {
 	createRsp, err := apiserver.CronClient.CreateTask(ctx, &crontab.CreateTaskReq{
-		UserID:   req.UserID,
+		UserID:   userID,
 		Describe: req.Describe,
 		Kind:     req.Kind,
 		Spec:     req.Spec,

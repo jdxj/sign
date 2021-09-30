@@ -139,8 +139,8 @@ func Login(ctx *gin.Context) {
 }
 
 const (
-	keyClaim = "claim"
-	keyData  = "data"
+	KeyClaim = "claim"
+	KeyData  = "data"
 )
 
 func Auth(ctx *gin.Context) {
@@ -165,12 +165,12 @@ func Auth(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set(keyClaim, claim)
-	ctx.Set(keyData, req.Data)
+	ctx.Set(KeyClaim, claim)
+	ctx.Set(KeyData, req.Data)
 }
 
 func Handle(ctx *gin.Context, req interface{}, f func(context.Context) (interface{}, error)) {
-	data, _ := ctx.Get(keyData)
+	data, _ := ctx.Get(KeyData)
 	rawMsg, _ := data.(json.RawMessage)
 	err := json.Unmarshal(rawMsg, req)
 	if err != nil {
