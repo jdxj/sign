@@ -1,4 +1,4 @@
-components := crontab executor secret trigger user
+components := apiserver crontab executor notice secret trigger user
 .PHONY: all
 all: $(components)
 $(components): output := _output/build
