@@ -1,6 +1,7 @@
 package v2ex
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -16,6 +17,11 @@ const (
 	tokenURL  = "https://www.v2ex.com/mission/daily"
 	signURL   = "https://www.v2ex.com/mission/daily/redeem?once=%s"
 	verifyURL = "https://www.v2ex.com/balance"
+)
+
+var (
+	ErrTargetNotFound = errors.New("target not found")
+	ErrTokenNotFound  = errors.New("token not found")
 )
 
 var (
@@ -70,28 +76,25 @@ func auth(cookies string) (*http.Client, error) {
 
 	body, err := task.ParseRawBody(client, authURL)
 	if err != nil {
-		return client, fmt.Errorf("stage: %s, error: %w",
-			crontab.Stage_Auth, err)
+		return client, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}
+
 	target := regAuth.FindString(string(body))
 	if target == "" {
-		return client, fmt.Errorf("stage: %s, error: %s",
-			crontab.Stage_Auth, "target not found")
+		err = fmt.Errorf("%w, stage: %s", ErrTargetNotFound, crontab.Stage_Auth)
 	}
-	return client, nil
+	return client, err
 }
 
 func getSignToken(c *http.Client) (string, error) {
 	body, err := task.ParseRawBody(c, tokenURL)
 	if err != nil {
-		return "", fmt.Errorf("stage: %s, error: %w",
-			crontab.Stage_Query, err)
+		return "", fmt.Errorf("%w, stage: %s", err, crontab.Stage_Query)
 	}
 
 	matched := regToken.FindStringSubmatch(string(body))
 	if len(matched) != 2 {
-		return "", fmt.Errorf("stage: %s, error: %s",
-			crontab.Stage_Query, "sign token not found")
+		return "", fmt.Errorf("%w, stage: %s", ErrTokenNotFound, crontab.Stage_Query)
 	}
 	return matched[1], nil
 }
@@ -100,8 +103,7 @@ func signIn(c *http.Client, token string) error {
 	u := fmt.Sprintf(signURL, token)
 	err := task.ParseBody(c, u, nil)
 	if err != nil {
-		return fmt.Errorf("stage: %s, error: %w",
-			crontab.Stage_SignIn, err)
+		return fmt.Errorf("%w, stage: %s", err, crontab.Stage_SignIn)
 	}
 	return nil
 }
@@ -109,14 +111,12 @@ func signIn(c *http.Client, token string) error {
 func verify(c *http.Client) error {
 	body, err := task.ParseRawBody(c, verifyURL)
 	if err != nil {
-		return fmt.Errorf("stage: %s, error: %w",
-			crontab.Stage_Verify, err)
+		return fmt.Errorf("%w, stage: %s", err, crontab.Stage_Verify)
 	}
 	date := regVerify.FindString(string(body))
 	err = task.VerifyDate(date)
 	if err != nil {
-		return fmt.Errorf("stage: %s, error: %w",
-			crontab.Stage_Verify, err)
+		err = fmt.Errorf("%w, stage: %s", err, crontab.Stage_Verify)
 	}
-	return nil
+	return err
 }

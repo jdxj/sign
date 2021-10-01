@@ -1,12 +1,18 @@
 package bili
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/jdxj/sign/internal/executor/task"
 	"github.com/jdxj/sign/internal/proto/crontab"
+)
+
+var (
+	ErrLogNotFound = errors.New("log not found")
+	ErrSignIn      = errors.New("sign in failed")
 )
 
 type SignIn struct {
@@ -57,12 +63,11 @@ func auth(cookies string) (*http.Client, error) {
 	authResp := &authResp{}
 	err := task.ParseBody(client, authURL, authResp)
 	if err != nil {
-		return client, fmt.Errorf("stage: %s, error: %w", crontab.Stage_Auth, err)
+		return client, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}
 
 	if authResp.Code != 0 {
-		return client, fmt.Errorf("stage: %s, error: %s",
-			crontab.Stage_Auth, "Cookies 可能失效")
+		return client, fmt.Errorf("%w, stage: %s", ErrInvalidCookie, crontab.Stage_Auth)
 	}
 	return client, nil
 }
@@ -70,7 +75,7 @@ func auth(cookies string) (*http.Client, error) {
 func signIn(c *http.Client) error {
 	err := task.ParseBody(c, signURL, nil)
 	if err != nil {
-		err = fmt.Errorf("stage: %s, error: %w", crontab.Stage_SignIn, err)
+		err = fmt.Errorf("%w, stage: %s", err, crontab.Stage_SignIn)
 	}
 	return err
 }
@@ -92,8 +97,7 @@ type verifyResp struct {
 func verify(client *http.Client) (err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("stage: %s, error: %w",
-				crontab.Stage_Verify, err)
+			err = fmt.Errorf("%w, stage: %s", err, crontab.Stage_Verify)
 		}
 	}()
 
@@ -103,12 +107,12 @@ func verify(client *http.Client) (err error) {
 		return
 	}
 	if verifyResp.Code != 0 {
-		return fmt.Errorf("%s", "Cookies 可能失效")
+		return ErrInvalidCookie
 	}
 
 	list := verifyResp.Data.List
 	if len(list) <= 0 {
-		return fmt.Errorf("%s", "登录日志未找到")
+		return ErrLogNotFound
 	}
 
 	loc, err := time.LoadLocation("Asia/Shanghai")
@@ -122,7 +126,7 @@ func verify(client *http.Client) (err error) {
 	}
 
 	if now.YearDay() != last.YearDay() {
-		err = fmt.Errorf("%s", "签到失败")
+		err = ErrSignIn
 	}
 	return
 }

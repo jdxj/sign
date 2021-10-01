@@ -21,13 +21,10 @@ func TestInitGorm(t *testing.T) {
 		Port:   3306,
 		Dbname: "sign",
 	}
-	err := InitGorm(conf)
-	if err != nil {
-		t.Fatalf("%s\n", err)
-	}
+	InitGorm(conf)
 
 	user := &User{}
-	err = Gorm.Raw("select * from user").First(user).Error
+	err := Gorm.Raw("select * from user").First(user).Error
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

@@ -1,6 +1,7 @@
 package trigger
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 
@@ -12,6 +13,12 @@ import (
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/mq"
 	"github.com/jdxj/sign/internal/trigger/dao/specification"
+)
+
+var (
+	ErrInvalidRowsEvent  = errors.New("invalid rows event")
+	ErrTableMayBeChanged = errors.New("table may be changed")
+	ErrAssertColumnType  = errors.New("assert column type")
 )
 
 func New(conf config.DB) *Trigger {
@@ -125,7 +132,7 @@ func (trg *Trigger) OnRow(e *canal.RowsEvent) error {
 	}
 
 	if len(e.Rows) < 1 {
-		return fmt.Errorf("invalid RowsEvent")
+		return ErrInvalidRowsEvent
 	}
 	sp, err := parseSpec(e.Rows[0])
 	if err != nil {
@@ -150,15 +157,17 @@ func (trg *Trigger) OnRow(e *canal.RowsEvent) error {
 
 func parseSpec(columns []interface{}) (*specification.Specification, error) {
 	if len(columns) != 2 {
-		return nil, fmt.Errorf("specification table may be changed")
+		return nil, fmt.Errorf("%w: %s", ErrTableMayBeChanged, "specification")
 	}
 	specID, ok := columns[0].(int64)
 	if !ok {
-		return nil, fmt.Errorf("invalid specID: %v", columns[0])
+		return nil, fmt.Errorf("%w, column: %s, value: %v",
+			ErrAssertColumnType, "spec_id", columns[0])
 	}
 	spec, ok := columns[1].(string)
 	if !ok {
-		return nil, fmt.Errorf("invalid spec: %v", columns[1])
+		return nil, fmt.Errorf("%w, column: %s, value: %v",
+			ErrAssertColumnType, "spec", columns[1])
 	}
 	sp := &specification.Specification{
 		SpecID: specID,

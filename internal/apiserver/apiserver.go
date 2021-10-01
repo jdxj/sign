@@ -3,7 +3,7 @@ package apiserver
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"time"
 
@@ -17,6 +17,10 @@ import (
 	"github.com/jdxj/sign/internal/proto/crontab"
 	"github.com/jdxj/sign/internal/proto/secret"
 	"github.com/jdxj/sign/internal/proto/user"
+)
+
+var (
+	ErrParseToken = errors.New("parse token")
 )
 
 var (
@@ -63,7 +67,7 @@ func CheckToken(sign string) (*Claim, error) {
 
 	claim, ok := token.Claims.(*Claim)
 	if !ok || !token.Valid {
-		return nil, fmt.Errorf("parse token failed")
+		return nil, ErrParseToken
 	}
 	return claim, nil
 }

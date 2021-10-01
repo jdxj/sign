@@ -3,7 +3,6 @@ package apiserver
 import (
 	"os"
 	"testing"
-	"time"
 
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/db"
@@ -20,9 +19,4 @@ func TestMain(t *testing.M) {
 		Dbname: "sign",
 	})
 	os.Exit(t.Run())
-}
-
-func TestStart(t *testing.T) {
-	Start(config.APIServer{Port: "8080"})
-	time.Sleep(time.Hour)
 }

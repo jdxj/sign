@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"sync"
@@ -15,6 +16,11 @@ import (
 
 const (
 	registry = "/registry/service"
+)
+
+var (
+	ErrInvalidServiceName = errors.New("invalid service name")
+	ErrListenAddrNotFound = errors.New("listen addr not found")
 )
 
 func DSN(service string) string {
@@ -37,7 +43,7 @@ func NewServer(service, etcdAddr string, listenPort int, optsF ...OptionFunc) (*
 	}
 
 	if service == "" {
-		return nil, fmt.Errorf("invalid service name")
+		return nil, ErrInvalidServiceName
 	}
 
 	c, err := clientV3.New(clientV3.Config{
@@ -184,5 +190,5 @@ func GetListenAddr(port int, mod string) (string, error) {
 			return listenAddr, nil
 		}
 	}
-	return "", fmt.Errorf("can not get ip")
+	return "", ErrListenAddrNotFound
 }

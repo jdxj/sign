@@ -1,12 +1,17 @@
 package evo
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/jdxj/sign/internal/executor/task"
 	"github.com/jdxj/sign/internal/proto/crontab"
+)
+
+var (
+	ErrUpdateNotFound = errors.New("update not found")
 )
 
 type Updater struct {
@@ -32,5 +37,5 @@ func (u *Updater) Execute(key string) (string, error) {
 	if time.Since(updateTime) <= 24*time.Hour {
 		return bi.String(), nil
 	}
-	return "", fmt.Errorf("update not found")
+	return "", ErrUpdateNotFound
 }

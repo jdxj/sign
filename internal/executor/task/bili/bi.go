@@ -1,11 +1,16 @@
 package bili
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/jdxj/sign/internal/executor/task"
 	"github.com/jdxj/sign/internal/proto/crontab"
+)
+
+var (
+	ErrInvalidCookie = errors.New("invalid cookie")
 )
 
 type Bi struct {
@@ -45,8 +50,8 @@ func queryBi(c *http.Client) (string, error) {
 	}
 
 	if biResp.Code != 0 {
-		return "", fmt.Errorf("stage: %s, error: %s",
-			crontab.Stage_Query, "Cookies 可能失效")
+		return "", fmt.Errorf("%w, stage: %s",
+			ErrInvalidCookie, crontab.Stage_Query)
 	}
 
 	msg := fmt.Sprintf("硬币: %d", biResp.Data.Money)

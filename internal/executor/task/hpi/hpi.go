@@ -1,6 +1,7 @@
 package hpi
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -23,6 +24,12 @@ var (
 	regSignToken *regexp.Regexp
 	regVerify    *regexp.Regexp
 	regUserName  *regexp.Regexp
+)
+
+var (
+	ErrGetToken         = errors.New("get token failed")
+	ErrTokenNotFound    = errors.New("token not found")
+	ErrUserNameNotFound = errors.New("user name not found")
 )
 
 func init() {
@@ -82,21 +89,21 @@ func auth(cookies string) (*http.Client, error) {
 func getSignToken(client *http.Client) (string, string, error) {
 	body, err := task.ParseRawBody(client, signTokenURL)
 	if err != nil {
-		return "", "", fmt.Errorf("stage: %s, get sign token failed: %s",
-			crontab.Stage_Auth, err)
+		return "", "", fmt.Errorf("%w: %s, stage: %s",
+			ErrGetToken, err, crontab.Stage_Auth)
 	}
 
 	matched := regSignToken.FindStringSubmatch(string(body))
 	if len(matched) != 2 {
-		return "", "", fmt.Errorf("stage: %s, error: %s",
-			crontab.Stage_Auth, "sign token not found")
+		return "", "", fmt.Errorf("%w, stage: %s",
+			ErrTokenNotFound, crontab.Stage_Auth)
 	}
 	token := matched[1]
 
 	matched = regUserName.FindStringSubmatch(string(body))
 	if len(matched) != 2 {
-		return token, "", fmt.Errorf("stage: %s, error: %s",
-			crontab.Stage_Auth, "user name not found")
+		return token, "", fmt.Errorf("%w, stage: %s",
+			ErrUserNameNotFound, crontab.Stage_Auth)
 	}
 	userName := matched[1]
 	return token, userName, nil

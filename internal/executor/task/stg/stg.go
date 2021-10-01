@@ -1,6 +1,7 @@
 package stg
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -20,6 +21,10 @@ const (
 var (
 	regAuth   *regexp.Regexp
 	regVerify *regexp.Regexp
+)
+
+var (
+	ErrTargetNotFound = errors.New("target not found")
 )
 
 func init() {
@@ -66,8 +71,8 @@ func auth(cookies string) (*http.Client, error) {
 	}
 	target := regAuth.FindString(string(body))
 	if target == "" {
-		return client, fmt.Errorf("stage: %s, error: %s",
-			crontab.Stage_Auth, "target not found")
+		return client, fmt.Errorf("%w, stage: %s",
+			ErrTargetNotFound, crontab.Stage_Auth)
 	}
 	return client, nil
 }
@@ -75,8 +80,8 @@ func auth(cookies string) (*http.Client, error) {
 func signIn(c *http.Client) error {
 	err := task.ParseBody(c, signURL, nil)
 	if err != nil {
-		return fmt.Errorf("stage: %s, error: %w",
-			crontab.Stage_SignIn, err)
+		return fmt.Errorf("%w, stage: %s",
+			err, crontab.Stage_SignIn)
 	}
 	return nil
 }
@@ -84,14 +89,14 @@ func signIn(c *http.Client) error {
 func verify(c *http.Client) error {
 	body, err := task.ParseRawBody(c, verifyURL)
 	if err != nil {
-		return fmt.Errorf("stage: %s, error: %w",
-			crontab.Stage_Verify, err)
+		return fmt.Errorf("%w, stage: %s",
+			err, crontab.Stage_Verify)
 	}
 	date := regVerify.FindString(string(body))
 	err = task.VerifyDate(date)
 	if err != nil {
-		return fmt.Errorf("stage: %s, error: %w",
-			crontab.Stage_Verify, err)
+		return fmt.Errorf("%w, stage: %s",
+			err, crontab.Stage_Verify)
 	}
 	return nil
 }
