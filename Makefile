@@ -1,30 +1,20 @@
-components := apiserver crontab executor notice secret trigger user
+components := apiserver.out crontab.out executor.out notice.out secret.out trigger.out user.out
+images := $(subst .out,,$(components))
+
 .PHONY: all
 all: $(components)
 $(components): output := _output/build
 $(components):
-	mkdir -p $(output)
-	go build -o $(output)/$@.out cmd/$@/*.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
 
-build.%: output := _output/build
-build.%:
-	mkdir -p $(output)
-	go build -o $(output)/$*.out cmd/$*/*.go
-
-cross.%: output := _output/cross
-cross.%:
-	mkdir -p $(output)
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$*.out cmd/$*/*.go
-	upx --best $(output)/$*.out
-
-containers := apiserver crontab executor notice secret trigger user
 .PHONY: docker
-docker: $(containers)
-$(containers): output := build/docker
-$(containers):
-	mkdir -p $(output)/$@
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$@/$@.out cmd/$@/*.go
-	upx --best $(output)/$@/$@.out
+docker: $(images)
+$(images): src := _output/build
+$(images): des := build/docker
+$(images):
+	upx --best $(src)/$@.out
+	mkdir -p $(des)/$@
+	cp $(src)/$@.out $(des)/$@/$@.run
 
 .PHONY: clean
 clean:
