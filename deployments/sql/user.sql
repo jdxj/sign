@@ -1,8 +1,8 @@
--- todo: 同步 salt 列
 CREATE TABLE `user` (
     `user_id` bigint(20) NOT NULL AUTO_INCREMENT,
-    `nickname` varchar(64) NOT NULL COMMENT '昵称',
-    `password` varchar(64) NOT NULL COMMENT '密码',
+    `nickname` varchar(64) NOT NULL,
+    `password` varchar(64) NOT NULL,
+    `salt` varchar(64) NOT NULL,
     PRIMARY KEY (`user_id`),
     UNIQUE KEY `user_nickname_IDX` (`nickname`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表'
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='用户表'
