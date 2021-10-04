@@ -34,6 +34,12 @@ type Options struct {
 
 type OptionFunc func(opts *Options)
 
+func WithMod(mod string) OptionFunc {
+	return func(opts *Options) {
+		opts.Mod = mod
+	}
+}
+
 func NewServer(service, etcdAddr string, listenPort int, optsF ...OptionFunc) (*Server, error) {
 	opts := &Options{
 		Mod: "debug",

@@ -21,15 +21,16 @@ func main() {
 	_ = flagSet.Parse(os.Args) // 忽略 err, 因为使用了 ExitOnError
 
 	root := config.ReadConfigs(*file)
-	logger.Init(root.Logger.Path+user.ServiceName+".log",
-		logger.WithMode(root.Logger.Mode))
+	loggerConf := root.Logger
+	logger.Init(loggerConf.Path+user.ServiceName+".log",
+		logger.WithMode(loggerConf.Mode))
 
 	dbConf := root.DB
 	db.InitGorm(dbConf)
 
 	rpcConf := root.RPC
 	server, err := rpc.NewServer(user.ServiceName,
-		rpcConf.EtcdAddr, rpcConf.UserPort)
+		rpcConf.EtcdAddr, rpcConf.UserPort, rpc.WithMod(loggerConf.Mode))
 	if err != nil {
 		logger.Errorf("new %s rpc server err: %s", user.ServiceName, err)
 		return

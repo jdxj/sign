@@ -20,14 +20,15 @@ func main() {
 	_ = flagSet.Parse(os.Args) // 忽略 err, 因为使用了 ExitOnError
 
 	root := config.ReadConfigs(*file)
-	logger.Init(root.Logger.Path+notice.ServiceName+".log",
-		logger.WithMode(root.Logger.Mode))
+	loggerConf := root.Logger
+	logger.Init(loggerConf.Path+notice.ServiceName+".log",
+		logger.WithMode(loggerConf.Mode))
 
 	rpcConf := root.RPC
 	rpc.Init(rpcConf.EtcdAddr)
 
 	server, err := rpc.NewServer(notice.ServiceName,
-		rpcConf.EtcdAddr, rpcConf.NoticePort)
+		rpcConf.EtcdAddr, rpcConf.NoticePort, rpc.WithMod(loggerConf.Mode))
 	if err != nil {
 		logger.Errorf("new %s rpc server err: %s", notice.ServiceName, err)
 		return
