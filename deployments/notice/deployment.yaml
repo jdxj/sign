@@ -21,31 +21,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: apiserver-dep
+  name: notice-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: apiserver
+      app: notice
   template:
     metadata:
-      name: apiserver-pod
+      name: notice-pod
       labels:
-        app: apiserver
+        app: notice
     spec:
       containers:
-        - name: apiserver
-          image: jdxj/apiserver:v0.3.0
-          command: ["/sign/apiserver.run"]
+        - name: notice
+          image: jdxj/notice:v0.3.0
+          command: ["/sign/notice.run"]
           args: ["-f", "/sign/config/config.yaml"]
-          env:
-            - name: GIN_MODE
-              value: release
           volumeMounts:
             - mountPath: /sign/config
               name: apiserver-config
           ports:
-            - containerPort: 8081
+            - containerPort: 49155
               protocol: TCP
       volumes:
         - name: apiserver-config

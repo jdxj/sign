@@ -21,32 +21,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: apiserver-dep
+  name: executor-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: apiserver
+      app: executor
   template:
     metadata:
-      name: apiserver-pod
+      name: executor-pod
       labels:
-        app: apiserver
+        app: executor
     spec:
       containers:
-        - name: apiserver
-          image: jdxj/apiserver:v0.3.0
-          command: ["/sign/apiserver.run"]
+        - name: executor
+          image: jdxj/executor:v0.3.0
+          command: ["/sign/executor.run"]
           args: ["-f", "/sign/config/config.yaml"]
-          env:
-            - name: GIN_MODE
-              value: release
           volumeMounts:
             - mountPath: /sign/config
               name: apiserver-config
-          ports:
-            - containerPort: 8081
-              protocol: TCP
       volumes:
         - name: apiserver-config
           configMap:

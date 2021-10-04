@@ -11,10 +11,11 @@ $(components):
 docker: $(images)
 $(images): src := _output/build
 $(images): des := build/docker
-$(images):
+$(images): all
 	upx --best $(src)/$@.out
 	mkdir -p $(des)/$@
 	cp $(src)/$@.out $(des)/$@/$@.run
+	cd $(des) && ./build.sh $@
 
 .PHONY: clean
 clean:
