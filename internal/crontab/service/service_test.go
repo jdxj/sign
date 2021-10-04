@@ -13,18 +13,20 @@ import (
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
+var (
+	client crontab.CrontabServiceClient
+)
+
 func TestMain(t *testing.M) {
 	logger.Init("./crontab.log")
-	rpc.Init("127.0.0.1:2379")
+	rpc.Init("172.17.0.4:2379")
+	rpc.NewClient("crontab", func(cc *grpc.ClientConn) {
+		client = crontab.NewCrontabServiceClient(cc)
+	})
 	os.Exit(t.Run())
 }
 
 func TestService_CreateTask(t *testing.T) {
-	var client crontab.CrontabServiceClient
-	rpc.NewClient("crontab", func(cc *grpc.ClientConn) {
-		client = crontab.NewCrontabServiceClient(cc)
-	})
-
 	rsp, err := client.CreateTask(context.Background(), &crontab.CreateTaskReq{
 		UserID:   1,
 		Describe: "test bili sign in",
@@ -36,4 +38,13 @@ func TestService_CreateTask(t *testing.T) {
 		t.Fatalf("%s\n", err)
 	}
 	fmt.Printf("taskID: %d\n", rsp.TaskID)
+}
+
+func TestService_DeleteTask(t *testing.T) {
+	_, err := client.DeleteTask(context.Background(), &crontab.DeleteTaskReq{
+		TaskID: 5,
+	})
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
 }

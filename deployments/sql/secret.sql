@@ -1,5 +1,6 @@
 CREATE TABLE `secret` (
     `secret_id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `describe` varchar(100) NOT NULL DEFAULT '',
     `user_id` bigint(20) NOT NULL,
     `domain` int(11) NOT NULL,
     `key` text NOT NULL,

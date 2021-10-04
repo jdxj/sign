@@ -110,7 +110,7 @@ func (e *Executor) start(task *crontab.Task) {
 		return
 	}
 
-	text, err := agent.Execute(secretRsp.Key)
+	text, err := agent.Execute(secretRsp.Record.Key)
 	if err != nil {
 		logger.Errorf("execute failed, userID: %d, taskID: %d, error: %s",
 			task.UserID, task.TaskID, err)

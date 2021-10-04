@@ -8,6 +8,7 @@ import (
 
 type Secret struct {
 	SecretID int64 `gorm:"primaryKey"`
+	Describe string
 	UserID   int64
 	Domain   int32
 	Key      string

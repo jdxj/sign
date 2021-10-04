@@ -53,6 +53,13 @@ func (srv *Service) GetSecret(ctx context.Context, req *secret.GetSecretReq) (*s
 	return model.GetSecret(srv.key, req)
 }
 
+func (srv *Service) GetSecretList(ctx context.Context, req *secret.GetSecretListReq) (*secret.GetSecretListRsp, error) {
+	if req.UserID == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "empty user id")
+	}
+	return model.GetSecretList(srv.key, req)
+}
+
 func (srv *Service) UpdateSecret(ctx context.Context, req *secret.UpdateSecretReq) (*emptypb.Empty, error) {
 	if req.SecretID == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "empty secret id")

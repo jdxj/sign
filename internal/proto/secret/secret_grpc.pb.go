@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 type SecretServiceClient interface {
 	CreateSecret(ctx context.Context, in *CreateSecretReq, opts ...grpc.CallOption) (*CreateSecretRsp, error)
 	GetSecret(ctx context.Context, in *GetSecretReq, opts ...grpc.CallOption) (*GetSecretRsp, error)
+	GetSecretList(ctx context.Context, in *GetSecretListReq, opts ...grpc.CallOption) (*GetSecretListRsp, error)
 	UpdateSecret(ctx context.Context, in *UpdateSecretReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteSecret(ctx context.Context, in *DeleteSecretReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -51,6 +52,15 @@ func (c *secretServiceClient) GetSecret(ctx context.Context, in *GetSecretReq, o
 	return out, nil
 }
 
+func (c *secretServiceClient) GetSecretList(ctx context.Context, in *GetSecretListReq, opts ...grpc.CallOption) (*GetSecretListRsp, error) {
+	out := new(GetSecretListRsp)
+	err := c.cc.Invoke(ctx, "/SecretService/GetSecretList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *secretServiceClient) UpdateSecret(ctx context.Context, in *UpdateSecretReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/SecretService/UpdateSecret", in, out, opts...)
@@ -75,6 +85,7 @@ func (c *secretServiceClient) DeleteSecret(ctx context.Context, in *DeleteSecret
 type SecretServiceServer interface {
 	CreateSecret(context.Context, *CreateSecretReq) (*CreateSecretRsp, error)
 	GetSecret(context.Context, *GetSecretReq) (*GetSecretRsp, error)
+	GetSecretList(context.Context, *GetSecretListReq) (*GetSecretListRsp, error)
 	UpdateSecret(context.Context, *UpdateSecretReq) (*emptypb.Empty, error)
 	DeleteSecret(context.Context, *DeleteSecretReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedSecretServiceServer()
@@ -89,6 +100,9 @@ func (UnimplementedSecretServiceServer) CreateSecret(context.Context, *CreateSec
 }
 func (UnimplementedSecretServiceServer) GetSecret(context.Context, *GetSecretReq) (*GetSecretRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSecret not implemented")
+}
+func (UnimplementedSecretServiceServer) GetSecretList(context.Context, *GetSecretListReq) (*GetSecretListRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSecretList not implemented")
 }
 func (UnimplementedSecretServiceServer) UpdateSecret(context.Context, *UpdateSecretReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateSecret not implemented")
@@ -145,6 +159,24 @@ func _SecretService_GetSecret_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecretService_GetSecretList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSecretListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecretServiceServer).GetSecretList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/SecretService/GetSecretList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecretServiceServer).GetSecretList(ctx, req.(*GetSecretListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SecretService_UpdateSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateSecretReq)
 	if err := dec(in); err != nil {
@@ -195,6 +227,10 @@ var SecretService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSecret",
 			Handler:    _SecretService_GetSecret_Handler,
+		},
+		{
+			MethodName: "GetSecretList",
+			Handler:    _SecretService_GetSecretList_Handler,
 		},
 		{
 			MethodName: "UpdateSecret",

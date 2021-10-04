@@ -22,17 +22,41 @@ func CreateSecret(key string, req *secretPb.CreateSecretReq) (*secretPb.CreateSe
 
 func GetSecret(key string, req *secretPb.GetSecretReq) (*secretPb.GetSecretRsp, error) {
 	where := map[string]interface{}{
-		"secret_id = ?": req.SecretID,
+		"secret_id": req.SecretID,
 	}
-
 	secret, err := secretDao.FindOne(where)
 	if err != nil {
 		return nil, err
 	}
-	rsp := &secretPb.GetSecretRsp{
+
+	record := &secretPb.SecretRecord{
 		SecretID: secret.SecretID,
+		Describe: secret.Describe,
 		Domain:   crontab.Domain(secret.Domain),
 		Key:      util.Decrypt(key, secret.Key),
+	}
+	rsp := &secretPb.GetSecretRsp{Record: record}
+	return rsp, nil
+}
+
+func GetSecretList(key string, req *secretPb.GetSecretListReq) (*secretPb.GetSecretListRsp, error) {
+	where := map[string]interface{}{
+		"user_id = ?": req.UserID,
+	}
+	secrets, err := secretDao.Find(where)
+	if err != nil {
+		return nil, err
+	}
+
+	rsp := &secretPb.GetSecretListRsp{}
+	for _, v := range secrets {
+		record := &secretPb.SecretRecord{
+			SecretID: v.SecretID,
+			Describe: v.Describe,
+			Domain:   crontab.Domain(v.Domain),
+			Key:      util.Decrypt(key, v.Key),
+		}
+		rsp.List = append(rsp.List, record)
 	}
 	return rsp, nil
 }

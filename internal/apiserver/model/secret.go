@@ -23,14 +23,15 @@ type CreateSecretRsp struct {
 
 func CreateSecret(ctx *gin.Context) {
 	req := &CreateSecretReq{}
+	value, _ := ctx.Get(apiserver.KeyClaim)
 	apiserver.Handle(ctx, req, func(tCtx context.Context) (interface{}, error) {
-		return createSecret(tCtx, req)
+		return createSecret(tCtx, req, value.(*apiserver.Claim).UserID)
 	})
 }
 
-func createSecret(ctx context.Context, req *CreateSecretReq) (*CreateSecretRsp, error) {
+func createSecret(ctx context.Context, req *CreateSecretReq, userID int64) (*CreateSecretRsp, error) {
 	secretRsp, err := apiserver.SecretClient.CreateSecret(ctx, &secret.CreateSecretReq{
-		UserID: req.UserID,
+		UserID: userID,
 		Domain: req.Domain,
 		Key:    req.Key,
 	})

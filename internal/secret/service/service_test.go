@@ -20,15 +20,15 @@ var (
 
 func TestMain(t *testing.M) {
 	logger.Init("./secret.log")
-	rpc.Init("127.0.0.1:2379")
-	os.Exit(t.Run())
-}
-
-func TestService_CreateSecret(t *testing.T) {
+	rpc.Init("172.17.0.4:2379")
 	rpc.NewClient(secret.ServiceName, func(cc *grpc.ClientConn) {
 		client = secret.NewSecretServiceClient(cc)
 	})
 
+	os.Exit(t.Run())
+}
+
+func TestService_CreateSecret(t *testing.T) {
 	rsp, err := client.CreateSecret(context.Background(), &secret.CreateSecretReq{
 		UserID: 1,
 		Domain: crontab.Domain_BILI,
@@ -44,4 +44,16 @@ func TestService_CreateSecret(t *testing.T) {
 		t.Fatalf("%s\n", err)
 	}
 	fmt.Printf("%+v\n", rsp2)
+}
+
+func TestService_GetSecretList(t *testing.T) {
+	rsp, err := client.GetSecretList(context.Background(), &secret.GetSecretListReq{
+		UserID: 1,
+	})
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	for _, v := range rsp.List {
+		fmt.Printf("%+v\n", v)
+	}
 }

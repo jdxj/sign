@@ -20,7 +20,7 @@ func main() {
 	_ = flagSet.Parse(os.Args) // 忽略 err, 因为使用了 ExitOnError
 
 	root := config.ReadConfigs(*file)
-	logger.Init(root.Logger.Path, logger.WithMode(root.Logger.Mode))
+	logger.Init(root.Logger.Path+"apiserver.log", logger.WithMode(root.Logger.Mode))
 
 	rpcConf := root.RPC
 	rpc.Init(rpcConf.EtcdAddr)
