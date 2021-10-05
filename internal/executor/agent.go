@@ -13,6 +13,9 @@ func init() {
 	biSI := &bili.SignIn{}
 	agents[biSI.Kind()] = biSI
 
+	bi := &bili.Bi{}
+	agents[bi.Kind()] = bi
+
 	hpiSI := &hpi.SignIn{}
 	agents[hpiSI.Kind()] = hpiSI
 
