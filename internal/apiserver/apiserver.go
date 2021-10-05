@@ -45,6 +45,22 @@ func Init(conf config.APIServer) {
 	})
 }
 
+func NewClaim() *Claim {
+	stdClaim := jwt.StandardClaims{
+		Audience:  "",
+		ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+		Id:        "",
+		IssuedAt:  0,
+		Issuer:    "apiserver",
+		NotBefore: 0,
+		Subject:   "",
+	}
+	claim := &Claim{
+		StandardClaims: stdClaim,
+	}
+	return claim
+}
+
 type Claim struct {
 	jwt.StandardClaims
 
@@ -127,13 +143,10 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	claim := &Claim{
-		UserID:   authRsp.UserID,
-		Nickname: req.Nickname,
-		StandardClaims: jwt.StandardClaims{
-			Issuer: "apiserver",
-		},
-	}
+	claim := NewClaim()
+	claim.UserID = authRsp.UserID
+	claim.Nickname = req.Nickname
+
 	rsp := &LoginRsp{
 		UserID: authRsp.UserID,
 	}
@@ -226,13 +239,9 @@ func SignUp(ctx *gin.Context) {
 		return
 	}
 
-	claim := &Claim{
-		UserID:   createRsp.UserID,
-		Nickname: req.Nickname,
-		StandardClaims: jwt.StandardClaims{
-			Issuer: "apiserver",
-		},
-	}
+	claim := NewClaim()
+	claim.UserID = createRsp.UserID
+	claim.Nickname = req.Nickname
 	rsp := &SignUpRsp{
 		UserID: createRsp.UserID,
 	}
