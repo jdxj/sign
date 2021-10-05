@@ -102,7 +102,8 @@ type LoginReq struct {
 }
 
 type LoginRsp struct {
-	Token string `json:"token"`
+	UserID int64  `json:"user_id"`
+	Token  string `json:"token"`
 }
 
 func Login(ctx *gin.Context) {
@@ -133,7 +134,9 @@ func Login(ctx *gin.Context) {
 			Issuer: "apiserver",
 		},
 	}
-	rsp := &LoginRsp{}
+	rsp := &LoginRsp{
+		UserID: authRsp.UserID,
+	}
 	rsp.Token, err = GenerateToken(claim)
 	if err != nil {
 		Reply(ctx, code.ErrInternal, err.Error(), nil)
@@ -199,7 +202,8 @@ type SignUpReq struct {
 }
 
 type SignUpRsp struct {
-	Token string `json:"token"`
+	UserID int64  `json:"user_id"`
+	Token  string `json:"token"`
 }
 
 func SignUp(ctx *gin.Context) {
@@ -229,7 +233,9 @@ func SignUp(ctx *gin.Context) {
 			Issuer: "apiserver",
 		},
 	}
-	rsp := &SignUpRsp{}
+	rsp := &SignUpRsp{
+		UserID: createRsp.UserID,
+	}
 	rsp.Token, err = GenerateToken(claim)
 	if err != nil {
 		Reply(ctx, code.ErrInternal, err.Error(), nil)

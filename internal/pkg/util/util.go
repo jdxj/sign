@@ -1,12 +1,15 @@
 package util
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -57,4 +60,23 @@ func encrypt(key, iv, text []byte) []byte {
 	stream := cipher.NewCTR(block, iv)
 	stream.XORKeyStream(ciphertext, text)
 	return ciphertext
+}
+
+func PostJson(url string, req, rsp interface{}) error {
+	body, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+	reader := bytes.NewReader(body)
+	httpRsp, err := http.Post(url, "application/json", reader)
+	if err != nil {
+		return err
+	}
+	defer httpRsp.Body.Close()
+	if rsp == nil {
+		return nil
+	}
+
+	decoder := json.NewDecoder(httpRsp.Body)
+	return decoder.Decode(rsp)
 }

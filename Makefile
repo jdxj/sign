@@ -17,6 +17,15 @@ $(images): all
 	cp $(src)/$@.out $(des)/$@/$@.run
 	cd $(des) && ./build.sh $@
 
+tools := signctl.out
+
+.PHONY: ctl
+ctl: $(tools)
+$(tools): output := _output/tools
+$(tools):
+	mkdir -p $(output)
+	go build -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
+
 .PHONY: clean
 clean:
 	rm -rf ./_output

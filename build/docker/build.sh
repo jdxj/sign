@@ -11,9 +11,10 @@ workDir=$(pwd)
 version=$(git describe --tags --abbrev=0)
 tag=jdxj/$1:$version
 
-cd "$workDir/$1" && sudo docker build -t="$tag" .
+cd "$workDir/$1" && docker build -t="$tag" .
 if [ $? -ne 0 ]; then
   echo "build $1 image failed"
   exit $?
 fi
-sudo docker push "$tag"
+
+docker push "$tag"
