@@ -73,7 +73,7 @@ func authCmdRun(cmd *cobra.Command, args []string) {
 
 	err := util.PostJson(url, req, rsp)
 	if err != nil {
-		cmd.Printf("%s: %s", consts.ErrPostJson, err)
+		cmd.Printf("%s: %s", consts.ErrSendJson, err)
 		return
 	}
 

@@ -10,6 +10,10 @@ const (
 	Token    = "token"
 	Nickname = "nickname"
 	Password = "password"
+	Describe = "describe"
+	Domain   = "domain"
+	Key      = "key"
+	SecretID = "secret-id"
 )
 
 // api path
@@ -19,8 +23,13 @@ const (
 
 	CreateUser = prefix + "/user"
 	AuthUser   = prefix + "/token"
+
+	CreateSecret = prefix + version + "/secret"
+	UpdateSecret = CreateSecret
+	DeleteSecret = CreateSecret
 )
 
 var (
-	ErrPostJson = errors.New("post json failed")
+	ErrSendJson     = errors.New("send json failed")
+	ErrInvalidParam = errors.New("invalid param")
 )

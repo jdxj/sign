@@ -1,7 +1,8 @@
-package create
+package update
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -11,9 +12,9 @@ import (
 	"github.com/jdxj/sign/internal/signctl/model"
 )
 
-func newUserCmd() *cobra.Command {
+func newSecretCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "user",
+		Use:                        "secret",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
@@ -31,7 +32,7 @@ func newUserCmd() *cobra.Command {
 		PersistentPreRunE:          nil,
 		PreRun:                     nil,
 		PreRunE:                    nil,
-		Run:                        userCmdRun,
+		Run:                        secretCmdRun,
 		RunE:                       nil,
 		PostRun:                    nil,
 		PostRunE:                   nil,
@@ -52,29 +53,49 @@ func newUserCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	flagSet.String(consts.Nickname, "", "user nickname")
-	flagSet.String(consts.Password, "", "user password")
+	flagSet.Int64(consts.SecretID, 0, "secret id")
+	flagSet.String(consts.Describe, "", "description of the secret")
+	flagSet.Int(consts.Domain, 0, "domain represents the website specified by key")
+	flagSet.String(consts.Key, "", "key represents the cookie or authentication information of a certain website")
 	return cmd
 }
 
-func userCmdRun(cmd *cobra.Command, args []string) {
+func secretCmdRun(cmd *cobra.Command, args []string) {
 	host := cmd.Flag(consts.Host)
-	nickname := cmd.Flag(consts.Nickname)
-	password := cmd.Flag(consts.Password)
+	token := cmd.Flag(consts.Token)
 
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.CreateUser)
-	req := &model.CreateUserReq{
-		Nickname: nickname.Value.String(),
-		Password: password.Value.String(),
-	}
-	rsp := &model.Response{}
+	secretID := cmd.Flag(consts.SecretID)
+	describe := cmd.Flag(consts.Describe)
+	domain := cmd.Flag(consts.Domain)
+	key := cmd.Flag(consts.Key)
 
-	err := util.PostJson(url, req, rsp)
+	secretIDInt64, err := strconv.ParseInt(secretID.Value.String(), 10, 64)
 	if err != nil {
-		cmd.Printf("%s: %s", consts.ErrSendJson, err)
+		cmd.PrintErrf("%s: secret-id: %s", consts.ErrInvalidParam, secretID.Value)
+		return
+	}
+	domainInt, err := strconv.Atoi(domain.Value.String())
+	if err != nil {
+		cmd.PrintErrf("%s: domain: %s\n", consts.ErrInvalidParam, domain.Value)
+		return
+	}
+	req := &model.Request{
+		Token: token.Value.String(),
+		Data: &model.UpdateSecretReq{
+			SecretID: secretIDInt64,
+			Describe: describe.Value.String(),
+			Domain:   domainInt,
+			Key:      key.Value.String(),
+		},
+	}
+	url := fmt.Sprintf("%s%s",
+		strings.TrimSuffix(host.Value.String(), "/"), consts.UpdateSecret)
+
+	err = util.PutJson(url, req, nil)
+	if err != nil {
+		cmd.PrintErrf("%s: put, %s", consts.ErrSendJson, err)
 		return
 	}
 
-	cmd.Printf("%s\n", rsp)
+	cmd.Printf("update secret successfully")
 }

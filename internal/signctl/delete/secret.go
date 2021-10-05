@@ -1,7 +1,8 @@
-package create
+package delete
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -11,9 +12,9 @@ import (
 	"github.com/jdxj/sign/internal/signctl/model"
 )
 
-func newUserCmd() *cobra.Command {
+func newSecretCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "user",
+		Use:                        "secret",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
@@ -31,7 +32,7 @@ func newUserCmd() *cobra.Command {
 		PersistentPreRunE:          nil,
 		PreRun:                     nil,
 		PreRunE:                    nil,
-		Run:                        userCmdRun,
+		Run:                        secretCmdRun,
 		RunE:                       nil,
 		PostRun:                    nil,
 		PostRunE:                   nil,
@@ -52,29 +53,36 @@ func newUserCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	flagSet.String(consts.Nickname, "", "user nickname")
-	flagSet.String(consts.Password, "", "user password")
+	flagSet.Int64(consts.SecretID, 0, "secret id")
 	return cmd
 }
 
-func userCmdRun(cmd *cobra.Command, args []string) {
+func secretCmdRun(cmd *cobra.Command, args []string) {
 	host := cmd.Flag(consts.Host)
-	nickname := cmd.Flag(consts.Nickname)
-	password := cmd.Flag(consts.Password)
+	token := cmd.Flag(consts.Token)
 
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.CreateUser)
-	req := &model.CreateUserReq{
-		Nickname: nickname.Value.String(),
-		Password: password.Value.String(),
-	}
-	rsp := &model.Response{}
+	secretID := cmd.Flag(consts.SecretID)
 
-	err := util.PostJson(url, req, rsp)
+	secretIDInt64, err := strconv.ParseInt(secretID.Value.String(), 10, 64)
 	if err != nil {
-		cmd.Printf("%s: %s", consts.ErrSendJson, err)
+		cmd.PrintErrf("%s: secret-id: %s", consts.ErrInvalidParam, secretID.Value)
 		return
 	}
 
-	cmd.Printf("%s\n", rsp)
+	req := &model.Request{
+		Token: token.Value.String(),
+		Data: &model.DeleteSecretReq{
+			SecretID: secretIDInt64,
+		},
+	}
+	url := fmt.Sprintf("%s%s",
+		strings.TrimSuffix(host.Value.String(), "/"), consts.DeleteSecret)
+
+	err = util.DeleteJson(url, req, nil)
+	if err != nil {
+		cmd.PrintErrf("%s: delete, %s", consts.ErrSendJson, err)
+		return
+	}
+
+	cmd.Println("delete secret successfully")
 }

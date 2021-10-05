@@ -6,6 +6,8 @@ import (
 	"github.com/jdxj/sign/internal/signctl/auth"
 	"github.com/jdxj/sign/internal/signctl/consts"
 	"github.com/jdxj/sign/internal/signctl/create"
+	"github.com/jdxj/sign/internal/signctl/delete"
+	"github.com/jdxj/sign/internal/signctl/update"
 )
 
 var (
@@ -57,12 +59,14 @@ func NewRootCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.PersistentFlags()
-	flagSet.String(consts.Host, "http://127.0.0.1:8080", "apiserver address")
-	flagSet.String(consts.Token, "", "user token")
+	flagSet.StringP(consts.Host, "H", "http://127.0.0.1:8080", "apiserver address")
+	flagSet.StringP(consts.Token, "T", "", "user token")
 
 	// subcommands
 	cmd.AddCommand(create.New())
 	cmd.AddCommand(auth.New())
+	cmd.AddCommand(update.New())
+	cmd.AddCommand(delete.New())
 	return cmd
 }
 

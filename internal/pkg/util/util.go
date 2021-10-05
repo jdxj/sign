@@ -63,20 +63,38 @@ func encrypt(key, iv, text []byte) []byte {
 }
 
 func PostJson(url string, req, rsp interface{}) error {
+	return sendJson(http.MethodPost, url, req, rsp)
+}
+
+func PutJson(url string, req, rsp interface{}) error {
+	return sendJson(http.MethodPut, url, req, rsp)
+}
+
+func DeleteJson(url string, req, rsp interface{}) error {
+	return sendJson(http.MethodDelete, url, req, rsp)
+}
+
+func sendJson(method, url string, req, rsp interface{}) error {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return err
 	}
 	reader := bytes.NewReader(body)
-	httpRsp, err := http.Post(url, "application/json", reader)
+	httpReq, err := http.NewRequest(method, url, reader)
 	if err != nil {
 		return err
 	}
-	defer httpRsp.Body.Close()
+	client := &http.Client{}
+	httpRsp, err := client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = httpRsp.Body.Close()
+	}()
 	if rsp == nil {
 		return nil
 	}
-
 	decoder := json.NewDecoder(httpRsp.Body)
 	return decoder.Decode(rsp)
 }

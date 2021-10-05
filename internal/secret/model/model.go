@@ -1,13 +1,24 @@
 package model
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/proto/crontab"
 	secretPb "github.com/jdxj/sign/internal/proto/secret"
 	secretDao "github.com/jdxj/sign/internal/secret/dao/secret"
 )
 
+var (
+	ErrDomainNotFound = errors.New("domain not found")
+)
+
 func CreateSecret(key string, req *secretPb.CreateSecretReq) (*secretPb.CreateSecretRsp, error) {
+	if _, ok := crontab.Domain_name[int32(req.Domain)]; !ok {
+		return nil, fmt.Errorf("%w: %d", ErrDomainNotFound, req.Domain)
+	}
+
 	sec := &secretDao.Secret{
 		UserID: req.UserID,
 		Domain: int32(req.Domain),
@@ -22,7 +33,8 @@ func CreateSecret(key string, req *secretPb.CreateSecretReq) (*secretPb.CreateSe
 
 func GetSecret(key string, req *secretPb.GetSecretReq) (*secretPb.GetSecretRsp, error) {
 	where := map[string]interface{}{
-		"secret_id": req.SecretID,
+		"secret_id = ?": req.SecretID,
+		"user_id = ?":   req.UserID,
 	}
 	secret, err := secretDao.FindOne(where)
 	if err != nil {
@@ -43,6 +55,10 @@ func GetSecretList(key string, req *secretPb.GetSecretListReq) (*secretPb.GetSec
 	where := map[string]interface{}{
 		"user_id = ?": req.UserID,
 	}
+	if len(req.Domains) != 0 {
+		where["domain IN ?"] = req.Domains
+	}
+
 	secrets, err := secretDao.Find(where)
 	if err != nil {
 		return nil, err
@@ -62,16 +78,18 @@ func GetSecretList(key string, req *secretPb.GetSecretListReq) (*secretPb.GetSec
 }
 
 func UpdateSecret(req *secretPb.UpdateSecretReq) error {
+	if _, ok := crontab.Domain_name[int32(req.Domain)]; !ok {
+		return fmt.Errorf("%w: %d", ErrDomainNotFound, req.Domain)
+	}
+
 	where := map[string]interface{}{
 		"secret_id = ?": req.SecretID,
 	}
 
-	data := map[string]interface{}{}
-	if req.Domain != 0 {
-		data["domain"] = req.Domain
-	}
-	if req.Key != "" {
-		data["key"] = req.Key
+	data := map[string]interface{}{
+		"describe": req.Describe,
+		"domain":   req.Domain,
+		"key":      req.Key,
 	}
 	return secretDao.Update(where, data)
 }
@@ -79,6 +97,7 @@ func UpdateSecret(req *secretPb.UpdateSecretReq) error {
 func DeleteSecret(req *secretPb.DeleteSecretReq) error {
 	where := map[string]interface{}{
 		"secret_id = ?": req.SecretID,
+		"user_id = ?":   req.UserID,
 	}
 	return secretDao.Delete(where)
 }

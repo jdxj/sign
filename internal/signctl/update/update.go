@@ -1,19 +1,12 @@
-package create
+package update
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/spf13/cobra"
-
-	"github.com/jdxj/sign/internal/pkg/util"
-	"github.com/jdxj/sign/internal/signctl/consts"
-	"github.com/jdxj/sign/internal/signctl/model"
 )
 
-func newUserCmd() *cobra.Command {
+func New() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "user",
+		Use:                        "update",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
@@ -31,7 +24,7 @@ func newUserCmd() *cobra.Command {
 		PersistentPreRunE:          nil,
 		PreRun:                     nil,
 		PreRunE:                    nil,
-		Run:                        userCmdRun,
+		Run:                        nil,
 		RunE:                       nil,
 		PostRun:                    nil,
 		PostRunE:                   nil,
@@ -51,30 +44,9 @@ func newUserCmd() *cobra.Command {
 	}
 
 	// flags
-	flagSet := cmd.Flags()
-	flagSet.String(consts.Nickname, "", "user nickname")
-	flagSet.String(consts.Password, "", "user password")
+
+	// subcommands
+	cmd.AddCommand(newSecretCmd())
+
 	return cmd
-}
-
-func userCmdRun(cmd *cobra.Command, args []string) {
-	host := cmd.Flag(consts.Host)
-	nickname := cmd.Flag(consts.Nickname)
-	password := cmd.Flag(consts.Password)
-
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.CreateUser)
-	req := &model.CreateUserReq{
-		Nickname: nickname.Value.String(),
-		Password: password.Value.String(),
-	}
-	rsp := &model.Response{}
-
-	err := util.PostJson(url, req, rsp)
-	if err != nil {
-		cmd.Printf("%s: %s", consts.ErrSendJson, err)
-		return
-	}
-
-	cmd.Printf("%s\n", rsp)
 }

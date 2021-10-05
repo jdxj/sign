@@ -40,3 +40,24 @@ type AuthRsp struct {
 	UserID int64  `json:"user_id"`
 	Token  string `json:"token"`
 }
+
+type CreateSecretReq struct {
+	Describe string `json:"describe"`
+	Domain   int    `json:"domain"`
+	Key      string `json:"key"`
+}
+
+type CreateSecretRsp struct {
+	SecretID int64 `json:"secret_id"`
+}
+
+type UpdateSecretReq struct {
+	SecretID int64  `json:"secret_id"`
+	Describe string `json:"describe"`
+	Domain   int    `json:"domain"`
+	Key      string `json:"key"`
+}
+
+type DeleteSecretReq struct {
+	SecretID int64 `json:"secret_id"`
+}

@@ -2,6 +2,7 @@ package create
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -11,9 +12,9 @@ import (
 	"github.com/jdxj/sign/internal/signctl/model"
 )
 
-func newUserCmd() *cobra.Command {
+func newSecretCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "user",
+		Use:                        "secret",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
@@ -31,7 +32,7 @@ func newUserCmd() *cobra.Command {
 		PersistentPreRunE:          nil,
 		PreRun:                     nil,
 		PreRunE:                    nil,
-		Run:                        userCmdRun,
+		Run:                        secretCmdRun,
 		RunE:                       nil,
 		PostRun:                    nil,
 		PostRunE:                   nil,
@@ -52,27 +53,40 @@ func newUserCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	flagSet.String(consts.Nickname, "", "user nickname")
-	flagSet.String(consts.Password, "", "user password")
+	flagSet.String(consts.Describe, "", "description of the secret")
+	flagSet.Int(consts.Domain, 0, "domain represents the website specified by key")
+	flagSet.String(consts.Key, "", "key represents the cookie or authentication information of a certain website")
 	return cmd
 }
 
-func userCmdRun(cmd *cobra.Command, args []string) {
+func secretCmdRun(cmd *cobra.Command, args []string) {
 	host := cmd.Flag(consts.Host)
-	nickname := cmd.Flag(consts.Nickname)
-	password := cmd.Flag(consts.Password)
+	token := cmd.Flag(consts.Token)
 
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.CreateUser)
-	req := &model.CreateUserReq{
-		Nickname: nickname.Value.String(),
-		Password: password.Value.String(),
-	}
-	rsp := &model.Response{}
+	domain := cmd.Flag(consts.Domain)
+	key := cmd.Flag(consts.Key)
+	describe := cmd.Flag(consts.Describe)
 
-	err := util.PostJson(url, req, rsp)
+	domainInt, err := strconv.Atoi(domain.Value.String())
 	if err != nil {
-		cmd.Printf("%s: %s", consts.ErrSendJson, err)
+		cmd.Printf("%s: domain: %s\n", consts.ErrInvalidParam, domain.Value)
+		return
+	}
+	req := &model.Request{
+		Token: token.Value.String(),
+		Data: &model.CreateSecretReq{
+			Describe: describe.Value.String(),
+			Domain:   domainInt,
+			Key:      key.Value.String(),
+		},
+	}
+	url := fmt.Sprintf("%s%s",
+		strings.TrimSuffix(host.Value.String(), "/"), consts.CreateSecret)
+
+	rsp := &model.Response{}
+	err = util.PostJson(url, req, rsp)
+	if err != nil {
+		cmd.Printf("%s: post, %s", consts.ErrSendJson, err)
 		return
 	}
 
