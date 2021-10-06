@@ -17,7 +17,7 @@ func NewRouter(parent gin.IRouter) {
 	{
 		v1.POST("/task", model.CreateTask)
 		v1.DELETE("/task", model.DeleteTask)
-		v1.GET("/task", model.GetTasks)
+		v1.POST("/tasks", model.GetTasks)
 	}
 	// secret
 	{

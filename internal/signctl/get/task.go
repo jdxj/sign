@@ -1,12 +1,19 @@
 package get
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
+
+	"github.com/jdxj/sign/internal/pkg/util"
+	"github.com/jdxj/sign/internal/signctl/consts"
+	"github.com/jdxj/sign/internal/signctl/model"
 )
 
-func New() *cobra.Command {
+func newTaskCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "get",
+		Use:                        "task",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
@@ -24,7 +31,7 @@ func New() *cobra.Command {
 		PersistentPreRunE:          nil,
 		PreRun:                     nil,
 		PreRunE:                    nil,
-		Run:                        nil,
+		Run:                        taskCmdRun,
 		RunE:                       nil,
 		PostRun:                    nil,
 		PostRunE:                   nil,
@@ -44,9 +51,37 @@ func New() *cobra.Command {
 	}
 
 	// flags
-
-	// subcommands
-	cmd.AddCommand(newSecretCmd())
-	cmd.AddCommand(newTaskCmd())
+	flagSet := cmd.Flags()
+	kinds = flagSet.IntSlice(consts.Kind, nil, "specify multiple kind for query")
+	secretIDsTask = flagSet.Int64Slice(consts.SecretID, nil, "specify multiple secret id for query")
 	return cmd
+}
+
+var (
+	kinds         *[]int
+	secretIDsTask *[]int64
+)
+
+func taskCmdRun(cmd *cobra.Command, args []string) {
+	host := cmd.Flag(consts.Host)
+	token := cmd.Flag(consts.Token)
+
+	req := &model.Request{
+		Token: token.Value.String(),
+		Data: &model.GetTasksReq{
+			Kinds:     *kinds,
+			SecretIDs: *secretIDsTask,
+		},
+	}
+	rsp := &model.Response{}
+	url := fmt.Sprintf("%s%s",
+		strings.TrimSuffix(host.Value.String(), "/"), consts.GetTasks)
+
+	err := util.PostJson(url, req, rsp)
+	if err != nil {
+		cmd.PrintErrf("%s: post, %s", consts.ErrSendJson, err)
+		return
+	}
+
+	cmd.Printf("%s\n", rsp)
 }

@@ -38,12 +38,6 @@ func TestService_CreateSecret(t *testing.T) {
 		t.Fatalf("%s\n", err)
 	}
 	fmt.Printf("secret id: %d\n", rsp.SecretID)
-
-	rsp2, err := client.GetSecret(context.Background(), &secret.GetSecretReq{SecretID: rsp.SecretID})
-	if err != nil {
-		t.Fatalf("%s\n", err)
-	}
-	fmt.Printf("%+v\n", rsp2)
 }
 
 func TestService_GetSecretList(t *testing.T) {

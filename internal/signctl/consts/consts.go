@@ -12,8 +12,11 @@ const (
 	Password = "password"
 	Describe = "describe"
 	Domain   = "domain"
+	Kind     = "kind"
+	Spec     = "spec"
 	Key      = "key"
 	SecretID = "secret-id"
+	TaskID   = "task-id"
 )
 
 // api path
@@ -28,6 +31,10 @@ const (
 	UpdateSecret = CreateSecret
 	DeleteSecret = CreateSecret
 	GetSecrets   = prefix + version + "/secrets"
+
+	CreateTask = prefix + version + "/task"
+	DeleteTask = CreateTask
+	GetTasks   = prefix + version + "/tasks"
 )
 
 var (

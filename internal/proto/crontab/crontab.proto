@@ -67,6 +67,8 @@ message CreateTaskRsp {
 
 message GetTasksReq {
   int64 UserID = 1;
+  repeated Kind Kinds = 2;
+  repeated int64 SecretIDs = 3;
 }
 
 message GetTasksRsp {

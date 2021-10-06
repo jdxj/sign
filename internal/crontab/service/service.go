@@ -50,7 +50,17 @@ func (srv *Service) GetTasks(ctx context.Context, req *crontab.GetTasksReq) (*cr
 		return nil, status.Errorf(codes.InvalidArgument, "empty user id")
 	}
 
-	tasks, err := task.Find(map[string]interface{}{"user_id = ?": req.UserID})
+	where := map[string]interface{}{
+		"user_id = ?": req.UserID,
+	}
+	if len(req.Kinds) != 0 {
+		where["kind IN ?"] = req.Kinds
+	}
+	if len(req.SecretIDs) != 0 {
+		where["secret_id IN ?"] = req.SecretIDs
+	}
+
+	tasks, err := task.Find(where)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "get tasks failed: %s", err)
 	}

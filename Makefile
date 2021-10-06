@@ -24,7 +24,7 @@ ctl: $(tools)
 $(tools): output := _output/tools
 $(tools):
 	mkdir -p $(output)
-	go build -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
+	go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
 
 .PHONY: clean
 clean:

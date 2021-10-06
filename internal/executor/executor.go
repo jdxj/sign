@@ -102,15 +102,22 @@ func (e *Executor) start(task *crontab.Task) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	secretRsp, err := e.secretClient.GetSecret(ctx, &secret.GetSecretReq{
-		SecretID: task.SecretID,
+	secretList, err := e.secretClient.GetSecretList(ctx, &secret.GetSecretListReq{
+		SecretIDs: []int64{task.SecretID},
+		UserID:    task.UserID,
 	})
 	if err != nil {
-		logger.Errorf("get secret failed: %s", err)
+		logger.Errorf("get secret list failed: %s", err)
 		return
 	}
+	if len(secretList.List) < 1 {
+		logger.Warnf("secret not found, taskID: %d, userID: %d, secretID: %d",
+			task.TaskID, task.UserID, task.SecretID)
+		return
+	}
+	secretRecord := secretList.List[0]
 
-	text, err := agent.Execute(secretRsp.Record.Key)
+	text, err := agent.Execute(secretRecord.Key)
 	if err != nil {
 		logger.Errorf("execute failed, userID: %d, taskID: %d, error: %s",
 			task.UserID, task.TaskID, err)

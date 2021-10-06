@@ -66,9 +66,45 @@ type GetSecretsReq struct {
 	Domains   []int   `json:"domains"`
 }
 
-type GetSecretsRsp struct {
+type Secret struct {
 	SecretID int64  `json:"secret_id"`
 	Describe string `json:"describe"`
 	Domain   int    `json:"domain"`
 	Key      string `json:"key"`
+}
+
+type GetSecretsRsp struct {
+	List []*Secret `json:"list"`
+}
+
+type CreateTaskReq struct {
+	Describe string `json:"describe"`
+	Kind     int    `json:"kind"`
+	Spec     string `json:"spec"`
+	SecretID int64  `json:"secret_id"`
+}
+
+type CreateTaskRsp struct {
+	TaskID int64 `json:"task_id"`
+}
+
+type DeleteTaskReq struct {
+	TaskID int64 `json:"task_id"`
+}
+
+type GetTasksReq struct {
+	Kinds     []int   `json:"kinds"`
+	SecretIDs []int64 `json:"secret_ids"`
+}
+
+type Task struct {
+	TaskID   int64  `json:"task_id"`
+	Describe string `json:"describe"`
+	Kind     int    `json:"kind"`
+	Spec     string `json:"spec"`
+	SecretID int64  `json:"secret_id"`
+}
+
+type GetTasksRsp struct {
+	List []*Task `json:"list"`
 }

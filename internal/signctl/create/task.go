@@ -1,7 +1,8 @@
-package get
+package create
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -11,9 +12,9 @@ import (
 	"github.com/jdxj/sign/internal/signctl/model"
 )
 
-func newSecretCmd() *cobra.Command {
+func newTaskCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "secret",
+		Use:                        "task",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
@@ -31,7 +32,7 @@ func newSecretCmd() *cobra.Command {
 		PersistentPreRunE:          nil,
 		PreRun:                     nil,
 		PreRunE:                    nil,
-		Run:                        secretCmdRun,
+		Run:                        taskCmdRun,
 		RunE:                       nil,
 		PostRun:                    nil,
 		PostRunE:                   nil,
@@ -52,34 +53,49 @@ func newSecretCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	secretIDsSecret = flagSet.Int64Slice(consts.SecretID, nil, "specify multiple secret id for query")
-	domains = flagSet.IntSlice(consts.Domain, nil, "specify multiple domain for query")
+	flagSet.String(consts.Describe, "", "description of the task")
+	flagSet.Int(consts.Kind, 0, "kind of the task")
+	flagSet.String(consts.Spec, "", "crontab expression")
+	flagSet.Int64(consts.SecretID, 0, "the id of the secret used by the task")
 	return cmd
 }
 
-var (
-	secretIDsSecret *[]int64
-	domains         *[]int
-)
-
-func secretCmdRun(cmd *cobra.Command, args []string) {
+func taskCmdRun(cmd *cobra.Command, args []string) {
 	host := cmd.Flag(consts.Host)
 	token := cmd.Flag(consts.Token)
 
+	describe := cmd.Flag(consts.Describe)
+	kind := cmd.Flag(consts.Kind)
+	spec := cmd.Flag(consts.Spec)
+	secretID := cmd.Flag(consts.SecretID)
+
+	kindInt, err := strconv.Atoi(kind.Value.String())
+	if err != nil {
+		cmd.PrintErrf("%s, kind: %s", consts.ErrInvalidParam, kind.Value.String())
+		return
+	}
+	secretIDInt64, err := strconv.ParseInt(secretID.Value.String(), 10, 64)
+	if err != nil {
+		cmd.PrintErrf("%s, secretID: %s", consts.ErrInvalidParam, secretID.Value.String())
+		return
+	}
+
 	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.GetSecrets)
+		strings.TrimSuffix(host.Value.String(), "/"), consts.CreateTask)
+
 	req := &model.Request{
 		Token: token.Value.String(),
-		Data: &model.GetSecretsReq{
-			SecretIDs: *secretIDsSecret,
-			Domains:   *domains,
+		Data: &model.CreateTaskReq{
+			Describe: describe.Value.String(),
+			Kind:     kindInt,
+			Spec:     spec.Value.String(),
+			SecretID: secretIDInt64,
 		},
 	}
 	rsp := &model.Response{}
-
-	err := util.PostJson(url, req, rsp)
+	err = util.PostJson(url, req, rsp)
 	if err != nil {
-		cmd.PrintErrf("%s: post, %s", consts.ErrSendJson, err)
+		cmd.PrintErrf("%s: post, %s\n", consts.ErrSendJson, err)
 		return
 	}
 

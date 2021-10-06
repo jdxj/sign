@@ -85,7 +85,8 @@ func deleteTask(ctx context.Context, req *DeleteTaskReq) error {
 }
 
 type GetTasksReq struct {
-	UserID int64 `json:"user_id"`
+	Kinds     []crontab.Kind `json:"kinds"`
+	SecretIDs []int64        `json:"secret_ids"`
 }
 
 type Task struct {
@@ -102,14 +103,17 @@ type GetTasksRsp struct {
 
 func GetTasks(ctx *gin.Context) {
 	req := &GetTasksReq{}
+	value, _ := ctx.Get(apiserver.KeyClaim)
 	apiserver.Handle(ctx, req, func(tCtx context.Context) (interface{}, error) {
-		return getTasks(tCtx, req)
+		return getTasks(tCtx, req, value.(*apiserver.Claim).UserID)
 	})
 }
 
-func getTasks(ctx context.Context, req *GetTasksReq) (*GetTasksRsp, error) {
+func getTasks(ctx context.Context, req *GetTasksReq, userID int64) (*GetTasksRsp, error) {
 	tasks, err := apiserver.CronClient.GetTasks(ctx, &crontab.GetTasksReq{
-		UserID: req.UserID,
+		UserID:    userID,
+		Kinds:     req.Kinds,
+		SecretIDs: req.SecretIDs,
 	})
 	if err != nil {
 		return nil, err
