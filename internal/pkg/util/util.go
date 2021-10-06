@@ -87,6 +87,7 @@ func sendJson(method, url string, req, rsp interface{}) error {
 	if err != nil {
 		return err
 	}
+	httpReq.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	httpRsp, err := client.Do(httpReq)
 	if err != nil {
