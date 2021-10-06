@@ -27,6 +27,7 @@ const (
 	CreateSecret = prefix + version + "/secret"
 	UpdateSecret = CreateSecret
 	DeleteSecret = CreateSecret
+	GetSecrets   = prefix + version + "/secrets"
 )
 
 var (

@@ -23,9 +23,7 @@ func NewRouter(parent gin.IRouter) {
 	{
 		v1.POST("/secret", model.CreateSecret)
 		v1.PUT("/secret", model.UpdateSecret)
-		v1.POST("/secret", model.GetSecret)
 		v1.POST("/secrets", model.GetSecrets)
 		v1.DELETE("/secret", model.DeleteSecret)
 	}
-
 }

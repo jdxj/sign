@@ -18,6 +18,11 @@ linters:
     - goerr113
     - makezero
     - unparam
+    - durationcheck
+    - errname
+    - exhaustive
+    - noctx
+    - prealloc
 
 linters-settings:
   errorlint:

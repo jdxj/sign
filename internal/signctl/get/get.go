@@ -1,27 +1,12 @@
-package signctl
+package get
 
 import (
 	"github.com/spf13/cobra"
-
-	"github.com/jdxj/sign/internal/signctl/auth"
-	"github.com/jdxj/sign/internal/signctl/consts"
-	"github.com/jdxj/sign/internal/signctl/create"
-	"github.com/jdxj/sign/internal/signctl/delete"
-	"github.com/jdxj/sign/internal/signctl/get"
-	"github.com/jdxj/sign/internal/signctl/update"
 )
 
-var (
-	rootCmd *cobra.Command
-)
-
-func init() {
-	rootCmd = NewRootCmd()
-}
-
-func NewRootCmd() *cobra.Command {
+func New() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "signctl",
+		Use:                        "get",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
@@ -59,19 +44,8 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	// flags
-	flagSet := cmd.PersistentFlags()
-	flagSet.StringP(consts.Host, "H", "http://127.0.0.1:8080", "apiserver address")
-	flagSet.StringP(consts.Token, "T", "", "user token")
 
 	// subcommands
-	cmd.AddCommand(create.New())
-	cmd.AddCommand(auth.New())
-	cmd.AddCommand(update.New())
-	cmd.AddCommand(delete.New())
-	cmd.AddCommand(get.New())
+	cmd.AddCommand(newSecretCmd())
 	return cmd
-}
-
-func Execute() error {
-	return rootCmd.Execute()
 }

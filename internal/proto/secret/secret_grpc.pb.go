@@ -20,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SecretServiceClient interface {
 	CreateSecret(ctx context.Context, in *CreateSecretReq, opts ...grpc.CallOption) (*CreateSecretRsp, error)
-	GetSecret(ctx context.Context, in *GetSecretReq, opts ...grpc.CallOption) (*GetSecretRsp, error)
 	GetSecretList(ctx context.Context, in *GetSecretListReq, opts ...grpc.CallOption) (*GetSecretListRsp, error)
 	UpdateSecret(ctx context.Context, in *UpdateSecretReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteSecret(ctx context.Context, in *DeleteSecretReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -37,15 +36,6 @@ func NewSecretServiceClient(cc grpc.ClientConnInterface) SecretServiceClient {
 func (c *secretServiceClient) CreateSecret(ctx context.Context, in *CreateSecretReq, opts ...grpc.CallOption) (*CreateSecretRsp, error) {
 	out := new(CreateSecretRsp)
 	err := c.cc.Invoke(ctx, "/SecretService/CreateSecret", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *secretServiceClient) GetSecret(ctx context.Context, in *GetSecretReq, opts ...grpc.CallOption) (*GetSecretRsp, error) {
-	out := new(GetSecretRsp)
-	err := c.cc.Invoke(ctx, "/SecretService/GetSecret", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +74,6 @@ func (c *secretServiceClient) DeleteSecret(ctx context.Context, in *DeleteSecret
 // for forward compatibility
 type SecretServiceServer interface {
 	CreateSecret(context.Context, *CreateSecretReq) (*CreateSecretRsp, error)
-	GetSecret(context.Context, *GetSecretReq) (*GetSecretRsp, error)
 	GetSecretList(context.Context, *GetSecretListReq) (*GetSecretListRsp, error)
 	UpdateSecret(context.Context, *UpdateSecretReq) (*emptypb.Empty, error)
 	DeleteSecret(context.Context, *DeleteSecretReq) (*emptypb.Empty, error)
@@ -97,9 +86,6 @@ type UnimplementedSecretServiceServer struct {
 
 func (UnimplementedSecretServiceServer) CreateSecret(context.Context, *CreateSecretReq) (*CreateSecretRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSecret not implemented")
-}
-func (UnimplementedSecretServiceServer) GetSecret(context.Context, *GetSecretReq) (*GetSecretRsp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSecret not implemented")
 }
 func (UnimplementedSecretServiceServer) GetSecretList(context.Context, *GetSecretListReq) (*GetSecretListRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSecretList not implemented")
@@ -137,24 +123,6 @@ func _SecretService_CreateSecret_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SecretServiceServer).CreateSecret(ctx, req.(*CreateSecretReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SecretService_GetSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSecretReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecretServiceServer).GetSecret(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/SecretService/GetSecret",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecretServiceServer).GetSecret(ctx, req.(*GetSecretReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -223,10 +191,6 @@ var SecretService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateSecret",
 			Handler:    _SecretService_CreateSecret_Handler,
-		},
-		{
-			MethodName: "GetSecret",
-			Handler:    _SecretService_GetSecret_Handler,
 		},
 		{
 			MethodName: "GetSecretList",

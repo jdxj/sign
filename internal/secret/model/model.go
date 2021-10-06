@@ -31,29 +31,12 @@ func CreateSecret(key string, req *secretPb.CreateSecretReq) (*secretPb.CreateSe
 	return rsp, err
 }
 
-func GetSecret(key string, req *secretPb.GetSecretReq) (*secretPb.GetSecretRsp, error) {
-	where := map[string]interface{}{
-		"secret_id = ?": req.SecretID,
-		"user_id = ?":   req.UserID,
-	}
-	secret, err := secretDao.FindOne(where)
-	if err != nil {
-		return nil, err
-	}
-
-	record := &secretPb.SecretRecord{
-		SecretID: secret.SecretID,
-		Describe: secret.Describe,
-		Domain:   crontab.Domain(secret.Domain),
-		Key:      util.Decrypt(key, secret.Key),
-	}
-	rsp := &secretPb.GetSecretRsp{Record: record}
-	return rsp, nil
-}
-
 func GetSecretList(key string, req *secretPb.GetSecretListReq) (*secretPb.GetSecretListRsp, error) {
 	where := map[string]interface{}{
 		"user_id = ?": req.UserID,
+	}
+	if len(req.SecretIDs) != 0 {
+		where["secret_id IN ?"] = req.SecretIDs
 	}
 	if len(req.Domains) != 0 {
 		where["domain IN ?"] = req.Domains

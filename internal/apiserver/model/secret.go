@@ -68,47 +68,9 @@ func updateSecret(ctx context.Context, req *UpdateSecretReq) error {
 	return err
 }
 
-type GetSecretReq struct {
-	SecretID int64 `json:"secret_id"`
-}
-
-type GetSecretRsp struct {
-	SecretID int64          `json:"secret_id"`
-	Describe string         `json:"describe"`
-	Domain   crontab.Domain `json:"domain"`
-	Key      string         `json:"key"`
-}
-
-func GetSecret(ctx *gin.Context) {
-	req := &GetSecretReq{}
-	value, _ := ctx.Get(apiserver.KeyClaim)
-	apiserver.Handle(ctx, req, func(tCtx context.Context) (interface{}, error) {
-		return getSecret(tCtx, req, value.(*apiserver.Claim).UserID)
-	})
-
-}
-
-func getSecret(ctx context.Context, req *GetSecretReq, userID int64) (*GetSecretRsp, error) {
-	secretRsp, err := apiserver.SecretClient.GetSecret(ctx, &secret.GetSecretReq{
-		SecretID: req.SecretID,
-		UserID:   userID,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	v := secretRsp.Record
-	rsp := &GetSecretRsp{
-		SecretID: v.SecretID,
-		Describe: v.Describe,
-		Domain:   v.Domain,
-		Key:      v.Key,
-	}
-	return rsp, nil
-}
-
 type GetSecretsReq struct {
-	Domains []crontab.Domain `json:"domains"`
+	SecretIDs []int64          `json:"secret_ids"`
+	Domains   []crontab.Domain `json:"domains"`
 }
 
 type Secret struct {
@@ -132,8 +94,9 @@ func GetSecrets(ctx *gin.Context) {
 
 func getSecrets(ctx context.Context, req *GetSecretsReq, userID int64) (*GetSecretsRsp, error) {
 	secretList, err := apiserver.SecretClient.GetSecretList(ctx, &secret.GetSecretListReq{
-		Domains: req.Domains,
-		UserID:  userID,
+		SecretIDs: req.SecretIDs,
+		Domains:   req.Domains,
+		UserID:    userID,
 	})
 	if err != nil {
 		return nil, err

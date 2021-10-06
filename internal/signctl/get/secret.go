@@ -1,27 +1,19 @@
-package signctl
+package get
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
 
-	"github.com/jdxj/sign/internal/signctl/auth"
+	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/signctl/consts"
-	"github.com/jdxj/sign/internal/signctl/create"
-	"github.com/jdxj/sign/internal/signctl/delete"
-	"github.com/jdxj/sign/internal/signctl/get"
-	"github.com/jdxj/sign/internal/signctl/update"
+	"github.com/jdxj/sign/internal/signctl/model"
 )
 
-var (
-	rootCmd *cobra.Command
-)
-
-func init() {
-	rootCmd = NewRootCmd()
-}
-
-func NewRootCmd() *cobra.Command {
+func newSecretCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "signctl",
+		Use:                        "secret",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
@@ -39,7 +31,7 @@ func NewRootCmd() *cobra.Command {
 		PersistentPreRunE:          nil,
 		PreRun:                     nil,
 		PreRunE:                    nil,
-		Run:                        nil,
+		Run:                        secretCmdRun,
 		RunE:                       nil,
 		PostRun:                    nil,
 		PostRunE:                   nil,
@@ -59,19 +51,37 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	// flags
-	flagSet := cmd.PersistentFlags()
-	flagSet.StringP(consts.Host, "H", "http://127.0.0.1:8080", "apiserver address")
-	flagSet.StringP(consts.Token, "T", "", "user token")
-
-	// subcommands
-	cmd.AddCommand(create.New())
-	cmd.AddCommand(auth.New())
-	cmd.AddCommand(update.New())
-	cmd.AddCommand(delete.New())
-	cmd.AddCommand(get.New())
+	flagSet := cmd.Flags()
+	secretIDs = flagSet.Int64Slice(consts.SecretID, nil, "specify multiple secret id for query")
+	domains = flagSet.IntSlice(consts.Domain, nil, "specify multiple domain for query")
 	return cmd
 }
 
-func Execute() error {
-	return rootCmd.Execute()
+var (
+	secretIDs *[]int64
+	domains   *[]int
+)
+
+func secretCmdRun(cmd *cobra.Command, args []string) {
+	host := cmd.Flag(consts.Host)
+	token := cmd.Flag(consts.Token)
+
+	url := fmt.Sprintf("%s%s",
+		strings.TrimSuffix(host.Value.String(), "/"), consts.GetSecrets)
+	req := &model.Request{
+		Token: token.Value.String(),
+		Data: &model.GetSecretsReq{
+			SecretIDs: *secretIDs,
+			Domains:   *domains,
+		},
+	}
+	rsp := &model.Response{}
+
+	err := util.PostJson(url, req, rsp)
+	if err != nil {
+		cmd.PrintErrf("%s: post, %s", consts.ErrSendJson, err)
+		return
+	}
+
+	cmd.Printf("%s\n", rsp)
 }

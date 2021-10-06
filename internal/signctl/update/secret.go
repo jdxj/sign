@@ -93,9 +93,9 @@ func secretCmdRun(cmd *cobra.Command, args []string) {
 
 	err = util.PutJson(url, req, nil)
 	if err != nil {
-		cmd.PrintErrf("%s: put, %s", consts.ErrSendJson, err)
+		cmd.PrintErrf("%s: put, %s\n", consts.ErrSendJson, err)
 		return
 	}
 
-	cmd.Printf("update secret successfully")
+	cmd.Println("update secret successfully")
 }

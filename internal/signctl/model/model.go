@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 type Request struct {
@@ -18,7 +17,7 @@ type Response struct {
 
 func (rsp *Response) String() string {
 	data, _ := json.MarshalIndent(rsp, "", "  ")
-	return fmt.Sprintf("%s", data)
+	return string(data)
 }
 
 type CreateUserReq struct {
@@ -60,4 +59,16 @@ type UpdateSecretReq struct {
 
 type DeleteSecretReq struct {
 	SecretID int64 `json:"secret_id"`
+}
+
+type GetSecretsReq struct {
+	SecretIDs []int64 `json:"secret_ids"`
+	Domains   []int   `json:"domains"`
+}
+
+type GetSecretsRsp struct {
+	SecretID int64  `json:"secret_id"`
+	Describe string `json:"describe"`
+	Domain   int    `json:"domain"`
+	Key      string `json:"key"`
 }
