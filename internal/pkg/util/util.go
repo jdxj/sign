@@ -8,11 +8,14 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/jdxj/sign/internal/pkg/logger"
 )
@@ -97,4 +100,35 @@ func sendJson(method, url string, req, rsp interface{}) error {
 	}
 	decoder := json.NewDecoder(httpRsp.Body)
 	return decoder.Decode(rsp)
+}
+
+const (
+	EnterPassword  = "Enter Password"
+	RepeatPassword = "Repeat Password"
+)
+
+var (
+	ErrPasswordInconsistent = errors.New("passwords are inconsistent")
+)
+
+func ReadPassword(prompt string) (string, error) {
+	fmt.Printf("%s: ", prompt)
+	data, err := terminal.ReadPassword(0)
+	fmt.Println()
+	return string(data), err
+}
+
+func GetPassword() (string, error) {
+	pass1, err := ReadPassword(EnterPassword)
+	if err != nil {
+		return "", err
+	}
+	pass2, err := ReadPassword(RepeatPassword)
+	if err != nil {
+		return "", err
+	}
+	if pass1 != pass2 {
+		return "", ErrPasswordInconsistent
+	}
+	return pass1, nil
 }

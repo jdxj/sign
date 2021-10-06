@@ -59,19 +59,31 @@ func New() *cobra.Command {
 }
 
 func authCmdRun(cmd *cobra.Command, args []string) {
-	host := cmd.Flag(consts.Host)
-	nickname := cmd.Flag(consts.Nickname)
-	password := cmd.Flag(consts.Password)
+	var (
+		host     = cmd.Flag(consts.Host)
+		nickname = cmd.Flag(consts.Nickname)
+		passFlag = cmd.Flag(consts.Password)
+		pass     = passFlag.Value.String()
+		err      error
+	)
+
+	if pass == "" {
+		pass, err = util.GetPassword()
+		if err != nil {
+			cmd.PrintErrf("get password failed: %s", err)
+			return
+		}
+	}
 
 	url := fmt.Sprintf("%s%s",
 		strings.TrimSuffix(host.Value.String(), "/"), consts.AuthUser)
 	req := &model.AuthReq{
 		Nickname: nickname.Value.String(),
-		Password: password.Value.String(),
+		Password: pass,
 	}
 	rsp := &model.Response{}
 
-	err := util.PostJson(url, req, rsp)
+	err = util.PostJson(url, req, rsp)
 	if err != nil {
 		cmd.Printf("%s: %s", consts.ErrSendJson, err)
 		return
