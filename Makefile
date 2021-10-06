@@ -1,13 +1,30 @@
-build.%: output := _output/build
-build.%:
-	mkdir -p $(output)
-	go build -o $(output)/$*.out cmd/$*/*.go
+components := apiserver.out crontab.out executor.out notice.out secret.out trigger.out user.out
+images := $(subst .out,,$(components))
 
-cross.%: output := _output/cross
-cross.%:
+.PHONY: all
+all: $(components)
+$(components): output := _output/build
+$(components):
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
+
+.PHONY: docker
+docker: $(images)
+$(images): src := _output/build
+$(images): des := build/docker
+$(images): all
+	upx --best $(src)/$@.out
+	mkdir -p $(des)/$@
+	cp $(src)/$@.out $(des)/$@/$@.run
+	cd $(des) && ./build.sh $@
+
+tools := signctl.out
+
+.PHONY: ctl
+ctl: $(tools)
+$(tools): output := _output/tools
+$(tools):
 	mkdir -p $(output)
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$*.out cmd/$*/*.go
-	upx --best $(output)/$*.out
+	go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
 
 .PHONY: clean
 clean:

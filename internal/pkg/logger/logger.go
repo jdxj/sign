@@ -80,7 +80,9 @@ func encoder(mode string) zapcore.Encoder {
 	var encoder zapcore.Encoder
 	switch mode {
 	case "debug":
-		encoder = zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+		cfg := zap.NewDevelopmentEncoderConfig()
+		cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
+		encoder = zapcore.NewConsoleEncoder(cfg)
 
 	case "release":
 		cfg := zap.NewProductionEncoderConfig()

@@ -35,29 +35,19 @@ spec:
     spec:
       containers:
         - name: apiserver
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 8081
-            initialDelaySeconds: 1
-          image: jdxj/sign:test
-          command: ["/sign/apiserver.out"]
+          image: jdxj/apiserver:v0.3.0
+          command: ["/sign/apiserver.run"]
           args: ["-f", "/sign/config/config.yaml"]
           env:
             - name: GIN_MODE
               value: release
           volumeMounts:
-            - mountPath: /sign/bak_log # 挂载点, 备份路径
-              name: apiserver-bak-log  # 要使用的卷的卷名
             - mountPath: /sign/config
               name: apiserver-config
           ports:
             - containerPort: 8081
               protocol: TCP
       volumes:
-        - name: apiserver-bak-log
-          persistentVolumeClaim:
-            claimName: apiserver-pvc
         - name: apiserver-config
           configMap:
             name: apiserver-cm

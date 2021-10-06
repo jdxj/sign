@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/jdxj/sign/internal/proto/notice";
+
+service NoticeService {
+  rpc SendMessage(SendMessageReq) returns(google.protobuf.Empty);
+}
+
+message SendMessageReq {
+  int64 UserID = 1;
+  string Text = 2;
+}
