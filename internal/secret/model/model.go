@@ -60,19 +60,24 @@ func GetSecretList(key string, req *secretPb.GetSecretListReq) (*secretPb.GetSec
 	return rsp, nil
 }
 
-func UpdateSecret(req *secretPb.UpdateSecretReq) error {
+func UpdateSecret(key string, req *secretPb.UpdateSecretReq) error {
 	if _, ok := crontab.Domain_name[int32(req.Domain)]; !ok {
 		return fmt.Errorf("%w: %d", ErrDomainNotFound, req.Domain)
 	}
 
 	where := map[string]interface{}{
 		"secret_id = ?": req.SecretID,
+		"user_id = ?":   req.UserID,
 	}
 
 	data := map[string]interface{}{
-		"describe": req.Describe,
-		"domain":   req.Domain,
-		"key":      req.Key,
+		"key": util.Encrypt(key, req.Key),
+	}
+	if req.Describe != "" {
+		data["describe"] = req.Describe
+	}
+	if req.Domain != 0 {
+		data["domain"] = req.Domain
 	}
 	return secretDao.Update(where, data)
 }

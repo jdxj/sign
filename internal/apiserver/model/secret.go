@@ -53,14 +53,16 @@ type UpdateSecretReq struct {
 
 func UpdateSecret(ctx *gin.Context) {
 	req := &UpdateSecretReq{}
+	value, _ := ctx.Get(apiserver.KeyClaim)
 	apiserver.Handle(ctx, req, func(tCtx context.Context) (interface{}, error) {
-		return nil, updateSecret(tCtx, req)
+		return nil, updateSecret(tCtx, req, value.(*apiserver.Claim).UserID)
 	})
 }
 
-func updateSecret(ctx context.Context, req *UpdateSecretReq) error {
+func updateSecret(ctx context.Context, req *UpdateSecretReq, userID int64) error {
 	_, err := apiserver.SecretClient.UpdateSecret(ctx, &secret.UpdateSecretReq{
 		SecretID: req.SecretID,
+		UserID:   userID,
 		Describe: req.Describe,
 		Domain:   req.Domain,
 		Key:      req.Key,
