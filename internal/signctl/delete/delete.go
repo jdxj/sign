@@ -9,7 +9,7 @@ func New() *cobra.Command {
 		Use:                        "delete",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
-		Short:                      "",
+		Short:                      "delete used for delete resource",
 		Long:                       "",
 		Example:                    "",
 		ValidArgs:                  nil,

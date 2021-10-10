@@ -9,7 +9,7 @@ func New() *cobra.Command {
 		Use:                        "update",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
-		Short:                      "",
+		Short:                      "update used for update resource",
 		Long:                       "",
 		Example:                    "",
 		ValidArgs:                  nil,

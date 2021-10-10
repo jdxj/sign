@@ -16,7 +16,7 @@ func New() *cobra.Command {
 		Use:                        "auth",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
-		Short:                      "",
+		Short:                      "auth used for obtain token",
 		Long:                       "",
 		Example:                    "",
 		ValidArgs:                  nil,
