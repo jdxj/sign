@@ -57,10 +57,13 @@ func (srv *Service) UpdateSecret(ctx context.Context, req *secret.UpdateSecretRe
 	if req.SecretID == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "empty secret id")
 	}
+	if req.UserID == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "empty user id")
+	}
 	if req.Key == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "empty key")
 	}
-	return &emptypb.Empty{}, model.UpdateSecret(req)
+	return &emptypb.Empty{}, model.UpdateSecret(srv.key, req)
 }
 
 func (srv *Service) DeleteSecret(ctx context.Context, req *secret.DeleteSecretReq) (*emptypb.Empty, error) {
