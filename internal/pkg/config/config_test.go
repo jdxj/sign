@@ -8,10 +8,7 @@ import (
 )
 
 func TestNewConfigs(t *testing.T) {
-	r := Root{
-		Bot:    Bot{},
-		Logger: Logger{},
-	}
+	r := Root{}
 	d, err := yaml.Marshal(r)
 	if err != nil {
 		t.Fatalf("err: %s\n", err)
