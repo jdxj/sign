@@ -1,15 +1,15 @@
 package logger
 
 import (
+	"os"
 	"testing"
-
-	"github.com/jdxj/sign/internal/pkg/config"
 )
 
-func TestDebugf(t *testing.T) {
-	root := config.ReadConfigs("/home/jdxj/workspace/sign/pkg/config/config.yaml")
-	Init(root.Logger.Path, WithMode("release"))
+func TestMain(t *testing.M) {
+	Init("./test_logger.log")
+	os.Exit(t.Run())
+}
 
-	Debugf("%s, ac", "hah")
-	Infof("hah")
+func TestDebugf(t *testing.T) {
+	Debugf("abc: %s", "haha")
 }
