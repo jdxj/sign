@@ -23,6 +23,10 @@ linters:
     - exhaustive
     - noctx
     - prealloc
+    - unparam
+    - exportloopref
+    - rowserrcheck
+    - nestif
 
 linters-settings:
   errorlint:

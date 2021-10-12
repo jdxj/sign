@@ -10,7 +10,7 @@ import (
 func AvailableDomain() string {
 	help := "Available domain:"
 
-	var keys []int
+	keys := make([]int, 0, len(crontab.Domain_name))
 	for key := range crontab.Domain_name {
 		if key == 0 {
 			continue
@@ -29,7 +29,7 @@ func AvailableDomain() string {
 func AvailableKind() string {
 	help := "Available kind:"
 
-	var keys []int
+	keys := make([]int, 0, len(crontab.Kind_name))
 	for key := range crontab.Kind_name {
 		if key == 0 {
 			continue

@@ -12,12 +12,12 @@ import (
 )
 
 var (
-	ErrorInvalidConfig = errors.New("invalid config")
+	ErrInvalidConfig = errors.New("invalid config")
 )
 
 func NewServer(host string, port int, router http.Handler) *Server {
 	if host == "" || port == 0 {
-		panic(ErrorInvalidConfig)
+		panic(ErrInvalidConfig)
 	}
 
 	s := &Server{
