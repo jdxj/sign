@@ -18,6 +18,7 @@ enum Domain {
   STG  = 301;
   V2EX = 401;
   Evo  = 501;
+  Github = 601;
 }
 
 enum Kind {
@@ -33,6 +34,7 @@ enum Kind {
   V2EXSign = 402;
   // Evolution X
   Raphael = 502;
+  Release = 602;
 }
 
 enum Stage {
