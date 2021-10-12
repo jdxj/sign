@@ -30,13 +30,11 @@ type Release struct {
 }
 
 func (rel *Release) Domain() crontab.Domain {
-	// todo: build proto
-	return 601
+	return crontab.Domain_Github
 }
 
 func (rel *Release) Kind() crontab.Kind {
-	// todo: build proto
-	return 602
+	return crontab.Kind_Release
 }
 
 func (rel *Release) Execute(key string) (string, error) {
