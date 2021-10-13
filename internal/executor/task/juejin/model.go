@@ -1,6 +1,7 @@
 package juejin
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -17,6 +18,10 @@ const (
 	countsURL   = apiPrefix + "/growth_api/v1/get_counts"
 	pointURL    = apiPrefix + "/growth_api/v1/get_cur_point"
 	calendarURL = apiPrefix + "/growth_api/v1/get_coder_calendar"
+)
+
+var (
+	ErrUnknownMistake = errors.New("unknown mistake")
 )
 
 type response struct {
@@ -37,7 +42,8 @@ func execute(key, url string, data fmt.Stringer) (string, error) {
 		return "", fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}
 	if rsp.ErrNo != 0 {
-		return "", fmt.Errorf("%s, stage: %s", rsp.ErrMsg, crontab.Stage_Auth)
+		return "", fmt.Errorf("%w: %s, stage: %s",
+			ErrUnknownMistake, rsp.ErrMsg, crontab.Stage_Auth)
 	}
 	return data.String(), nil
 }

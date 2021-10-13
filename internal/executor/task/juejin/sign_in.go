@@ -31,7 +31,8 @@ func (si *SignIn) Execute(key string) (string, error) {
 		return "", fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}
 	if rsp.ErrNo != 0 {
-		return "", fmt.Errorf("%s, stage: %s", rsp.ErrMsg, crontab.Stage_Auth)
+		return "", fmt.Errorf("%w: %s, stage: %s",
+			ErrUnknownMistake, rsp.ErrMsg, crontab.Stage_Auth)
 	}
 	return fmt.Sprintf("%s", rsp.Data), nil
 }
