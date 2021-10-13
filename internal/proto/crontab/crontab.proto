@@ -19,6 +19,7 @@ enum Domain {
   V2EX = 401;
   Evo  = 501;
   Github = 601;
+  JueJin = 701;
 }
 
 enum Kind {
@@ -35,6 +36,15 @@ enum Kind {
   // Evolution X
   Raphael = 502;
   Release = 602;
+
+  // 签到
+  JueJinSign     = 702;
+  // 签到天数统计
+  JueJinCount    = 703;
+  // 矿石数
+  JueJinPoint    = 704;
+  // 码农日历
+  JueJinCalendar = 705;
 }
 
 enum Stage {
