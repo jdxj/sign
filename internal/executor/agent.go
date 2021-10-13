@@ -35,6 +35,12 @@ func init() {
 
 	jueSI := &juejin.SignIn{}
 	agents[jueSI.Kind()] = jueSI
+	jueCo := &juejin.Count{}
+	agents[jueCo.Kind()] = jueCo
+	juePo := &juejin.Point{}
+	agents[juePo.Kind()] = juePo
+	jueCa := &juejin.Calendar{}
+	agents[jueCa.Kind()] = jueCa
 }
 
 var (
