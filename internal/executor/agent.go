@@ -5,6 +5,7 @@ import (
 	"github.com/jdxj/sign/internal/executor/task/evo"
 	"github.com/jdxj/sign/internal/executor/task/github"
 	"github.com/jdxj/sign/internal/executor/task/hpi"
+	"github.com/jdxj/sign/internal/executor/task/juejin"
 	"github.com/jdxj/sign/internal/executor/task/stg"
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
 	"github.com/jdxj/sign/internal/proto/crontab"
@@ -31,6 +32,9 @@ func init() {
 
 	release := &github.Release{}
 	agents[release.Kind()] = release
+
+	jueSI := &juejin.SignIn{}
+	agents[jueSI.Kind()] = jueSI
 }
 
 var (
