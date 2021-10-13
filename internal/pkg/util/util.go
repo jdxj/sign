@@ -139,3 +139,24 @@ func GetPassword() (string, error) {
 	}
 	return pass1, nil
 }
+
+func GetJson(url string, header map[string]string, rsp interface{}) error {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+	for k, v := range header {
+		req.Header.Set(k, v)
+	}
+	c := &http.Client{}
+	httpRsp, err := c.Do(req)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = httpRsp.Body.Close()
+	}()
+
+	decoder := json.NewDecoder(httpRsp.Body)
+	return decoder.Decode(rsp)
+}

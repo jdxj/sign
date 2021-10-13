@@ -3,6 +3,7 @@ package executor
 import (
 	"github.com/jdxj/sign/internal/executor/task/bili"
 	"github.com/jdxj/sign/internal/executor/task/evo"
+	"github.com/jdxj/sign/internal/executor/task/github"
 	"github.com/jdxj/sign/internal/executor/task/hpi"
 	"github.com/jdxj/sign/internal/executor/task/stg"
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
@@ -27,6 +28,9 @@ func init() {
 
 	updater := &evo.Updater{}
 	agents[updater.Kind()] = updater
+
+	release := &github.Release{}
+	agents[release.Kind()] = release
 }
 
 var (
