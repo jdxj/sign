@@ -1,18 +1,18 @@
 package help
 
 import (
-	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"net/http/cookiejar"
 	"strings"
 )
 
+// todo: map -> struct
 var (
 	// AvailableFormat 用于当 Get/Create 资源时使用的格式
-	AvailableFormat = map[string]struct{}{
-		"":     {}, // 不处理
-		"json": {},
+	AvailableFormat = map[string]Formatter{
+		"":     &formatterNone{},
+		"json": &formatterJson{},
 	}
 )
 
@@ -39,9 +39,28 @@ type formatterJson struct{}
 
 // Encode 将 'key=value;key1=value1' 转换成 '{"key":"value","key1":"value1"}' 形式
 func (j *formatterJson) Encode(raw string) (string, error) {
-	req, _ := http.NewRequestWithContext(context.Background(), "", "", nil)
-	req.Header.Add("Cookie", raw)
-	cookies := req.Cookies()
-	jar, _ := cookiejar.New(nil)
-	jar.
+	res := make(map[string]string)
+	header := map[string][]string{
+		"Cookie": {raw},
+	}
+	req := &http.Request{Header: header}
+	for _, cookie := range req.Cookies() {
+		res[cookie.Name] = cookie.Value
+	}
+	d, err := json.Marshal(res)
+	return string(d), err
+}
+
+// Decode 将 '{"key":"value","key1":"value1"}' 转换成 'key=value;key1=value1' 形式
+func (j *formatterJson) Decode(format string) (string, error) {
+	var res map[string]string
+	err := json.Unmarshal([]byte(format), &res)
+	if err != nil {
+		return "", err
+	}
+	kv := make([]string, 0, len(res))
+	for k, v := range res {
+		kv = append(kv, fmt.Sprintf("%s=%s", k, v))
+	}
+	return strings.Join(kv, ";"), nil
 }
