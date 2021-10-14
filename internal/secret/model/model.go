@@ -20,9 +20,10 @@ func CreateSecret(key string, req *secretPb.CreateSecretReq) (*secretPb.CreateSe
 	}
 
 	sec := &secretDao.Secret{
-		UserID: req.UserID,
-		Domain: int32(req.Domain),
-		Key:    util.Encrypt(key, req.Key),
+		Describe: req.Describe,
+		UserID:   req.UserID,
+		Domain:   int32(req.Domain),
+		Key:      util.Encrypt(key, req.Key),
 	}
 	secretID, err := secretDao.Insert(sec)
 	rsp := &secretPb.CreateSecretRsp{

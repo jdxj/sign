@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -11,76 +12,13 @@ import (
 	"time"
 )
 
-// XxxDomain 用于 Auth
-
-// B 站相关任务
-const (
-	BiliDomain = iota + 101
-	BiliSign   // 签到
-	BiliBCount // 获取 B 币数量
-)
-
-// 黑客派相关任务
-const (
-	HPIDomain = iota + 201
-	HPISign   // 签到
-)
-
-// Go 语言中文网相关任务
-const (
-	STGDomain = iota + 301
-	STGSign   // 签到
-)
-
-// v2ex 相关任务
-const (
-	V2exDomain = iota + 401
-	V2exSign   // 签到
-)
-
-// 访问阶段定义
-const (
-	SignIn = "sign in"
-	Verify = "verify"
-
-	Query = "query"
-
-	GetToken = "get token"
-)
-
-// TypeMap 任务字符串描述
-var TypeMap = map[int]string{
-	BiliSign:   "B站签到",
-	BiliBCount: "B币查询",
-	HPISign:    "黑客派签到",
-	STGSign:    "Go语言中文网签到",
-	V2exSign:   "v2ex签到",
-}
-
-// 验证过程的错误
 var (
-	ErrorAuthFailed   = errors.New("auth failed")
-	ErrorLogNotFound  = errors.New("log not found")
-	ErrorSignInFailed = errors.New("sign in failed")
-	ErrorDateNotMatch = errors.New("date not match")
-)
-
-// 其他错误
-var (
-	ErrorUnsupportedDomain = errors.New("unsupported domain")
-	ErrorUnsupportedType   = errors.New("unsupported type")
-	ErrorSignTokenNotFound = errors.New("sign token not found")
-)
-
-// 重试配置
-var (
-	RetryNumber   = 3
-	RetryInterval = 100 * time.Millisecond
+	ErrSignInFailed = errors.New("sign in failed")
 )
 
 // ResolveCookies 从字符构造 http.Cookie
 func ResolveCookies(raw, domain string) []*http.Cookie {
-	req, _ := http.NewRequest("", "", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "", "", nil)
 	req.Header.Add("Cookie", raw)
 	cookies := req.Cookies()
 	for _, cookie := range cookies {
@@ -93,7 +31,10 @@ func ResolveCookies(raw, domain string) []*http.Cookie {
 
 // ParseBody 解析 body 中的 json 数据到 v
 func ParseBody(client *http.Client, u string, v interface{}) error {
-	req, err := http.NewRequest(http.MethodGet, u, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		return err
 	}
@@ -118,7 +59,10 @@ func ParseBody(client *http.Client, u string, v interface{}) error {
 
 // ParseBodyHeader 用于访问一个 url, 并且可以指定 http.Request header
 func ParseBodyHeader(client *http.Client, u string, header map[string]string) error {
-	req, err := http.NewRequest(http.MethodGet, u, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		return err
 	}
@@ -141,7 +85,10 @@ func ParseBodyHeader(client *http.Client, u string, header map[string]string) er
 
 // ParseBodyPost 可以指定 http.Request body
 func ParseBodyPost(client *http.Client, u string, reader io.Reader, v interface{}) error {
-	req, err := http.NewRequest(http.MethodPost, u, reader)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, reader)
 	if err != nil {
 		return err
 	}
@@ -162,7 +109,10 @@ func ParseBodyPost(client *http.Client, u string, reader io.Reader, v interface{
 
 // ParseRawBody 读取 body 为 []byte
 func ParseRawBody(client *http.Client, u string) ([]byte, error) {
-	req, err := http.NewRequest(http.MethodGet, u, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +149,7 @@ func VerifyDate(raw string) error {
 	}
 
 	if now.YearDay() != last.YearDay() {
-		return ErrorSignInFailed
+		return ErrSignInFailed
 	}
 	return nil
 }

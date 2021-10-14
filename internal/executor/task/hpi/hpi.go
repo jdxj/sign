@@ -20,6 +20,10 @@ const (
 	verifyURL    = "https://ld246.com/member/%s/points?p=1&pjax=true"
 )
 
+const (
+	msgHPISignInFailed = "黑客派签到失败"
+)
+
 var (
 	regSignToken *regexp.Regexp
 	regVerify    *regexp.Regexp
@@ -38,8 +42,7 @@ func init() {
 	regUserName = regexp.MustCompile(`currentUserName: '(.+)'`)
 }
 
-type SignIn struct {
-}
+type SignIn struct{}
 
 func (si *SignIn) Domain() crontab.Domain {
 	return crontab.Domain_HPI
@@ -52,22 +55,22 @@ func (si *SignIn) Kind() crontab.Kind {
 func (si *SignIn) Execute(key string) (string, error) {
 	c, err := auth(key)
 	if err != nil {
-		return "", err
+		return msgHPISignInFailed, err
 	}
 
 	token, userName, err := getSignToken(c)
 	if err != nil {
-		return "", err
+		return msgHPISignInFailed, err
 	}
 
 	err = signIn(c, token)
 	if err != nil {
-		return "", err
+		return msgHPISignInFailed, err
 	}
 
 	err = verify(c, userName)
 	if err != nil {
-		return "", err
+		return msgHPISignInFailed, err
 	}
 	return "黑客派签到成功", nil
 }

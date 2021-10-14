@@ -1,7 +1,6 @@
 package evo
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -10,12 +9,7 @@ import (
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
-var (
-	ErrUpdateNotFound = errors.New("update not found")
-)
-
-type Updater struct {
-}
+type Updater struct{}
 
 func (u *Updater) Domain() crontab.Domain {
 	return crontab.Domain_Evo
@@ -30,12 +24,11 @@ func (u *Updater) Execute(key string) (string, error) {
 	bi := &buildInfo{}
 	err := task.ParseBody(&http.Client{}, url, bi)
 	if err != nil {
-		return "", err
+		return msgEvoUpdateFailed, err
 	}
-
 	updateTime := time.Unix(bi.Datetime, 0)
 	if time.Since(updateTime) <= 24*time.Hour {
 		return bi.String(), nil
 	}
-	return "", ErrUpdateNotFound
+	return msgEvoUpdateFailed, ErrUpdateNotFound
 }

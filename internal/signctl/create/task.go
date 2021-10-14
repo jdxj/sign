@@ -9,6 +9,7 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/signctl/consts"
+	"github.com/jdxj/sign/internal/signctl/help"
 	"github.com/jdxj/sign/internal/signctl/model"
 )
 
@@ -18,7 +19,7 @@ func newTaskCmd() *cobra.Command {
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
-		Long:                       "",
+		Long:                       help.AvailableKind(),
 		Example:                    "",
 		ValidArgs:                  nil,
 		ValidArgsFunction:          nil,

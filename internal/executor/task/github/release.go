@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	rfc8061 = "2006-01-02T15:04:05Z"
+	msgReleaseUpdateFailed = "获取release更新失败"
 )
 
 const (
@@ -26,8 +26,7 @@ var (
 	ErrReleaseNotFound = errors.New("release not found")
 )
 
-type Release struct {
-}
+type Release struct{}
 
 func (rel *Release) Domain() crontab.Domain {
 	return crontab.Domain_Github
@@ -41,17 +40,17 @@ func (rel *Release) Execute(key string) (string, error) {
 	req := &request{}
 	err := json.Unmarshal([]byte(key), req)
 	if err != nil {
-		return "", err
+		return msgReleaseUpdateFailed, err
 	}
 	rsp, err := getRelease(req.Owner, req.Repo)
 	if err != nil {
-		return "", err
+		return msgReleaseUpdateFailed, err
 	}
 	ok, err := released(rsp)
 	if ok {
 		return fmt.Sprintf("%s/%s 有新的 release", req.Owner, req.Repo), nil
 	}
-	return "", fmt.Errorf("release not found: %w", err)
+	return msgReleaseUpdateFailed, fmt.Errorf("release not found: %w", err)
 }
 
 type request struct {

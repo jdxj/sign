@@ -8,8 +8,7 @@ import (
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
-type SignIn struct {
-}
+type SignIn struct{}
 
 func (si *SignIn) Domain() crontab.Domain {
 	return crontab.Domain_JueJin
@@ -28,10 +27,11 @@ func (si *SignIn) Execute(key string) (string, error) {
 	}
 	err := task.ParseBodyPost(client, signInURL, nil, rsp)
 	if err != nil {
-		return "", fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
+		return msgJueJinExecFailed, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}
 	if rsp.ErrNo != 0 {
-		return "", fmt.Errorf("%s, stage: %s", rsp.ErrMsg, crontab.Stage_Auth)
+		return msgJueJinExecFailed, fmt.Errorf("%w: %s, stage: %s",
+			ErrUnknownMistake, rsp.ErrMsg, crontab.Stage_Auth)
 	}
 	return fmt.Sprintf("%s", rsp.Data), nil
 }

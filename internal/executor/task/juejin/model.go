@@ -1,6 +1,7 @@
 package juejin
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -19,6 +20,14 @@ const (
 	calendarURL = apiPrefix + "/growth_api/v1/get_coder_calendar"
 )
 
+const (
+	msgJueJinExecFailed = "掘金任务执行失败"
+)
+
+var (
+	ErrUnknownMistake = errors.New("unknown mistake")
+)
+
 type response struct {
 	ErrNo  int         `json:"err_no"`
 	ErrMsg string      `json:"err_msg"`
@@ -34,10 +43,11 @@ func execute(key, url string, data fmt.Stringer) (string, error) {
 	}
 	err := task.ParseBody(client, url, rsp)
 	if err != nil {
-		return "", fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
+		return msgJueJinExecFailed, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}
 	if rsp.ErrNo != 0 {
-		return "", fmt.Errorf("%s, stage: %s", rsp.ErrMsg, crontab.Stage_Auth)
+		return msgJueJinExecFailed, fmt.Errorf("%w: %s, stage: %s",
+			ErrUnknownMistake, rsp.ErrMsg, crontab.Stage_Auth)
 	}
 	return data.String(), nil
 }

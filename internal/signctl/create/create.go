@@ -9,7 +9,7 @@ func New() *cobra.Command {
 		Use:                        "create",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
-		Short:                      "",
+		Short:                      "create used for create resource",
 		Long:                       "",
 		Example:                    "",
 		ValidArgs:                  nil,

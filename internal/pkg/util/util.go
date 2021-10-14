@@ -2,6 +2,7 @@ package util
 
 import (
 	"bytes"
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -14,8 +15,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 
 	"github.com/jdxj/sign/internal/pkg/logger"
 )
@@ -83,7 +85,11 @@ func sendJson(method, url string, req, rsp interface{}) error {
 		return err
 	}
 	reader := bytes.NewReader(body)
-	httpReq, err := http.NewRequest(method, url, reader)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	httpReq, err := http.NewRequestWithContext(ctx, method, url, reader)
 	if err != nil {
 		return err
 	}
@@ -114,7 +120,7 @@ var (
 
 func ReadPassword(prompt string) (string, error) {
 	fmt.Printf("%s: ", prompt)
-	data, err := terminal.ReadPassword(0)
+	data, err := term.ReadPassword(0)
 	fmt.Println()
 	return string(data), err
 }
@@ -135,7 +141,10 @@ func GetPassword() (string, error) {
 }
 
 func GetJson(url string, header map[string]string, rsp interface{}) error {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return err
 	}

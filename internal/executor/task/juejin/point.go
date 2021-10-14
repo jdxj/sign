@@ -4,8 +4,7 @@ import (
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
-type Point struct {
-}
+type Point struct{}
 
 func (p *Point) Domain() crontab.Domain {
 	return crontab.Domain_JueJin

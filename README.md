@@ -15,71 +15,45 @@
 
 # 部署
 
-## 二进制文件部署
+## 依赖环境
 
-1. 配置 Go 环境
-2. 编译
+- MySQL (启用 Binlog)
+  - 存储任务
+  - 所需表在 `./deployments/sql`
+- RabbitMQ
+  - 推送任务
+- Etcd
+  - 注册中心
 
-```shell
-$ make build.apiserver
-```
+## 配置文件
 
-可执行文件默认输出到 `_output/build/apiserver.out`.
+模板在 `./configs/configs.yaml.default`
 
-3. 更改配置文件
-
-```yaml
-# telegram bot
-bot:
-  token: ""
-  chat_id: 0
-logger:
-  path: ""
-  mode: "" # debug|release
-api_server:
-  host: ""
-  port: ""
-  user: "" # http basic auth
-  pass: ""
-storage:
-  path: ""
-```
-
-4. 启动
+## 编译
 
 ```shell
-$ ./apiserver.out -f config.yaml
+$ make all
 ```
 
-## Kubernetes 部署
+可执行文件默认输出到 `_output/build/`.
 
-k8s 部署配置模板在 `deployments/apiserver` 中.
-
-1. 创建持久卷
+## 启动
 
 ```shell
-$ kubectl create -f pv.yaml
+$ ./xxx.out -f config.yaml
 ```
 
-2. 创建持久卷声明
+# Kubernetes 部署
 
-```shell
-$ kubectl create -f pvc.yaml
-```
+k8s 部署配置模板在 `./deployments` 中.
 
-3. 创建服务
-
-```shell
-$ kubectl create -f svc.yaml
-```
-
-4. 创建 ConfigMap
+1. 创建 ConfigMap
 
 ```shell
 $ kubectl create configmap apiserver-cm --from-file=config.yaml
 ```
 
-5. 创建 Deployment
+2. 创建 Deployment
 
 ```shell
 $ kubectl create -f deployment.yaml
@@ -87,30 +61,70 @@ $ kubectl create -f deployment.yaml
 
 # 创建任务
 
+## 使用 signctl
+
+1. 构建 signctl
+
+signctl 生成在 `./_ooutput/tools/`.
+
 ```shell
-$ curl --location --request POST 'https://task.example.com/api/v1/task' \
---header 'Authorization: Basic xxx' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "id": "xxx",
-    "domain": 201,
-    "type": [202],
-    "key": "cookie"
-}'
+$ make ctl
 ```
 
-## domain & type
+2. 创建用户
 
-- 101 B站
-  - 102 签到
-  - 103 获取B币数量
-- 201 黑客派
-  - 202 签到
-- 301 Go语言中文网
-  - 302 签到
-- 401 V2ex
-  - 402 签到
+创建用户后会返回 `token`, 之后任何操作使用 `-T token` 方式.
 
-# 删除任务
+```shell
+$ ./signctl.out create user -H server_address --nickname xxx
+```
 
-cookie 失效后自动删除任务.
+3. 创建 secret
+
+创建 secret 后会返回 secretID.
+
+```shell
+$ ./signctl.out create secret -H server_address -T token --domain 101 --key xxx
+```
+
+4. 创建 task
+
+`--secret-id` 用于指定要使用的 secret.
+
+```shell
+$ ./signctl.out create task -H server_address -T token --kind 102 --secret-id xxx --spec "0 8 * * *"
+```
+
+# 各组件介绍
+
+## apiserver
+
+类似网关, signctl 与其交互来对各资源进行操作.
+
+## crontab
+
+管理任务对象, 创建任务等.
+
+## executor
+
+任务的执行由其负责, 其中定义了各种任务的执行逻辑.
+
+## notice
+
+类似消息推送, 目前使用 telegram bot 做消息接收.
+
+## secret
+
+管理 secret, 一个 secret 可以对应多个 task.
+
+## trigger
+
+触发器, 时间到时将任务发到 RabbitMQ, 再由 executor 执行.
+
+## user
+
+用户管理.
+
+## signctl
+ 
+一个简单的命令行工具, 用于创建任务.

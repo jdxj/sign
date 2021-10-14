@@ -75,7 +75,7 @@ func (sr *SignResolver) getLatest() {
 		return
 	}
 
-	var addresses []resolver.Address
+	addresses := make([]resolver.Address, 0, len(rsp.Kvs))
 	for _, kv := range rsp.Kvs {
 		addr := resolver.Address{
 			Addr: string(kv.Value),
@@ -99,7 +99,7 @@ func (sr *SignResolver) updateAddress(tpy mvccpb.Event_EventType, value string) 
 	}
 	logger.Debugf("type: %s, addr: %s", tpy, value)
 
-	var addresses []resolver.Address
+	addresses := make([]resolver.Address, 0, len(sr.addresses))
 	for addr := range sr.addresses {
 		address := resolver.Address{
 			Addr: addr,

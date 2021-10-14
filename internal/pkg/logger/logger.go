@@ -52,7 +52,7 @@ func Init(path string, optsF ...OptionFunc) {
 		syncer(opts),
 		level(opts.Mode),
 	)
-	desugar = zap.New(core)
+	desugar = zap.New(core, zap.AddCaller())
 	sugar = desugar.Sugar()
 }
 
@@ -82,6 +82,7 @@ func encoder(mode string) zapcore.Encoder {
 	case "debug":
 		cfg := zap.NewDevelopmentEncoderConfig()
 		cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
+		cfg.EncodeCaller = zapcore.FullCallerEncoder
 		encoder = zapcore.NewConsoleEncoder(cfg)
 
 	case "release":
