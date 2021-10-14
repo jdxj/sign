@@ -62,6 +62,7 @@ func NewRootCmd() *cobra.Command {
 	flagSet := cmd.PersistentFlags()
 	flagSet.StringP(consts.Host, "H", "http://127.0.0.1:8080", "apiserver address")
 	flagSet.StringP(consts.Token, "T", "", "user token")
+	flagSet.StringP(consts.Format, "F", "", "available format: json")
 
 	// subcommands
 	cmd.AddCommand(create.New())
