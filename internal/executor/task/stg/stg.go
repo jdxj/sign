@@ -18,6 +18,10 @@ const (
 	verifyURL = "https://studygolang.com/balance"
 )
 
+const (
+	msgSTGSignInFailed = "Go语言中文网签到失败"
+)
+
 var (
 	regAuth   *regexp.Regexp
 	regVerify *regexp.Regexp
@@ -32,8 +36,7 @@ func init() {
 	regVerify = regexp.MustCompile(`202\d-\d{2}-\d{2}`)
 }
 
-type SignIn struct {
-}
+type SignIn struct{}
 
 func (si *SignIn) Domain() crontab.Domain {
 	return crontab.Domain_STG
@@ -46,17 +49,17 @@ func (si *SignIn) Kind() crontab.Kind {
 func (si *SignIn) Execute(key string) (string, error) {
 	c, err := auth(key)
 	if err != nil {
-		return "", err
+		return msgSTGSignInFailed, err
 	}
 
 	err = signIn(c)
 	if err != nil {
-		return "", err
+		return msgSTGSignInFailed, err
 	}
 
 	err = verify(c)
 	if err != nil {
-		return "", err
+		return msgSTGSignInFailed, err
 	}
 	return "Go语言中文网签到成功", nil
 }

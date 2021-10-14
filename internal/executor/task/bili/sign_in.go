@@ -1,7 +1,6 @@
 package bili
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -10,13 +9,7 @@ import (
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
-var (
-	ErrLogNotFound = errors.New("log not found")
-	ErrSignIn      = errors.New("sign in failed")
-)
-
-type SignIn struct {
-}
+type SignIn struct{}
 
 func (si *SignIn) Domain() crontab.Domain {
 	return crontab.Domain_BILI
@@ -29,43 +22,27 @@ func (si *SignIn) Kind() crontab.Kind {
 func (si *SignIn) Execute(key string) (string, error) {
 	c, err := auth(key)
 	if err != nil {
-		return "", err
+		return msgSignInFailed, err
 	}
-
 	err = signIn(c)
 	if err != nil {
-		return "", err
+		return msgSignInFailed, err
 	}
-
 	err = verify(c)
 	if err != nil {
-		return "", err
+		return msgSignInFailed, err
 	}
-
 	return "B站签到成功", nil
-}
-
-type authResp struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	TTL     int    `json:"ttl"`
-	Data    struct {
-		MID    int    `json:"mid"`
-		Uname  string `json:"uname"`
-		UserID string `json:"user_id"`
-	} `json:"data"`
 }
 
 func auth(cookies string) (*http.Client, error) {
 	jar := task.NewJar(cookies, domain, signURL)
 	client := &http.Client{Jar: jar}
-
 	authResp := &authResp{}
 	err := task.ParseBody(client, authURL, authResp)
 	if err != nil {
 		return client, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}
-
 	if authResp.Code != 0 {
 		return client, fmt.Errorf("%w, stage: %s", ErrInvalidCookie, crontab.Stage_Auth)
 	}
@@ -78,20 +55,6 @@ func signIn(c *http.Client) error {
 		err = fmt.Errorf("%w, stage: %s", err, crontab.Stage_SignIn)
 	}
 	return err
-}
-
-type verifyResp struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	TTL     int    `json:"ttl"`
-	Data    struct {
-		List []struct {
-			Time   string `json:"time"`
-			Delta  int    `json:"delta"`
-			Reason string `json:"reason"`
-		} `json:"list"`
-		Count int `json:"count"`
-	} `json:"data"`
 }
 
 func verify(client *http.Client) (err error) {
@@ -109,7 +72,6 @@ func verify(client *http.Client) (err error) {
 	if verifyResp.Code != 0 {
 		return ErrInvalidCookie
 	}
-
 	list := verifyResp.Data.List
 	if len(list) <= 0 {
 		return ErrLogNotFound
@@ -124,7 +86,6 @@ func verify(client *http.Client) (err error) {
 	if err != nil {
 		return
 	}
-
 	if now.YearDay() != last.YearDay() {
 		err = ErrSignIn
 	}

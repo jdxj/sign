@@ -1,6 +1,7 @@
 package evo
 
 import (
+	"errors"
 	"fmt"
 	"time"
 )
@@ -11,6 +12,14 @@ const (
 
 const (
 	gb = 1 << 30
+)
+
+const (
+	msgEvoUpdateFailed = "evo获取更新失败"
+)
+
+var (
+	ErrUpdateNotFound = errors.New("update not found")
 )
 
 type buildInfo struct {

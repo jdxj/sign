@@ -121,13 +121,14 @@ func (e *Executor) start(task *crontab.Task) {
 	if err != nil {
 		logger.Errorf("execute failed, userID: %d, taskID: %d, error: %s",
 			task.UserID, task.TaskID, err)
-		return
 	}
-	_, err = e.noticeClient.SendMessage(ctx, &notice.SendMessageReq{
-		UserID: task.UserID,
-		Text:   text,
-	})
-	if err != nil {
-		logger.Errorf("send message failed, error: %s", err)
+	if text != "" {
+		_, err = e.noticeClient.SendMessage(ctx, &notice.SendMessageReq{
+			UserID: task.UserID,
+			Text:   text,
+		})
+		if err != nil {
+			logger.Errorf("send message failed, error: %s", err)
+		}
 	}
 }

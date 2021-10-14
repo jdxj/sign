@@ -4,8 +4,7 @@ import (
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
-type Count struct {
-}
+type Count struct{}
 
 func (cou *Count) Domain() crontab.Domain {
 	return crontab.Domain_JueJin
