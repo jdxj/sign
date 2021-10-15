@@ -20,7 +20,7 @@ func AvailableDomain() string {
 	sort.Ints(keys)
 
 	for _, key := range keys {
-		help = fmt.Sprintf("%s\n  %s\t%d",
+		help = fmt.Sprintf("%s\n  %-15s %d",
 			help, crontab.Domain_name[int32(key)], key)
 	}
 	return help
@@ -39,7 +39,7 @@ func AvailableKind() string {
 	sort.Ints(keys)
 
 	for _, key := range keys {
-		help = fmt.Sprintf("%s\n  %s\t%d",
+		help = fmt.Sprintf("%s\n  %-15s %d",
 			help, crontab.Kind_name[int32(key)], key)
 	}
 	return help
