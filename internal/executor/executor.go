@@ -116,12 +116,34 @@ func (e *Executor) start(task *crontab.Task) {
 		return
 	}
 	secretRecord := secretList.List[0]
+	e.tryExecute(agent, task, secretRecord.Key)
+}
 
-	text, err := agent.Execute(secretRecord.Key)
-	if err != nil {
-		logger.Errorf("execute failed, userID: %d, taskID: %d, error: %s",
-			task.UserID, task.TaskID, err)
+func (e *Executor) tryExecute(agent Agent, task *crontab.Task, key string) {
+	var (
+		retry    = 3
+		interval = 3 * time.Second
+
+		text string
+		err  error
+	)
+	for i := 0; i < retry; i++ {
+		text, err = agent.Execute(key)
+		if err != nil {
+			logger.Errorf("try execute failed: %d, userID: %d, taskID: %d, error: %s",
+				i, task.UserID, task.TaskID, err)
+		} else {
+			break
+		}
+		// 最后一个不用等
+		if i != retry-1 {
+			time.Sleep(interval)
+		}
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	if text != "" {
 		_, err = e.noticeClient.SendMessage(ctx, &notice.SendMessageReq{
 			UserID: task.UserID,
