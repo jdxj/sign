@@ -10,6 +10,8 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"time"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 var (
@@ -152,4 +154,23 @@ func VerifyDate(raw string) error {
 		return ErrSignInFailed
 	}
 	return nil
+}
+
+// ConvertStringToMap 将 'key1=value1;key2=value2' 转换成 map
+func ConvertStringToMap(key string) map[string]string {
+	res := make(map[string]string)
+	header := map[string][]string{
+		"Cookie": {key},
+	}
+	req := &http.Request{Header: header}
+	for _, cookie := range req.Cookies() {
+		res[cookie.Name] = cookie.Value
+	}
+	return res
+}
+
+// PopulateStruct 从 key 中解码数据到 s
+func PopulateStruct(key string, s interface{}) error {
+	data := ConvertStringToMap(key)
+	return mapstructure.Decode(data, s)
 }

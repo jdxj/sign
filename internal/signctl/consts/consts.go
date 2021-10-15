@@ -8,7 +8,6 @@ import (
 const (
 	Host     = "host"
 	Token    = "token"
-	Format   = "format"
 	Nickname = "nickname"
 	Password = "password"
 	Describe = "describe"

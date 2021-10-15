@@ -1,11 +1,11 @@
 package github
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/jdxj/sign/internal/executor/task"
 	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
@@ -38,7 +38,7 @@ func (rel *Release) Kind() crontab.Kind {
 
 func (rel *Release) Execute(key string) (string, error) {
 	req := &request{}
-	err := json.Unmarshal([]byte(key), req)
+	err := task.PopulateStruct(key, req)
 	if err != nil {
 		return msgReleaseUpdateFailed, err
 	}
@@ -54,8 +54,8 @@ func (rel *Release) Execute(key string) (string, error) {
 }
 
 type request struct {
-	Owner string `json:"owner"`
-	Repo  string `json:"repo"`
+	Owner string
+	Repo  string
 }
 
 type response struct {
