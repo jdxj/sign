@@ -30,5 +30,5 @@ func (u *Updater) Execute(key string) (string, error) {
 	if time.Since(updateTime) <= 24*time.Hour {
 		return bi.String(), nil
 	}
-	return msgEvoUpdateFailed, ErrUpdateNotFound
+	return "", ErrUpdateNotFound
 }

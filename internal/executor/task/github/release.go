@@ -50,7 +50,7 @@ func (rel *Release) Execute(key string) (string, error) {
 	if ok {
 		return fmt.Sprintf("%s/%s 有新的 release", req.Owner, req.Repo), nil
 	}
-	return msgReleaseUpdateFailed, fmt.Errorf("release not found: %w", err)
+	return "", fmt.Errorf("release not found: %w", err)
 }
 
 type request struct {
