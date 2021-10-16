@@ -41,14 +41,14 @@ func TestReleased(t *testing.T) {
 		{
 			Name: "case1",
 			Rsp: &response{
-				CreatedAt: now.Add(-25 * time.Hour).Format(rfc8061),
+				CreatedAt: now.Add(-25 * time.Hour).Format(time.RFC3339),
 			},
 			Expect: false, // 无更新
 		},
 		{
 			Name: "case2",
 			Rsp: &response{
-				CreatedAt: now.Add(-10 * time.Hour).Format(rfc8061),
+				CreatedAt: now.Add(-10 * time.Hour).Format(time.RFC3339),
 			},
 			Expect: true, // 有更新
 		},
