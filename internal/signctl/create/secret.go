@@ -9,6 +9,7 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/signctl/consts"
+	"github.com/jdxj/sign/internal/signctl/help"
 	"github.com/jdxj/sign/internal/signctl/model"
 )
 
@@ -18,7 +19,7 @@ func newSecretCmd() *cobra.Command {
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
-		Long:                       "",
+		Long:                       help.AvailableDomain(),
 		Example:                    "",
 		ValidArgs:                  nil,
 		ValidArgsFunction:          nil,
@@ -55,7 +56,7 @@ func newSecretCmd() *cobra.Command {
 	flagSet := cmd.Flags()
 	flagSet.String(consts.Describe, "", "description of the secret")
 	flagSet.Int(consts.Domain, 0, "domain represents the website specified by key")
-	flagSet.String(consts.Key, "", "key represents the cookie or authentication information of a certain website")
+	flagSet.String(consts.Key, "", "key represents the cookie or authentication information of a certain website. format: 'key1=value1;key2=value2'")
 	return cmd
 }
 

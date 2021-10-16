@@ -36,6 +36,7 @@ spec:
       containers:
         - name: trigger
           image: jdxj/trigger:v0.3.0
+          imagePullPolicy: Always
           command: ["/sign/trigger.run"]
           args: ["-f", "/sign/config/config.yaml"]
           volumeMounts:

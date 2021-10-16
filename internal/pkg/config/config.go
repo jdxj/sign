@@ -11,7 +11,6 @@ import (
 type Root struct {
 	Bot       Bot       `yaml:"bot"`
 	Logger    Logger    `yaml:"logger"`
-	User      []User    `yaml:"user"`
 	APIServer APIServer `yaml:"api_server"`
 	Storage   Storage   `yaml:"storage"`
 	DB        DB        `yaml:"db"`
@@ -29,10 +28,6 @@ type Bot struct {
 type Logger struct {
 	Path string `yaml:"path"`
 	Mode string `yaml:"mode"`
-}
-
-// User 保留用
-type User struct {
 }
 
 type APIServer struct {

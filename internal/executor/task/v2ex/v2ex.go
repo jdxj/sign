@@ -19,6 +19,10 @@ const (
 	verifyURL = "https://www.v2ex.com/balance"
 )
 
+const (
+	msgV2exSignInFailed = "v2ex签到失败"
+)
+
 var (
 	ErrTargetNotFound = errors.New("target not found")
 	ErrTokenNotFound  = errors.New("token not found")
@@ -36,8 +40,7 @@ func init() {
 	regToken = regexp.MustCompile(`once=(.+)'`)
 }
 
-type SignIn struct {
-}
+type SignIn struct{}
 
 func (si *SignIn) Domain() crontab.Domain {
 	return crontab.Domain_V2EX
@@ -50,24 +53,24 @@ func (si *SignIn) Kind() crontab.Kind {
 func (si *SignIn) Execute(key string) (string, error) {
 	c, err := auth(key)
 	if err != nil {
-		return "", err
+		return msgV2exSignInFailed, err
 	}
 
 	token, err := getSignToken(c)
 	if err != nil {
-		return "", err
+		return msgV2exSignInFailed, err
 	}
 
 	err = signIn(c, token)
 	if err != nil {
-		return "", err
+		return msgV2exSignInFailed, err
 	}
 
 	err = verify(c)
 	if err != nil {
-		return "", err
+		return msgV2exSignInFailed, err
 	}
-	return "V2ex签到成功", nil
+	return "v2ex签到成功", nil
 }
 
 func auth(cookies string) (*http.Client, error) {

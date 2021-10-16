@@ -9,7 +9,7 @@ func New() *cobra.Command {
 		Use:                        "get",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
-		Short:                      "",
+		Short:                      "get used for obtain resource",
 		Long:                       "",
 		Example:                    "",
 		ValidArgs:                  nil,
