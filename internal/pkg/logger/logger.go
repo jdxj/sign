@@ -52,7 +52,7 @@ func Init(path string, optsF ...OptionFunc) {
 		syncer(opts),
 		level(opts.Mode),
 	)
-	desugar = zap.New(core, zap.AddCaller())
+	desugar = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	sugar = desugar.Sugar()
 }
 
