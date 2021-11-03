@@ -6,6 +6,7 @@ import (
 	"github.com/jdxj/sign/internal/executor/task/github"
 	"github.com/jdxj/sign/internal/executor/task/hpi"
 	"github.com/jdxj/sign/internal/executor/task/juejin"
+	"github.com/jdxj/sign/internal/executor/task/nokey"
 	"github.com/jdxj/sign/internal/executor/task/stg"
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
 	"github.com/jdxj/sign/internal/proto/crontab"
@@ -41,6 +42,9 @@ func init() {
 	agents[juePo.Kind()] = juePo
 	jueCa := &juejin.Calendar{}
 	agents[jueCa.Kind()] = jueCa
+
+	cm := &nokey.CustomMessage{}
+	agents[cm.Kind()] = cm
 }
 
 var (

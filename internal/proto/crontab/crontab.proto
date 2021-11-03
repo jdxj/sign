@@ -20,6 +20,8 @@ enum Domain {
   Evo  = 501;
   Github = 601;
   JueJin = 701;
+  // 不需要认证或 cookie 的任务
+  NoKey = 801;
 }
 
 enum Kind {
@@ -45,6 +47,10 @@ enum Kind {
   JueJinPoint    = 704;
   // 码农日历
   JueJinCalendar = 705;
+
+  // NoKey
+  // 自定义消息
+  CustomMessage = 802;
 }
 
 enum Stage {
