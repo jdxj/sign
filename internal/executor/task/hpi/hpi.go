@@ -1,6 +1,8 @@
 package hpi
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -18,6 +20,7 @@ const (
 	signTokenURL = "https://ld246.com/activity/checkin"
 	signURL      = "https://ld246.com/activity/daily-checkin?token=%s"
 	verifyURL    = "https://ld246.com/member/%s/points?p=1&pjax=true"
+	loginURL     = "https://ld246.com/api/v2/login"
 )
 
 const (
@@ -53,7 +56,12 @@ func (si *SignIn) Kind() crontab.Kind {
 }
 
 func (si *SignIn) Execute(key string) (string, error) {
-	c, err := auth(key)
+	token, err := login(key)
+	if err != nil {
+		return msgHPISignInFailed, err
+	}
+	cookie := fmt.Sprintf("symphony=%s", token)
+	c, err := auth(cookie)
 	if err != nil {
 		return msgHPISignInFailed, err
 	}
@@ -87,6 +95,45 @@ func auth(cookies string) (*http.Client, error) {
 		return client, err
 	}
 	return client, nil
+}
+
+type loginReq struct {
+	UserName     string `json:"userName"`
+	UserPassword string `json:"userPassword"`
+	Captcha      string `json:"captcha"`
+}
+
+type loginRsp struct {
+	Code        int    `json:"code"`
+	Msg         string `json:"msg"`
+	Token       string `json:"token"`
+	UserName    string `json:"userName"`
+	NeedCaptcha string `json:"needCaptcha"`
+}
+
+func login(key string) (string, error) {
+	req := &loginReq{}
+	err := task.PopulateStruct(key, req)
+	if err != nil {
+		return "", err
+	}
+	d, err := json.Marshal(req)
+	if err != nil {
+		return "", err
+	}
+
+	c := &http.Client{}
+	reader := bytes.NewReader(d)
+	rsp := &loginRsp{}
+
+	err = task.ParseBodyPost(c, loginURL, reader, rsp)
+	if err != nil {
+		return "", err
+	}
+	if rsp.Token == "" {
+		return "", ErrTokenNotFound
+	}
+	return rsp.Token, nil
 }
 
 func getSignToken(client *http.Client) (string, string, error) {
