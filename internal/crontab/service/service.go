@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc/codes"
@@ -11,6 +12,10 @@ import (
 	"github.com/jdxj/sign/internal/crontab/dao/specification"
 	"github.com/jdxj/sign/internal/crontab/dao/task"
 	"github.com/jdxj/sign/internal/proto/crontab"
+)
+
+var (
+	ErrKindNotFound = errors.New("kind not found")
 )
 
 func NewService() *Service {
@@ -31,9 +36,15 @@ func (srv *Service) CreateTask(ctx context.Context, req *crontab.CreateTaskReq) 
 	if req.UserID == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "empty user id")
 	}
+
 	if req.Kind == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "empty kind")
 	}
+	if _, ok := crontab.Kind_name[int32(req.Kind)]; !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "%s: %d",
+			ErrKindNotFound, req.Kind)
+	}
+
 	_, err := srv.cronParser.Parse(req.Spec)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid cron spec")
