@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"regexp"
 
 	"github.com/jdxj/sign/internal/executor/task"
@@ -11,11 +12,10 @@ import (
 )
 
 const (
-	domain    = ".studygolang.com"
-	home      = "https://studygolang.com/"
 	authURL   = "https://studygolang.com/balance"
 	signURL   = "https://studygolang.com/mission/daily/redeem"
 	verifyURL = "https://studygolang.com/balance"
+	loginURL  = "https://studygolang.com/account/login"
 )
 
 const (
@@ -28,6 +28,7 @@ var (
 )
 
 var (
+	ErrLoginFailed    = errors.New("login failed")
 	ErrTargetNotFound = errors.New("target not found")
 )
 
@@ -64,9 +65,20 @@ func (si *SignIn) Execute(key string) (string, error) {
 	return "Go语言中文网签到成功", nil
 }
 
-func auth(cookies string) (*http.Client, error) {
-	jar := task.NewJar(cookies, domain, home)
-	client := &http.Client{Jar: jar}
+func auth(key string) (*http.Client, error) {
+	d := task.ConvertStringToMap(key)
+	f := url.Values{}
+	for k, v := range d {
+		f.Set(k, v)
+	}
+	client, rsp, err := task.PostForm(loginURL, f)
+	if err != nil {
+		return nil, err
+	}
+	_ = rsp.Body.Close()
+	if rsp.StatusCode != http.StatusOK {
+		return nil, ErrLoginFailed
+	}
 
 	body, err := task.ParseRawBody(client, authURL)
 	if err != nil {

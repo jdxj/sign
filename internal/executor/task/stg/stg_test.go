@@ -13,3 +13,10 @@ func TestSignIn_Execute(t *testing.T) {
 	}
 	fmt.Printf("msg: %s\n", msg)
 }
+
+func TestAuth(t *testing.T) {
+	_, err := auth(key)
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+}

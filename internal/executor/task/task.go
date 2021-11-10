@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/mitchellh/mapstructure"
@@ -31,16 +32,24 @@ func ResolveCookies(raw, domain string) []*http.Cookie {
 	return cookies
 }
 
+func NewRequest(method, url string, body io.Reader) (*http.Request, context.CancelFunc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	req, err := http.NewRequestWithContext(ctx, method, url, body)
+	if err != nil {
+		cancel()
+		return nil, nil, err
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36")
+	return req, cancel, nil
+}
+
 // ParseBody 解析 body 中的 json 数据到 v
 func ParseBody(client *http.Client, u string, v interface{}) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	req, cancel, err := NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return err
 	}
-	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36")
+	defer cancel()
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -61,20 +70,15 @@ func ParseBody(client *http.Client, u string, v interface{}) error {
 
 // ParseBodyHeader 用于访问一个 url, 并且可以指定 http.Request header
 func ParseBodyHeader(client *http.Client, u string, header map[string]string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	req, cancel, err := NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return err
 	}
+	defer cancel()
 
-	// 通用 User-Agent
-	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36")
 	for k, v := range header {
 		req.Header.Add(k, v)
 	}
-
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -87,15 +91,13 @@ func ParseBodyHeader(client *http.Client, u string, header map[string]string) er
 
 // ParseBodyPost 可以指定 http.Request body
 func ParseBodyPost(client *http.Client, u string, reader io.Reader, v interface{}) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, reader)
+	req, cancel, err := NewRequest(http.MethodPost, u, reader)
 	if err != nil {
 		return err
 	}
+	defer cancel()
+
 	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36")
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -111,14 +113,11 @@ func ParseBodyPost(client *http.Client, u string, reader io.Reader, v interface{
 
 // ParseRawBody 读取 body 为 []byte
 func ParseRawBody(client *http.Client, u string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	req, cancel, err := NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36")
+	defer cancel()
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -127,6 +126,23 @@ func ParseRawBody(client *http.Client, u string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	return ioutil.ReadAll(resp.Body)
+}
+
+// PostForm 使用带 context 方式发送请求, 并返回 client 和 response.
+// 返回 client 的意图是其中保存了 cookie, 以便后续发送请求可重用该 cookie.
+func PostForm(url string, f url.Values) (*http.Client, *http.Response, error) {
+	b := strings.NewReader(f.Encode())
+	req, cancel, err := NewRequest(http.MethodPost, url, b)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer cancel()
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	j, _ := cookiejar.New(nil)
+	c := &http.Client{Jar: j}
+	rsp, err := c.Do(req)
+	return c, rsp, err
 }
 
 // NewJar 从给定 cookie 字符串构造 jar
