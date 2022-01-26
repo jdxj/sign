@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"go.etcd.io/etcd/api/v3/mvccpb"
@@ -9,6 +10,7 @@ import (
 	"google.golang.org/grpc/resolver"
 
 	"github.com/jdxj/sign/internal/pkg/logger"
+	test_grpc "github.com/jdxj/sign/internal/proto/test-grpc"
 )
 
 type SignResolver struct {
@@ -108,6 +110,36 @@ func (sr *SignResolver) updateAddress(tpy mvccpb.Event_EventType, value string) 
 	}
 
 	err := sr.cc.UpdateState(resolver.State{Addresses: addresses})
+	if err != nil {
+		logger.Errorf("update address state err: %s", err)
+	}
+}
+
+type LocalResolver struct {
+	cc      resolver.ClientConn
+	service string
+}
+
+func (lr *LocalResolver) ResolveNow(_ resolver.ResolveNowOptions) {
+	lr.update()
+}
+
+func (lr *LocalResolver) Close() {
+
+}
+
+func (lr *LocalResolver) update() {
+	// todo: 添加待测试 service
+	var addr resolver.Address
+	switch lr.service {
+	case test_grpc.ServiceName:
+		addr.Addr = fmt.Sprintf("127.0.0.1:%d", test_grpc.ServicePort)
+	case test_grpc.MServiceName:
+		addr.Addr = fmt.Sprintf("127.0.0.1:%d", test_grpc.MServicePort)
+	}
+	err := lr.cc.UpdateState(resolver.State{
+		Addresses: []resolver.Address{addr},
+	})
 	if err != nil {
 		logger.Errorf("update address state err: %s", err)
 	}

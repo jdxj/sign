@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option go_package = "github.com/jdxj/sign/internal/proto/test_grpc";
+
+service TestRPC {
+    rpc Hello(HelloReq) returns (HelloRsp);
+}
+
+message HelloReq {
+    string Name = 1;
+}
+
+message HelloRsp {
+    int64 Age = 2;
+}
+
+service TestMultiRPC {
+    rpc World(WorldReq) returns (WorldRsp);
+}
+
+message WorldReq {
+    string Name = 1;
+}
+
+message WorldRsp {
+    int64 Age = 2;
+}

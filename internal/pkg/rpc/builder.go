@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	SignScheme = "sign"
+	SignScheme      = "sign"
+	SignSchemeLocal = "sign.local"
 )
 
 func Init(etcdAddr string) {
@@ -49,4 +50,22 @@ func (sb *SignBuilder) Build(target resolver.Target, cc resolver.ClientConn, opt
 
 func (sb *SignBuilder) Scheme() string {
 	return SignScheme
+}
+
+type LocalBuilder struct {
+}
+
+func (lb *LocalBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (
+	resolver.Resolver, error) {
+	lr := &LocalResolver{
+		cc:      cc,
+		service: target.Endpoint,
+	}
+	// 立即更新
+	lr.update()
+	return lr, nil
+}
+
+func (lb *LocalBuilder) Scheme() string {
+	return SignSchemeLocal
 }

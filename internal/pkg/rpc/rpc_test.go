@@ -40,3 +40,6 @@ func TestGetListenAddr(t *testing.T) {
 	}
 	fmt.Printf("addr: %s\n", addr)
 }
+
+func TestParseTarget(t *testing.T) {
+}
