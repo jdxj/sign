@@ -48,6 +48,7 @@ type Server struct {
 	wg *sync.WaitGroup
 }
 
+// RegisterService 不要直接调用该方法, 应使用 pb 中的 RegisterXxxServer()
 func (s *Server) RegisterService(desc *grpc.ServiceDesc, impl interface{}) {
 	s.grpcServer.RegisterService(desc, impl)
 }
