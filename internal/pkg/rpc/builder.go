@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	SignScheme      = "sign"
-	SignSchemeLocal = "sign.local"
+	SignScheme = "sign"
 )
 
+// Deprecated
 func Init(etcdAddr string) {
 	client, err := clientV3.New(clientV3.Config{
 		Endpoints: []string{etcdAddr},
@@ -52,6 +52,15 @@ func (sb *SignBuilder) Scheme() string {
 	return SignScheme
 }
 
+var (
+	isLocal bool
+)
+
+func InitLocal() {
+	resolver.Register(&LocalBuilder{})
+}
+
+// todo: 实现一个能区分 k8s 与 local 的 resolver
 type LocalBuilder struct {
 }
 
@@ -67,5 +76,5 @@ func (lb *LocalBuilder) Build(target resolver.Target, cc resolver.ClientConn, op
 }
 
 func (lb *LocalBuilder) Scheme() string {
-	return SignSchemeLocal
+	return SignScheme
 }

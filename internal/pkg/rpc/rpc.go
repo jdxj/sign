@@ -21,12 +21,10 @@ var (
 )
 
 func DSN(service string) string {
-	// scheme:///service
+	if !isLocal {
+		return service
+	}
 	return fmt.Sprintf("%s:///%s", SignScheme, service)
-}
-
-func DSNLocal(service string) string {
-	return fmt.Sprintf("%s:///%s", SignSchemeLocal, service)
 }
 
 func NewServer(port int) *Server {
@@ -84,7 +82,7 @@ func NewClient(target string, newClient func(cc *grpc.ClientConn)) {
 }
 
 func NewConn(service string) grpc.ClientConnInterface {
-	cc, err := grpc.Dial(DSNLocal(service), grpc.WithInsecure())
+	cc, err := grpc.Dial(DSN(service), grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
