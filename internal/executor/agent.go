@@ -1,6 +1,8 @@
 package executor
 
 import (
+	"net/http"
+
 	"github.com/jdxj/sign/internal/executor/task/bili"
 	"github.com/jdxj/sign/internal/executor/task/evo"
 	"github.com/jdxj/sign/internal/executor/task/github"
@@ -9,6 +11,9 @@ import (
 	"github.com/jdxj/sign/internal/executor/task/nokey"
 	"github.com/jdxj/sign/internal/executor/task/stg"
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
+
+	"net/url"
+
 	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
@@ -45,6 +50,9 @@ func init() {
 
 	cm := &nokey.CustomMessage{}
 	agents[cm.Kind()] = cm
+	url.Values{}
+	req := http.Request{}
+	req.ParseForm()
 }
 
 var (

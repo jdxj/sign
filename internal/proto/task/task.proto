@@ -10,9 +10,11 @@ service TaskService {
     rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
     rpc GetTasks(GetTasksRequest) returns (GetTasksResponse);
     rpc UpdateTask(UpdateTaskRequest) returns(google.protobuf.Empty);
-    rpc GetKinds(google.protobuf.Empty) returns (GetKindsResponse);
+    rpc GetTaskKinds(google.protobuf.Empty) returns (GetTaskKindsResponse);
+    rpc GetTaskInputs(GetTaskInputsRequest) returns (GetTaskInputsResponse);
     rpc DispatchTasks(DispatchTasksRequest) returns (google.protobuf.Empty);
 }
+
 
 message Task {
     int64 task_id = 1;
@@ -86,7 +88,7 @@ enum Kind {
     CUSTOM_MESSAGE = 11;
 }
 
-message GetKindsResponse {
+message GetTaskKindsResponse {
     repeated string kinds = 1;
 }
 
@@ -96,4 +98,17 @@ message DispatchTasksRequest {
 
 message ReadyTasks {
     repeated Task tasks = 1;
+}
+
+message GetTaskInputsRequest {
+    string kind = 1;
+}
+
+message Input {
+    string key = 1;
+    string description = 2;
+}
+
+message GetTaskInputsResponse {
+    repeated Input inputs = 1;
 }

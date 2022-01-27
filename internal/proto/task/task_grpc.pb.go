@@ -23,7 +23,8 @@ type TaskServiceClient interface {
 	GetTask(ctx context.Context, in *GetTaskRequest, opts ...grpc.CallOption) (*GetTaskResponse, error)
 	GetTasks(ctx context.Context, in *GetTasksRequest, opts ...grpc.CallOption) (*GetTasksResponse, error)
 	UpdateTask(ctx context.Context, in *UpdateTaskRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetKinds(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetKindsResponse, error)
+	GetTaskKinds(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTaskKindsResponse, error)
+	GetTaskInputs(ctx context.Context, in *GetTaskInputsRequest, opts ...grpc.CallOption) (*GetTaskInputsResponse, error)
 	DispatchTasks(ctx context.Context, in *DispatchTasksRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -71,9 +72,18 @@ func (c *taskServiceClient) UpdateTask(ctx context.Context, in *UpdateTaskReques
 	return out, nil
 }
 
-func (c *taskServiceClient) GetKinds(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetKindsResponse, error) {
-	out := new(GetKindsResponse)
-	err := c.cc.Invoke(ctx, "/TaskService/GetKinds", in, out, opts...)
+func (c *taskServiceClient) GetTaskKinds(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTaskKindsResponse, error) {
+	out := new(GetTaskKindsResponse)
+	err := c.cc.Invoke(ctx, "/TaskService/GetTaskKinds", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskServiceClient) GetTaskInputs(ctx context.Context, in *GetTaskInputsRequest, opts ...grpc.CallOption) (*GetTaskInputsResponse, error) {
+	out := new(GetTaskInputsResponse)
+	err := c.cc.Invoke(ctx, "/TaskService/GetTaskInputs", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +107,8 @@ type TaskServiceServer interface {
 	GetTask(context.Context, *GetTaskRequest) (*GetTaskResponse, error)
 	GetTasks(context.Context, *GetTasksRequest) (*GetTasksResponse, error)
 	UpdateTask(context.Context, *UpdateTaskRequest) (*emptypb.Empty, error)
-	GetKinds(context.Context, *emptypb.Empty) (*GetKindsResponse, error)
+	GetTaskKinds(context.Context, *emptypb.Empty) (*GetTaskKindsResponse, error)
+	GetTaskInputs(context.Context, *GetTaskInputsRequest) (*GetTaskInputsResponse, error)
 	DispatchTasks(context.Context, *DispatchTasksRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedTaskServiceServer()
 }
@@ -118,8 +129,11 @@ func (UnimplementedTaskServiceServer) GetTasks(context.Context, *GetTasksRequest
 func (UnimplementedTaskServiceServer) UpdateTask(context.Context, *UpdateTaskRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTask not implemented")
 }
-func (UnimplementedTaskServiceServer) GetKinds(context.Context, *emptypb.Empty) (*GetKindsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetKinds not implemented")
+func (UnimplementedTaskServiceServer) GetTaskKinds(context.Context, *emptypb.Empty) (*GetTaskKindsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTaskKinds not implemented")
+}
+func (UnimplementedTaskServiceServer) GetTaskInputs(context.Context, *GetTaskInputsRequest) (*GetTaskInputsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTaskInputs not implemented")
 }
 func (UnimplementedTaskServiceServer) DispatchTasks(context.Context, *DispatchTasksRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DispatchTasks not implemented")
@@ -209,20 +223,38 @@ func _TaskService_UpdateTask_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TaskService_GetKinds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TaskService_GetTaskKinds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TaskServiceServer).GetKinds(ctx, in)
+		return srv.(TaskServiceServer).GetTaskKinds(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/TaskService/GetKinds",
+		FullMethod: "/TaskService/GetTaskKinds",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TaskServiceServer).GetKinds(ctx, req.(*emptypb.Empty))
+		return srv.(TaskServiceServer).GetTaskKinds(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskService_GetTaskInputs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTaskInputsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).GetTaskInputs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/TaskService/GetTaskInputs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).GetTaskInputs(ctx, req.(*GetTaskInputsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -269,8 +301,12 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TaskService_UpdateTask_Handler,
 		},
 		{
-			MethodName: "GetKinds",
-			Handler:    _TaskService_GetKinds_Handler,
+			MethodName: "GetTaskKinds",
+			Handler:    _TaskService_GetTaskKinds_Handler,
+		},
+		{
+			MethodName: "GetTaskInputs",
+			Handler:    _TaskService_GetTaskInputs_Handler,
 		},
 		{
 			MethodName: "DispatchTasks",
