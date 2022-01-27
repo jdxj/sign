@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NoticeServiceClient interface {
-	SendMessage(ctx context.Context, in *SendMessageReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendNotice(ctx context.Context, in *SendNoticeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type noticeServiceClient struct {
@@ -30,9 +30,9 @@ func NewNoticeServiceClient(cc grpc.ClientConnInterface) NoticeServiceClient {
 	return &noticeServiceClient{cc}
 }
 
-func (c *noticeServiceClient) SendMessage(ctx context.Context, in *SendMessageReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *noticeServiceClient) SendNotice(ctx context.Context, in *SendNoticeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/NoticeService/SendMessage", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/NoticeService/SendNotice", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (c *noticeServiceClient) SendMessage(ctx context.Context, in *SendMessageRe
 // All implementations must embed UnimplementedNoticeServiceServer
 // for forward compatibility
 type NoticeServiceServer interface {
-	SendMessage(context.Context, *SendMessageReq) (*emptypb.Empty, error)
+	SendNotice(context.Context, *SendNoticeRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedNoticeServiceServer()
 }
 
@@ -51,8 +51,8 @@ type NoticeServiceServer interface {
 type UnimplementedNoticeServiceServer struct {
 }
 
-func (UnimplementedNoticeServiceServer) SendMessage(context.Context, *SendMessageReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendMessage not implemented")
+func (UnimplementedNoticeServiceServer) SendNotice(context.Context, *SendNoticeRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendNotice not implemented")
 }
 func (UnimplementedNoticeServiceServer) mustEmbedUnimplementedNoticeServiceServer() {}
 
@@ -67,20 +67,20 @@ func RegisterNoticeServiceServer(s grpc.ServiceRegistrar, srv NoticeServiceServe
 	s.RegisterService(&NoticeService_ServiceDesc, srv)
 }
 
-func _NoticeService_SendMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendMessageReq)
+func _NoticeService_SendNotice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendNoticeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NoticeServiceServer).SendMessage(ctx, in)
+		return srv.(NoticeServiceServer).SendNotice(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/NoticeService/SendMessage",
+		FullMethod: "/NoticeService/SendNotice",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NoticeServiceServer).SendMessage(ctx, req.(*SendMessageReq))
+		return srv.(NoticeServiceServer).SendNotice(ctx, req.(*SendNoticeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -93,8 +93,8 @@ var NoticeService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*NoticeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SendMessage",
-			Handler:    _NoticeService_SendMessage_Handler,
+			MethodName: "SendNotice",
+			Handler:    _NoticeService_SendNotice_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

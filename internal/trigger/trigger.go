@@ -99,6 +99,7 @@ func (trg *Trigger) addJob(spec string) error {
 		tq:    trg.tq,
 	}
 	_, err := trg.cron.AddJob(spec, j)
+	trg.cron.Entries()
 	return err
 }
 
