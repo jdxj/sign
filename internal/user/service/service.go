@@ -8,7 +8,7 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/proto/user"
-	userDao "github.com/jdxj/sign/internal/user/dao/user"
+	userDao "github.com/jdxj/sign/internal/user/dao"
 )
 
 type Service struct {

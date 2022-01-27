@@ -1,7 +1,6 @@
-package specification
+package dao
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -18,16 +17,4 @@ func TestMain(t *testing.M) {
 		Dbname: "sign",
 	})
 	os.Exit(t.Run())
-}
-
-func TestInsert(t *testing.T) {
-	data := &Specification{
-		Spec: "abc",
-	}
-	err := Insert(data)
-	if err != nil {
-		t.Fatalf("%s\n", err)
-	}
-	fmt.Printf("%d\n", data.SpecID)
-	fmt.Printf("%+v\n", data)
 }

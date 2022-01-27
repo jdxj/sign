@@ -1,7 +1,6 @@
-package task
+package dao
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -18,17 +17,4 @@ func TestMain(t *testing.M) {
 		Dbname: "sign",
 	})
 	os.Exit(t.Run())
-}
-
-func TestFind(t *testing.T) {
-	where := map[string]interface{}{
-		"user_id = ?": 1,
-	}
-	rows, err := Find(where)
-	if err != nil {
-		t.Fatalf("%s\n", err)
-	}
-	for _, row := range rows {
-		fmt.Printf("%+v\n", row)
-	}
 }

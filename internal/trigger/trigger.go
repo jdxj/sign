@@ -12,7 +12,7 @@ import (
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/mq"
-	"github.com/jdxj/sign/internal/trigger/dao/specification"
+	"github.com/jdxj/sign/internal/trigger/dao"
 )
 
 var (
@@ -104,7 +104,7 @@ func (trg *Trigger) addJob(spec string) error {
 }
 
 func (trg *Trigger) recoverJob() error {
-	specs, err := specification.Find(nil)
+	specs, err := dao.Find(nil)
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (trg *Trigger) OnRow(e *canal.RowsEvent) error {
 	return nil
 }
 
-func parseSpec(columns []interface{}) (*specification.Specification, error) {
+func parseSpec(columns []interface{}) (*dao.Specification, error) {
 	if len(columns) != 2 {
 		return nil, fmt.Errorf("%w: %s", ErrTableMayBeChanged, "specification")
 	}
@@ -170,7 +170,7 @@ func parseSpec(columns []interface{}) (*specification.Specification, error) {
 		return nil, fmt.Errorf("%w, column: %s, value: %v",
 			ErrAssertColumnType, "spec", columns[1])
 	}
-	sp := &specification.Specification{
+	sp := &dao.Specification{
 		SpecID: specID,
 		Spec:   spec,
 	}
