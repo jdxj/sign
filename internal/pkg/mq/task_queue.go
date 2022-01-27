@@ -16,7 +16,7 @@ const (
 )
 
 func NewTaskQueue() (*TaskQueue, error) {
-	channel, err := connRabbit.Channel()
+	channel, err := Conn.Channel()
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ type TaskQueue struct {
 }
 
 func (tq *TaskQueue) newQueue() error {
-	err := tq.channel.ExchangeDeclare(taskExchange, taskExchangeKind, true, true,
+	err := tq.channel.ExchangeDeclare(taskExchange, taskExchangeKind, true, false,
 		false,
 		false,
 		nil,

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	Gorm *gorm.DB
+	Conn *gorm.DB
 )
 
 func InitGorm(conf config.DB) {
@@ -20,5 +20,5 @@ func InitGorm(conf config.DB) {
 	if err != nil {
 		panic(err)
 	}
-	Gorm = db
+	Conn = db
 }

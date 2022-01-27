@@ -24,7 +24,7 @@ func TestInitGorm(t *testing.T) {
 	InitGorm(conf)
 
 	user := &User{}
-	err := Gorm.Raw("select * from user").First(user).Error
+	err := Conn.Raw("select * from user").First(user).Error
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

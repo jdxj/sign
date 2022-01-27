@@ -17,12 +17,12 @@ type Secret struct {
 const TableName = "secret"
 
 func Insert(sec *Secret) (int64, error) {
-	query := db.Gorm.Table(TableName)
+	query := db.Conn.Table(TableName)
 	return sec.SecretID, query.Create(sec).Error
 }
 
 func FindOne(where map[string]interface{}) (Secret, error) {
-	query := db.Gorm.Table(TableName)
+	query := db.Conn.Table(TableName)
 	for cond, param := range where {
 		query = query.Where(cond, param)
 	}
@@ -32,7 +32,7 @@ func FindOne(where map[string]interface{}) (Secret, error) {
 }
 
 func Find(where map[string]interface{}) ([]Secret, error) {
-	query := db.Gorm.Table(TableName)
+	query := db.Conn.Table(TableName)
 	for cond, param := range where {
 		query = query.Where(cond, param)
 	}
@@ -42,7 +42,7 @@ func Find(where map[string]interface{}) ([]Secret, error) {
 }
 
 func Update(where, data map[string]interface{}) error {
-	query := db.Gorm.Table(TableName)
+	query := db.Conn.Table(TableName)
 	for cond, param := range where {
 		query = query.Where(cond, param)
 	}
@@ -50,7 +50,7 @@ func Update(where, data map[string]interface{}) error {
 }
 
 func Delete(where map[string]interface{}) error {
-	query := db.Gorm.Table(TableName)
+	query := db.Conn.Table(TableName)
 	for cond, param := range where {
 		query = query.Where(cond, param)
 	}

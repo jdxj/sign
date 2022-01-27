@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	connRabbit *amqp.Connection
+	Conn *amqp.Connection
 )
 
 func InitRabbit(conf config.Rabbit) {
@@ -17,7 +17,7 @@ func InitRabbit(conf config.Rabbit) {
 		dsn = fmt.Sprintf("amqp://%s:%s@%s:%d", conf.User, conf.Pass, conf.Host, conf.Port)
 		err error
 	)
-	connRabbit, err = amqp.Dial(dsn)
+	Conn, err = amqp.Dial(dsn)
 	if err != nil {
 		panic(err)
 	}
