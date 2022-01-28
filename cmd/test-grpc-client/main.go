@@ -3,47 +3,22 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
+	"log"
 
-	"google.golang.org/grpc/resolver"
+	"go-micro.dev/v4"
 
-	"github.com/jdxj/sign/internal/pkg/rpc"
-	testPB "github.com/jdxj/sign/internal/proto/test-grpc"
+	test_grpc "github.com/jdxj/sign/internal/proto/test-grpc"
 )
 
 func main() {
-	resolver.Register(&rpc.LocalBuilder{})
-
-	cc := testPB.NewTestRPCClient(rpc.NewConn(testPB.ServiceName))
-
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
-
-	rsp, err := cc.Hello(ctx, &testPB.HelloReq{
+	service := micro.NewService()
+	service.Init()
+	client := test_grpc.NewTestRPCService("test-grpc", service.Client())
+	rsp, err := client.Hello(context.Background(), &test_grpc.HelloReq{
 		Name: "abc",
 	})
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
-	fmt.Printf("rsp: %+v\n", rsp)
-
-	cc2 := testPB.NewTestMultiRPCClient(rpc.NewConn(testPB.MServiceName))
-
-	ctx2, cancel2 := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel2()
-
-	rsp2, err2 := cc2.World(ctx2, &testPB.WorldReq{
-		Name: "abc",
-	})
-	if err2 != nil {
-		panic(fmt.Errorf("z: %s", err2))
-	}
-	fmt.Printf("rsp2: %+v\n", rsp2)
-
-	for i := 0; i < 10; i++ {
-		cc2.World(ctx2, &testPB.WorldReq{
-			Name: "abc",
-		})
-		time.Sleep(time.Second)
-	}
+	fmt.Printf("%+v\n", rsp)
 }
