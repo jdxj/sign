@@ -28,3 +28,7 @@ config.yaml
 *.dia*
 key_test.go
 *.run
+
+configs/ca.crt
+configs/client.crt
+configs/client.key
