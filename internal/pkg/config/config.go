@@ -18,6 +18,7 @@ type Root struct {
 	RPC       RPC       `yaml:"rpc"`
 	Rabbit    Rabbit    `yaml:"rabbit"`
 	Secret    Secret    `yaml:"secret"`
+	Etcd      Etcd      `yaml:"etcd"`
 }
 
 type Bot struct {

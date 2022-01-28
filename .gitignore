@@ -33,3 +33,4 @@ configs/ca.crt
 configs/client.crt
 configs/client.key
 configs/key.go
+configs/conf.yaml
