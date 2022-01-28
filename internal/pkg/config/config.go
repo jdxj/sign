@@ -56,11 +56,11 @@ type RDB struct {
 }
 
 type RPC struct {
-	EtcdAddr    string `yaml:"etcd_addr"`
-	CrontabPort int    `yaml:"crontab_port"`
-	SecretPort  int    `yaml:"secret_port"`
-	UserPort    int    `yaml:"user_port"`
-	NoticePort  int    `yaml:"notice_port"`
+	Port      int      `yaml:"port"`
+	Endpoints []string `yaml:"endpoints"`
+	Ca        string   `yaml:"ca"`
+	Cert      string   `yaml:"cert"`
+	Key       string   `yaml:"key"`
 }
 
 type Rabbit struct {
@@ -72,6 +72,13 @@ type Rabbit struct {
 
 type Secret struct {
 	Key string `yaml:"key"`
+}
+
+type Etcd struct {
+	Endpoints []string `yaml:"endpoints"`
+	Ca        string   `yaml:"ca"`
+	Cert      string   `yaml:"cert"`
+	Key       string   `yaml:"key"`
 }
 
 func ReadConfigs(path string) Root {

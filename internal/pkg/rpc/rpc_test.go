@@ -8,6 +8,7 @@ import (
 
 	clientV3 "go.etcd.io/etcd/client/v3"
 
+	"github.com/jdxj/sign/configs"
 	"github.com/jdxj/sign/internal/pkg/logger"
 )
 
@@ -42,4 +43,18 @@ func TestGetListenAddr(t *testing.T) {
 }
 
 func TestParseTarget(t *testing.T) {
+}
+
+func TestNewEtcdClient(t *testing.T) {
+	endpoints := []string{configs.EtcdEndpoint}
+	ws := "/Users/ing/workspace/sign/configs/"
+	ca := ws + "ca.crt"
+	crt := ws + "client.crt"
+	key := ws + "client.key"
+	client := NewEtcdClient(endpoints, ca, crt, key)
+	rsp, err := client.MemberList(context.Background())
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	fmt.Printf("rsp: %+v\n", rsp)
 }

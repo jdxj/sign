@@ -32,3 +32,4 @@ key_test.go
 configs/ca.crt
 configs/client.crt
 configs/client.key
+configs/key.go
