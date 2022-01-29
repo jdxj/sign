@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/jdxj/sign/internal/executor/task"
-	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 const (

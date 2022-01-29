@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	"github.com/jdxj/sign/internal/pkg/util"
-	"github.com/jdxj/sign/internal/proto/crontab"
-	secretPb "github.com/jdxj/sign/internal/proto/secret"
 	secretDao "github.com/jdxj/sign/internal/secret/dao/secret"
 )
 

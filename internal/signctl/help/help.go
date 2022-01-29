@@ -3,8 +3,6 @@ package help
 import (
 	"fmt"
 	"sort"
-
-	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 func AvailableDomain() string {

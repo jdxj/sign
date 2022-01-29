@@ -10,8 +10,6 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/rpc"
-	"github.com/jdxj/sign/internal/proto/crontab"
-	"github.com/jdxj/sign/internal/proto/secret"
 )
 
 var (

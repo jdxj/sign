@@ -6,8 +6,6 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/mq"
-	"github.com/jdxj/sign/internal/proto/crontab"
-	"github.com/jdxj/sign/internal/trigger/dao/task"
 )
 
 type job struct {

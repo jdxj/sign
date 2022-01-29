@@ -7,10 +7,13 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -162,4 +165,24 @@ func GetJson(url string, header map[string]string, rsp interface{}) error {
 
 	decoder := json.NewDecoder(httpRsp.Body)
 	return decoder.Decode(rsp)
+}
+
+func NewTLSConfig(ca, cert, key string) *tls.Config {
+	kp, err := tls.LoadX509KeyPair(cert, key)
+	if err != nil {
+		log.Printf("LoadX509KeyPair: %s\n", err)
+		return nil
+	}
+	d, err := os.ReadFile(ca)
+	if err != nil {
+		log.Printf("ReadFile: %s\n", err)
+		return nil
+	}
+	cp := x509.NewCertPool()
+	cp.AppendCertsFromPEM(d)
+	tc := &tls.Config{
+		Certificates: []tls.Certificate{kp},
+		RootCAs:      cp,
+	}
+	return tc
 }

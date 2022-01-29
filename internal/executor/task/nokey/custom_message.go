@@ -1,9 +1,5 @@
 package nokey
 
-import (
-	"github.com/jdxj/sign/internal/proto/crontab"
-)
-
 type CustomMessage struct{}
 
 func (cm *CustomMessage) Domain() crontab.Domain {

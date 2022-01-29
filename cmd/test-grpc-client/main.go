@@ -5,29 +5,44 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/asim/go-micro/plugins/registry/etcd/v4"
+	"github.com/urfave/cli/v2"
 	"go-micro.dev/v4"
+	"go-micro.dev/v4/registry"
 
 	"github.com/jdxj/sign/internal/pkg/config"
-	"github.com/jdxj/sign/internal/pkg/rpc"
-	test_grpc "github.com/jdxj/sign/internal/proto/test-grpc"
-
-	"github.com/asim/go-micro/plugins/registry/etcd/v4"
-	"go-micro.dev/v4/registry"
+	"github.com/jdxj/sign/internal/pkg/util"
+	testPB "github.com/jdxj/sign/internal/proto/test-grpc"
 )
 
 func main() {
-	root := config.ReadConfigs("/Users/ing/workspace/sign/configs/conf.yaml")
 	service := micro.NewService(
-		micro.Registry(
-			etcd.NewRegistry(
-				registry.Addrs(root.Etcd.Endpoints...),
-				registry.TLSConfig(rpc.NewTLSConfig(root.Etcd.Ca, root.Etcd.Cert, root.Etcd.Key)),
-			),
-		),
+		micro.Name("test-grpc-client"),
+		micro.Registry(etcd.NewRegistry()),
 	)
-	service.Init()
-	client := test_grpc.NewTestRPCService("test-grpc", service.Client())
-	rsp, err := client.Hello(context.Background(), &test_grpc.HelloReq{
+
+	service.Init(
+		micro.Action(func(cli *cli.Context) (err error) {
+			path := cli.String("config")
+			if path == "" {
+				return fmt.Errorf("config not found")
+			}
+			log.Printf(" config path:[%s]\n", path)
+
+			root := config.ReadConfigs(path)
+
+			return service.Options().
+				Registry.Init(
+				registry.Addrs(root.Etcd.Endpoints...),
+				registry.TLSConfig(
+					util.NewTLSConfig(root.Etcd.Ca, root.Etcd.Cert, root.Etcd.Key),
+				),
+			)
+		}),
+	)
+
+	client := testPB.NewTestRPCService("test-grpc", service.Client())
+	rsp, err := client.Hello(context.Background(), &testPB.HelloReq{
 		Name: "abc",
 	})
 	if err != nil {

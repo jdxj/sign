@@ -7,7 +7,6 @@ import (
 
 	"github.com/jdxj/sign/internal/executor/task"
 	"github.com/jdxj/sign/internal/pkg/util"
-	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 const (

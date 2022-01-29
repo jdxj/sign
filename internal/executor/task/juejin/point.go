@@ -1,9 +1,5 @@
 package juejin
 
-import (
-	"github.com/jdxj/sign/internal/proto/crontab"
-)
-
 type Point struct{}
 
 func (p *Point) Domain() crontab.Domain {

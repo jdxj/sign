@@ -13,8 +13,6 @@ import (
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
 
 	"net/url"
-
-	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 func init() {

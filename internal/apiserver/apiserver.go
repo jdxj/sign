@@ -14,8 +14,6 @@ import (
 	"github.com/jdxj/sign/internal/pkg/code"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/rpc"
-	"github.com/jdxj/sign/internal/proto/crontab"
-	"github.com/jdxj/sign/internal/proto/secret"
 	"github.com/jdxj/sign/internal/proto/user"
 )
 

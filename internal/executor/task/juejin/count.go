@@ -1,9 +1,5 @@
 package juejin
 
-import (
-	"github.com/jdxj/sign/internal/proto/crontab"
-)
-
 type Count struct{}
 
 func (cou *Count) Domain() crontab.Domain {

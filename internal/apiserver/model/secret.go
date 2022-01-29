@@ -6,8 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/jdxj/sign/internal/apiserver"
-	"github.com/jdxj/sign/internal/proto/crontab"
-	"github.com/jdxj/sign/internal/proto/secret"
 )
 
 type CreateSecretReq struct {

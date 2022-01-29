@@ -11,7 +11,6 @@ import (
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/rpc"
 	"github.com/jdxj/sign/internal/pkg/util"
-	"github.com/jdxj/sign/internal/proto/secret"
 	"github.com/jdxj/sign/internal/secret/service"
 )
 

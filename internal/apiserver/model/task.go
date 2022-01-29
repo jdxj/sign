@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/jdxj/sign/internal/apiserver"
-	"github.com/jdxj/sign/internal/proto/crontab"
 )
 
 type Hello struct {

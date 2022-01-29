@@ -1,9 +1,5 @@
 package juejin
 
-import (
-	"github.com/jdxj/sign/internal/proto/crontab"
-)
-
 type Calendar struct{}
 
 func (cal *Calendar) Domain() crontab.Domain {

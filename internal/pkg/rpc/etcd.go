@@ -32,21 +32,3 @@ func NewEtcdClient(endpoints []string, ca, cert, key string) *etcd.Client {
 	}
 	return c
 }
-
-func NewTLSConfig(ca, cert, key string) *tls.Config {
-	kp, err := tls.LoadX509KeyPair(cert, key)
-	if err != nil {
-		panic(err)
-	}
-	d, err := os.ReadFile(ca)
-	if err != nil {
-		panic(err)
-	}
-	cp := x509.NewCertPool()
-	cp.AppendCertsFromPEM(d)
-	tc := &tls.Config{
-		Certificates: []tls.Certificate{kp},
-		RootCAs:      cp,
-	}
-	return tc
-}
