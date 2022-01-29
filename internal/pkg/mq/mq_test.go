@@ -82,17 +82,3 @@ func TestNewTaskQueue(t *testing.T) {
 	tq2.Stop()
 	tq3.Stop()
 }
-
-func TestSignal(t *testing.T) {
-	ch, err := Conn.Channel()
-	if err != nil {
-		t.Fatalf("%s\n", err)
-	}
-	err = ch.ExchangeDeclare("test-e", "topic", true, false, false, false, nil)
-	if err != nil {
-		t.Fatalf("%s\n", err)
-	}
-
-	ch.QueueDeclare()
-	ch.QueueDeclare()
-}
