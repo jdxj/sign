@@ -1,16 +1,21 @@
 package main
 
 import (
-	"os"
+	"fmt"
+	"log"
 
-	"github.com/spf13/pflag"
+	"github.com/asim/go-micro/plugins/registry/etcd/v4"
+	"github.com/urfave/cli/v2"
+	"go-micro.dev/v4"
+	"go-micro.dev/v4/registry"
 
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/db"
 	"github.com/jdxj/sign/internal/pkg/logger"
-	"github.com/jdxj/sign/internal/pkg/mq"
 	"github.com/jdxj/sign/internal/pkg/util"
-	"github.com/jdxj/sign/internal/trigger"
+	"github.com/jdxj/sign/internal/proto/task"
+	pb "github.com/jdxj/sign/internal/proto/trigger"
+	impl "github.com/jdxj/sign/internal/trigger/service"
 )
 
 const (
@@ -18,22 +23,57 @@ const (
 )
 
 func main() {
-	flagSet := pflag.NewFlagSet(serviceName, pflag.ExitOnError)
-	file := flagSet.StringP("file", "f", "config.yaml", "configure path")
-	_ = flagSet.Parse(os.Args) // 忽略 err, 因为使用了 ExitOnError
+	service := micro.NewService(
+		micro.Name(serviceName),
+		micro.Registry(etcd.NewRegistry()),
+	)
 
-	root := config.ReadConfigs(*file)
-	logger.Init(root.Logger.Path+serviceName+".log",
-		logger.WithMode(root.Logger.Mode))
+	service.Init(
+		micro.Action(func(cli *cli.Context) (err error) {
+			path := cli.String("config")
+			if path == "" {
+				return fmt.Errorf("config not found")
+			}
+			log.Printf(" config path:[%s]\n", path)
 
-	dbConf := root.DB
-	db.InitGorm(dbConf)
+			root := config.ReadConfigs(path)
 
-	rabbitConf := root.Rabbit
-	mq.InitRabbit(rabbitConf)
+			err = service.Options().
+				Registry.Init(
+				registry.Addrs(root.Etcd.Endpoints...),
+				registry.TLSConfig(
+					util.NewTLSConfig(root.Etcd.Ca, root.Etcd.Cert, root.Etcd.Key),
+				),
+			)
+			if err != nil {
+				return
+			}
 
-	trg := trigger.New(dbConf)
-	trg.Start()
-	util.Hold()
-	trg.Stop()
+			err = db.InitGorm(root.DB)
+			if err != nil {
+				return
+			}
+
+			logger.Init("")
+			return nil
+		}),
+	)
+
+	// todo: const service name
+	impl.TaskService = task.NewTaskService("task", service.Client())
+
+	iService := impl.New()
+	err := iService.Init()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = pb.RegisterTriggerServiceHandler(service.Server(), impl.New())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if err := service.Run(); err != nil {
+		log.Printf("Run: %s\n", err)
+	}
 }

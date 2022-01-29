@@ -5,6 +5,10 @@ type Specification struct {
 	Spec   string
 }
 
+func (Specification) TableName() string {
+	return TableName
+}
+
 const (
 	TableName = "specification"
 )
