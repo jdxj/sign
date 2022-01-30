@@ -8,6 +8,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/jdxj/sign/internal/pkg/db"
+	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/proto/trigger"
 	"github.com/jdxj/sign/internal/trigger/dao"
 )
@@ -21,6 +22,7 @@ func (s *Service) CreateTrigger(ctx context.Context, req *trigger.CreateTriggerR
 
 	// 存在直接返回
 	if s.hasAndAdd(spec) {
+		logger.Debugf("spec: %s exists", spec)
 		return nil
 	}
 

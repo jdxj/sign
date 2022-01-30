@@ -19,6 +19,7 @@ func New() *Service {
 		parser: cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),
 	}
 	s.cron = cron.New(cron.WithParser(s.parser))
+	s.start()
 	return s
 }
 
@@ -31,7 +32,7 @@ type Service struct {
 	parser cron.Parser
 }
 
-func (s *Service) Init() error {
+func (s *Service) start() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -40,7 +41,7 @@ func (s *Service) Init() error {
 		Find(&rows).
 		Error
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	for _, v := range rows {
@@ -48,10 +49,11 @@ func (s *Service) Init() error {
 		_, err := s.cron.AddJob(v.Spec, newJob(v.Spec))
 		if err != nil {
 			logger.Errorf("AddFunc: %s, specID: %d\n", err, v.SpecID)
-			return err
+			continue
 		}
+		logger.Debugf("AddJob-specID: %d", v.SpecID)
 	}
-	return nil
+	s.cron.Start()
 }
 
 func (s *Service) hasAndAdd(spec string) bool {
@@ -64,4 +66,8 @@ func (s *Service) hasAndAdd(spec string) bool {
 	}
 	s.specs[spec] = struct{}{}
 	return false
+}
+
+func (s *Service) Stop() {
+	<-s.cron.Stop().Done()
 }

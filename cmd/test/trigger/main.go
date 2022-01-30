@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/asim/go-micro/plugins/registry/etcd/v4"
 	"github.com/urfave/cli/v2"
@@ -12,11 +13,12 @@ import (
 
 	"github.com/jdxj/sign/configs"
 	"github.com/jdxj/sign/internal/pkg/util"
-	"github.com/jdxj/sign/internal/proto/trigger"
+	pb "github.com/jdxj/sign/internal/proto/trigger"
 )
 
 func main() {
 	service := micro.NewService(
+		micro.Name("test-trigger"),
 		micro.Registry(etcd.NewRegistry()))
 	service.Init(
 		micro.Action(func(cli *cli.Context) error {
@@ -29,24 +31,36 @@ func main() {
 						configs.Cert,
 						configs.Key)))
 		}))
-	triggerService := trigger.NewTriggerService("trigger", service.Client())
 
-	rsp, err := triggerService.CreateTrigger(context.Background(), &trigger.CreateTriggerRequest{
-		Trigger: &trigger.Trigger{
-			Spec: "0 8 * * *",
-		},
-	})
-	if err != nil {
-		log.Fatalf("%s\n", err)
-	}
-	fmt.Printf("%s\n", rsp)
+	triggerService := pb.NewTriggerService(pb.ServiceName, service.Client())
 
-	getRsp, err := triggerService.GetTriggers(context.Background(), &trigger.GetTriggersRequest{
-		Offset: 0,
-		Limit:  10,
-	})
-	if err != nil {
-		log.Fatalln(err)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	testCreateTrigger := func() {
+		ctRsp, err := triggerService.CreateTrigger(ctx, &pb.CreateTriggerRequest{
+			Trigger: &pb.Trigger{
+				Spec: "0 8 * * *",
+			},
+		})
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Printf("ctRsp: %+v\n", ctRsp)
 	}
-	fmt.Printf("getRsp: %+v\n", getRsp)
+	testCreateTrigger()
+
+	testGetTriggers := func() {
+		gtRsp, err := triggerService.GetTriggers(ctx, &pb.GetTriggersRequest{
+			Offset: 0,
+			Limit:  1000,
+		})
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Printf("gtRsp: %+v\n", gtRsp)
+	}
+	testGetTriggers()
 }

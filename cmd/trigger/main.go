@@ -13,7 +13,6 @@ import (
 	"github.com/jdxj/sign/internal/pkg/db"
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/util"
-	"github.com/jdxj/sign/internal/proto/task"
 	pb "github.com/jdxj/sign/internal/proto/trigger"
 	impl "github.com/jdxj/sign/internal/trigger/service"
 )
@@ -53,22 +52,20 @@ func main() {
 			logger.Init("")
 			return nil
 		}),
+
+		micro.BeforeStart(func() error {
+			return impl.Init(service.Client())
+		}),
 	)
 
-	impl.TaskService = task.NewTaskService(task.ServiceName, service.Client())
-
-	iService := impl.New()
-	err := iService.Init()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	err = pb.RegisterTriggerServiceHandler(service.Server(), iService)
+	srv := impl.New()
+	err := pb.RegisterTriggerServiceHandler(service.Server(), srv)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	if err := service.Run(); err != nil {
-		log.Fatalln(err)
+		log.Printf("Run: %s\n", err)
 	}
+	srv.Stop()
 }

@@ -22,11 +22,9 @@ func (j *job) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := TaskService.DispatchTasks(
-		ctx,
-		&task.DispatchTasksRequest{Spec: j.spec},
-	)
+	_, err := taskService.DispatchTasks(ctx, &task.DispatchTasksRequest{Spec: j.spec})
 	if err != nil {
 		logger.Errorf("DispatchTasks: %s", err)
 	}
+	logger.Debugf("DispatchTasks-spec: %s", j.spec)
 }

@@ -5,7 +5,7 @@ type Specification struct {
 	Spec   string
 }
 
-func (Specification) TableName() string {
+func (*Specification) TableName() string {
 	return TableName
 }
 
