@@ -42,8 +42,6 @@ type TaskService interface {
 	GetTask(ctx context.Context, in *GetTaskRequest, opts ...client.CallOption) (*GetTaskResponse, error)
 	GetTasks(ctx context.Context, in *GetTasksRequest, opts ...client.CallOption) (*GetTasksResponse, error)
 	UpdateTask(ctx context.Context, in *UpdateTaskRequest, opts ...client.CallOption) (*emptypb.Empty, error)
-	GetTaskKinds(ctx context.Context, in *emptypb.Empty, opts ...client.CallOption) (*GetTaskKindsResponse, error)
-	GetTaskInputs(ctx context.Context, in *GetTaskInputsRequest, opts ...client.CallOption) (*GetTaskInputsResponse, error)
 	DispatchTasks(ctx context.Context, in *DispatchTasksRequest, opts ...client.CallOption) (*emptypb.Empty, error)
 }
 
@@ -99,26 +97,6 @@ func (c *taskService) UpdateTask(ctx context.Context, in *UpdateTaskRequest, opt
 	return out, nil
 }
 
-func (c *taskService) GetTaskKinds(ctx context.Context, in *emptypb.Empty, opts ...client.CallOption) (*GetTaskKindsResponse, error) {
-	req := c.c.NewRequest(c.name, "TaskService.GetTaskKinds", in)
-	out := new(GetTaskKindsResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *taskService) GetTaskInputs(ctx context.Context, in *GetTaskInputsRequest, opts ...client.CallOption) (*GetTaskInputsResponse, error) {
-	req := c.c.NewRequest(c.name, "TaskService.GetTaskInputs", in)
-	out := new(GetTaskInputsResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *taskService) DispatchTasks(ctx context.Context, in *DispatchTasksRequest, opts ...client.CallOption) (*emptypb.Empty, error) {
 	req := c.c.NewRequest(c.name, "TaskService.DispatchTasks", in)
 	out := new(emptypb.Empty)
@@ -136,8 +114,6 @@ type TaskServiceHandler interface {
 	GetTask(context.Context, *GetTaskRequest, *GetTaskResponse) error
 	GetTasks(context.Context, *GetTasksRequest, *GetTasksResponse) error
 	UpdateTask(context.Context, *UpdateTaskRequest, *emptypb.Empty) error
-	GetTaskKinds(context.Context, *emptypb.Empty, *GetTaskKindsResponse) error
-	GetTaskInputs(context.Context, *GetTaskInputsRequest, *GetTaskInputsResponse) error
 	DispatchTasks(context.Context, *DispatchTasksRequest, *emptypb.Empty) error
 }
 
@@ -147,8 +123,6 @@ func RegisterTaskServiceHandler(s server.Server, hdlr TaskServiceHandler, opts .
 		GetTask(ctx context.Context, in *GetTaskRequest, out *GetTaskResponse) error
 		GetTasks(ctx context.Context, in *GetTasksRequest, out *GetTasksResponse) error
 		UpdateTask(ctx context.Context, in *UpdateTaskRequest, out *emptypb.Empty) error
-		GetTaskKinds(ctx context.Context, in *emptypb.Empty, out *GetTaskKindsResponse) error
-		GetTaskInputs(ctx context.Context, in *GetTaskInputsRequest, out *GetTaskInputsResponse) error
 		DispatchTasks(ctx context.Context, in *DispatchTasksRequest, out *emptypb.Empty) error
 	}
 	type TaskService struct {
@@ -176,14 +150,6 @@ func (h *taskServiceHandler) GetTasks(ctx context.Context, in *GetTasksRequest, 
 
 func (h *taskServiceHandler) UpdateTask(ctx context.Context, in *UpdateTaskRequest, out *emptypb.Empty) error {
 	return h.TaskServiceHandler.UpdateTask(ctx, in, out)
-}
-
-func (h *taskServiceHandler) GetTaskKinds(ctx context.Context, in *emptypb.Empty, out *GetTaskKindsResponse) error {
-	return h.TaskServiceHandler.GetTaskKinds(ctx, in, out)
-}
-
-func (h *taskServiceHandler) GetTaskInputs(ctx context.Context, in *GetTaskInputsRequest, out *GetTaskInputsResponse) error {
-	return h.TaskServiceHandler.GetTaskInputs(ctx, in, out)
 }
 
 func (h *taskServiceHandler) DispatchTasks(ctx context.Context, in *DispatchTasksRequest, out *emptypb.Empty) error {

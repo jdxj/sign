@@ -1,5 +1,5 @@
 # components := apiserver.out crontab.out executor.out notice.out secret.out trigger.out user.out
-components := trigger.out user.out notice.out
+components := trigger.out user.out notice.out task.out
 images := $(subst .out,,$(components))
 
 .PHONY: all

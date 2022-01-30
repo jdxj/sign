@@ -110,6 +110,9 @@ func (srv *Service) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest, _
 	if contact.GetTelegram() != 0 {
 		data["telegram"] = contact.GetTelegram()
 	}
+	if len(data) == 0 {
+		return nil
+	}
 
 	err := db.WithCtx(ctx).
 		Table(dao.TableName).

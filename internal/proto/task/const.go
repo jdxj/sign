@@ -2,8 +2,6 @@ package task
 
 const (
 	ServiceName = "task"
-)
-
-const (
-	ExchangeName = "task"
+	Topic       = "task-dispatch"
+	Queue       = "consume-task"
 )

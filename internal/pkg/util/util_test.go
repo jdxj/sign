@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bytes"
 	"fmt"
 	"testing"
 )
@@ -29,9 +30,9 @@ func TestLen(t *testing.T) {
 func TestEncrypt(t *testing.T) {
 	key := "abc"
 	text := "def"
-	res := Encrypt(key, "def")
-	plaintext := Decrypt(key, res)
-	if text != plaintext {
+	res := Encrypt([]byte(key), []byte(text))
+	plaintext := Decrypt([]byte(key), res)
+	if !bytes.Equal([]byte(text), plaintext) {
 		t.Fatalf("err encrypt or decrypt")
 	}
 }
