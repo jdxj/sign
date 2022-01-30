@@ -14,9 +14,9 @@ import (
 
 func New() *Service {
 	s := &Service{
-		mutex:   &sync.RWMutex{},
-		specIDs: make(map[string]struct{}),
-		parser:  cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),
+		mutex:  &sync.RWMutex{},
+		specs:  make(map[string]struct{}),
+		parser: cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),
 	}
 	s.cron = cron.New(cron.WithParser(s.parser))
 	return s
@@ -24,8 +24,8 @@ func New() *Service {
 
 type Service struct {
 	// 防止重复建立定时器
-	mutex   *sync.RWMutex
-	specIDs map[string]struct{}
+	mutex *sync.RWMutex
+	specs map[string]struct{}
 
 	cron   *cron.Cron
 	parser cron.Parser
@@ -44,7 +44,7 @@ func (s *Service) Init() error {
 	}
 
 	for _, v := range rows {
-		s.specIDs[v.Spec] = struct{}{}
+		s.specs[v.Spec] = struct{}{}
 		_, err := s.cron.AddJob(v.Spec, newJob(v.Spec))
 		if err != nil {
 			logger.Errorf("AddFunc: %s, specID: %d\n", err, v.SpecID)
@@ -58,10 +58,10 @@ func (s *Service) hasAndAdd(spec string) bool {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	_, exists := s.specIDs[spec]
+	_, exists := s.specs[spec]
 	if exists {
 		return true
 	}
-	s.specIDs[spec] = struct{}{}
+	s.specs[spec] = struct{}{}
 	return false
 }

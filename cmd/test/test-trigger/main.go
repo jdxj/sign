@@ -40,4 +40,13 @@ func main() {
 		log.Fatalf("%s\n", err)
 	}
 	fmt.Printf("%s\n", rsp)
+
+	getRsp, err := triggerService.GetTriggers(context.Background(), &trigger.GetTriggersRequest{
+		Offset: 0,
+		Limit:  10,
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Printf("getRsp: %+v\n", getRsp)
 }

@@ -40,6 +40,34 @@ func (s *Service) CreateTrigger(ctx context.Context, req *trigger.CreateTriggerR
 }
 
 func (s *Service) GetTriggers(ctx context.Context, req *trigger.GetTriggersRequest, rsp *trigger.GetTriggersResponse) error {
-	// todo: implement
-	return status.Errorf(codes.Unimplemented, "GetTriggers")
+	if req.GetOffset() < 0 || req.GetLimit() < 1 {
+		return status.Errorf(codes.InvalidArgument, "invalid params")
+	}
+
+	err := db.WithCtx(ctx).
+		Table(dao.TableName).
+		Count(&rsp.Count).
+		Error
+	if err != nil {
+		return status.Errorf(codes.Internal, err.Error())
+	}
+
+	var rows []dao.Specification
+	err = db.WithCtx(ctx).
+		Order("spec_id").
+		Offset(int(req.GetOffset())).
+		Limit(int(req.GetLimit())).
+		Find(&rows).Error
+	if err != nil {
+		return status.Errorf(codes.Internal, err.Error())
+	}
+
+	for _, row := range rows {
+		t := &trigger.Trigger{
+			TriggerId: row.SpecID,
+			Spec:      row.Spec,
+		}
+		rsp.Triggers = append(rsp.Triggers, t)
+	}
+	return nil
 }

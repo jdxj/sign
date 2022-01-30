@@ -68,7 +68,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	err = pb.RegisterTriggerServiceHandler(service.Server(), impl.New())
+	err = pb.RegisterTriggerServiceHandler(service.Server(), iService)
 	if err != nil {
 		log.Fatalln(err)
 	}
