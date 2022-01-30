@@ -16,6 +16,10 @@ type User struct {
 	DeletedAt time.Time
 }
 
+func (u *User) TableName() string {
+	return TableName
+}
+
 const (
 	TableName = "user"
 )

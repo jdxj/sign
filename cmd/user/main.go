@@ -11,7 +11,6 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/db"
-	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/util"
 	pb "github.com/jdxj/sign/internal/proto/user"
 	impl "github.com/jdxj/sign/internal/user/service"
@@ -45,12 +44,7 @@ func main() {
 			}
 
 			err = db.InitGorm(root.DB)
-			if err != nil {
-				return
-			}
-
-			logger.Init("")
-			return nil
+			return
 		}),
 	)
 

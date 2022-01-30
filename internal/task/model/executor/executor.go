@@ -16,12 +16,13 @@ import (
 )
 
 type Executor interface {
+	Kind() string
 	Execute([]byte) (string, error)
 }
 
 var (
 	executors = map[string]Executor{
-		pb.Kind_BILIBILI_SIGN_IN.String(): nil,
+		pb.Kind_MOCK.String(): &mockExecutor{},
 	}
 )
 

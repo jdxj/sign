@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 
 	"github.com/jdxj/sign/internal/pkg/db"
 	"github.com/jdxj/sign/internal/pkg/util"
@@ -53,6 +55,7 @@ func (srv *Service) CreateUser(ctx context.Context, req *pb.CreateUserRequest, r
 	}
 
 	err := db.WithCtx(ctx).
+		Select("nickname", "password", "salt", "mail", "telegram").
 		Create(&user).
 		Error
 	if err != nil {
@@ -72,7 +75,9 @@ func (srv *Service) GetUser(ctx context.Context, req *pb.GetUserRequest, rsp *pb
 		Where("user_id = ?", req.GetUserID()).
 		Take(&row).
 		Error
-	if err != nil {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	} else if err != nil {
 		return status.Errorf(codes.Internal, "Take: %s", err)
 	}
 

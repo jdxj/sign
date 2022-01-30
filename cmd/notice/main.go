@@ -11,7 +11,6 @@ import (
 
 	impl "github.com/jdxj/sign/internal/notice/service"
 	"github.com/jdxj/sign/internal/pkg/config"
-	"github.com/jdxj/sign/internal/pkg/db"
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/util"
 	pb "github.com/jdxj/sign/internal/proto/notice"
@@ -43,11 +42,6 @@ func main() {
 					util.NewTLSConfig(root.Etcd.Ca, root.Etcd.Cert, root.Etcd.Key),
 				),
 			)
-			if err != nil {
-				return
-			}
-
-			err = db.InitGorm(root.DB)
 			if err != nil {
 				return
 			}

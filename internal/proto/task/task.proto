@@ -63,6 +63,7 @@ message UpdateTaskRequest {
 // Kind 使用时要用字符串形式
 enum Kind {
   UNKNOWN_KIND = 0;
+  MOCK = 12;
   // B站
   BILIBILI_SIGN_IN = 1;
   BILIBILI_B_COUNT = 2;

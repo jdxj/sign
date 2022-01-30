@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log"
 
 	bot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"google.golang.org/grpc/codes"
@@ -23,6 +24,7 @@ func New(conf config.Bot) *Service {
 		panic(ErrInvalidConfig)
 	}
 	srv := &Service{}
+	log.Printf("new bot api...")
 	client, err := bot.NewBotAPI(conf.Token)
 	if err != nil {
 		panic(err)
