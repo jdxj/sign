@@ -55,8 +55,7 @@ func main() {
 		}),
 	)
 
-	// todo: const service name
-	impl.TaskService = task.NewTaskService("task", service.Client())
+	impl.TaskService = task.NewTaskService(task.ServiceName, service.Client())
 
 	iService := impl.New()
 	err := iService.Init()

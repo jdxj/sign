@@ -10,10 +10,10 @@ type Task struct {
 	UserID    int64
 	Kind      string
 	Spec      string
+	Param     []byte
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt time.Time
-	Param     []byte
 }
 
 const (
