@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"google.golang.org/grpc/codes"
@@ -15,13 +14,7 @@ import (
 	"github.com/jdxj/sign/internal/pkg/util"
 	pb "github.com/jdxj/sign/internal/proto/task"
 	"github.com/jdxj/sign/internal/proto/trigger"
-	"github.com/jdxj/sign/internal/task/client"
 	"github.com/jdxj/sign/internal/task/dao"
-	"github.com/jdxj/sign/internal/task/model"
-)
-
-var (
-	ErrKindNotFound = errors.New("kind not found")
 )
 
 func New(conf config.Secret) *Service {
@@ -45,7 +38,7 @@ func (s *Service) CreateTask(ctx context.Context, req *pb.CreateTaskRequest, rsp
 		return status.Errorf(codes.Internal, "invalid kind")
 	}
 
-	_, err := client.TriggerService.CreateTrigger(ctx, &trigger.CreateTriggerRequest{Trigger: &trigger.Trigger{
+	_, err := triggerService.CreateTrigger(ctx, &trigger.CreateTriggerRequest{Trigger: &trigger.Trigger{
 		Spec: task.GetSpec(),
 	}})
 	if err != nil {
@@ -53,19 +46,20 @@ func (s *Service) CreateTask(ctx context.Context, req *pb.CreateTaskRequest, rsp
 	}
 
 	row := dao.Task{
-		Describe: task.GetDescription(),
-		UserID:   task.GetUserId(),
-		Kind:     task.GetKind(),
-		Spec:     task.GetSpec(),
-		Param:    util.Encrypt(s.key, task.GetParam()),
+		Description: task.GetDescription(),
+		UserID:      task.GetUserId(),
+		Kind:        task.GetKind(),
+		Spec:        task.GetSpec(),
+		Param:       util.Encrypt(s.key, task.GetParam()),
 	}
 	err = db.WithCtx(ctx).
-		Select("describe", "user_id", "kind", "spec", "param").
-		Create(row).
+		Select("description", "user_id", "kind", "spec", "param").
+		Create(&row).
 		Error
 	if err != nil {
 		return status.Errorf(codes.Internal, "Create: %s", err)
 	}
+	rsp.TaskId = row.TaskID
 	return nil
 }
 
@@ -85,7 +79,7 @@ func (s *Service) GetTask(ctx context.Context, req *pb.GetTaskRequest, rsp *pb.G
 
 	rsp.Task = &pb.Task{
 		TaskId:      row.TaskID,
-		Description: row.Describe,
+		Description: row.Description,
 		UserId:      row.UserID,
 		Kind:        row.Kind,
 		Spec:        row.Spec,
@@ -101,12 +95,12 @@ func (s *Service) GetTasks(ctx context.Context, req *pb.GetTasksRequest, rsp *pb
 	}
 
 	db := db.WithCtx(ctx).
-		Table(dao.TableName)
+		Model(&dao.Task{})
 	if req.GetTaskId() != 0 {
 		db.Where("task_id = ?", req.GetTaskId())
 	}
 	if req.GetDescription() != "" {
-		db.Where("describe LIKE ?", fmt.Sprintf("%%%s%%", req.GetDescription()))
+		db.Where("description LIKE ?", fmt.Sprintf("%%%s%%", req.GetDescription()))
 	}
 	if req.GetUserId() != 0 {
 		db.Where("user_id = ?", req.GetUserId())
@@ -139,7 +133,7 @@ func (s *Service) GetTasks(ctx context.Context, req *pb.GetTasksRequest, rsp *pb
 	for _, row := range rows {
 		t := &pb.Task{
 			TaskId:      row.TaskID,
-			Description: row.Describe,
+			Description: row.Description,
 			UserId:      row.UserID,
 			Kind:        row.Kind,
 			Spec:        row.Spec,
@@ -159,7 +153,7 @@ func (s *Service) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest, _ *
 
 	data := make(map[string]interface{})
 	if task.GetDescription() != "" {
-		data["describe"] = task.GetDescription()
+		data["description"] = task.GetDescription()
 	}
 	if task.GetKind() != "" {
 		if _, ok := pb.Kind_value[task.GetKind()]; !ok || task.GetKind() == pb.Kind_UNKNOWN_KIND.String() {
@@ -168,7 +162,7 @@ func (s *Service) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest, _ *
 		data["kind"] = task.GetKind()
 	}
 	if task.GetSpec() != "" {
-		_, err := client.TriggerService.CreateTrigger(ctx, &trigger.CreateTriggerRequest{Trigger: &trigger.Trigger{
+		_, err := triggerService.CreateTrigger(ctx, &trigger.CreateTriggerRequest{Trigger: &trigger.Trigger{
 			Spec: task.GetSpec(),
 		}})
 		if err != nil {
@@ -184,7 +178,7 @@ func (s *Service) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest, _ *
 	}
 
 	err := db.WithCtx(ctx).
-		Table(dao.TableName).
+		Model(&dao.Task{}).
 		Where("task_id = ?", task.GetTaskId()).
 		Updates(data).
 		Error
@@ -195,7 +189,7 @@ func (s *Service) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest, _ *
 }
 
 func (s *Service) DispatchTasks(_ context.Context, req *pb.DispatchTasksRequest, _ *emptypb.Empty) error {
-	err := client.GPool.Submit(model.NewJob(s.key, req.GetSpec()).DispatchTasks)
+	err := gPool.Submit(newJob(s.key, req.GetSpec()).dispatchTasks)
 	if err != nil {
 		return status.Errorf(codes.Internal, "Submit: %s", err)
 	}

@@ -1,4 +1,4 @@
-package model
+package service
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/util"
 	pb "github.com/jdxj/sign/internal/proto/task"
-	"github.com/jdxj/sign/internal/task/client"
 )
 
 type dispatchTask struct {
@@ -26,19 +25,19 @@ func (dt *dispatchTask) TableName() string {
 	return "task"
 }
 
-func NewJob(key []byte, spec string) *Job {
-	return &Job{
+func newJob(key []byte, spec string) *job {
+	return &job{
 		key:  key,
 		spec: spec,
 	}
 }
 
-type Job struct {
+type job struct {
 	key  []byte
 	spec string
 }
 
-func (j *Job) DispatchTasks() {
+func (j *job) dispatchTasks() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -63,12 +62,12 @@ func (j *Job) DispatchTasks() {
 		}
 		body, err := proto.Marshal(task)
 		if err != nil {
-			logger.Errorf("Marshal: %s", err)
+			logger.Errorf("Marshal: %s, taskId: %d", err, row.TaskID)
 			continue
 		}
-		err = client.MQ.Publish(pb.Topic, &broker.Message{Body: body})
+		err = mq.Publish(pb.Topic, &broker.Message{Body: body})
 		if err != nil {
-			logger.Errorf("Publish: %s", err)
+			logger.Errorf("Publish: %s, taskId: %d", err, row.TaskID)
 			continue
 		}
 	}

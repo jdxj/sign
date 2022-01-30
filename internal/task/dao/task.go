@@ -5,17 +5,17 @@ import (
 )
 
 type Task struct {
-	TaskID    int64 `gorm:"primaryKey"`
-	Describe  string
-	UserID    int64
-	Kind      string
-	Spec      string
-	Param     []byte
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt time.Time
+	TaskID      int64 `gorm:"primaryKey"`
+	Description string
+	UserID      int64
+	Kind        string
+	Spec        string
+	Param       []byte
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   time.Time
 }
 
-const (
-	TableName = "task"
-)
+func (t *Task) TableName() string {
+	return "task"
+}
