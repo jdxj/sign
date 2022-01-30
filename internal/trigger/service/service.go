@@ -25,7 +25,7 @@ func (s *Service) CreateTrigger(ctx context.Context, req *trigger.CreateTriggerR
 	}
 
 	// 不存在则添加
-	err = db.WithCtx(ctx).Create(dao.Specification{
+	err = db.WithCtx(ctx).Create(&dao.Specification{
 		Spec: spec,
 	}).Error
 	if err != nil {

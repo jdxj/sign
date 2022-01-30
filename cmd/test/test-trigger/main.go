@@ -33,7 +33,7 @@ func main() {
 
 	rsp, err := triggerService.CreateTrigger(context.Background(), &trigger.CreateTriggerRequest{
 		Trigger: &trigger.Trigger{
-			Spec: "* *",
+			Spec: "0 8 * * *",
 		},
 	})
 	if err != nil {
