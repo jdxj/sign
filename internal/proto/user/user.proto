@@ -5,51 +5,51 @@ import "google/protobuf/empty.proto";
 option go_package = "github.com/jdxj/sign/internal/proto/user";
 
 service UserService {
-    rpc AuthUser(AuthUserReq) returns(AuthUserRsp);
+  rpc AuthUser(AuthUserReq) returns(AuthUserRsp);
 
-    rpc CreateUser(CreateUserRequest) returns(CreateUserResponse);
-    rpc GetUser(GetUserRequest) returns(GetUserResponse);
-    rpc UpdateUser(UpdateUserRequest) returns (google.protobuf.Empty);
+  rpc CreateUser(CreateUserRequest) returns(CreateUserResponse);
+  rpc GetUser(GetUserRequest) returns(GetUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (google.protobuf.Empty);
 }
 
 message AuthUserReq {
-    string Nickname = 1;
-    string Password = 2;
+  string Nickname = 1;
+  string Password = 2;
 }
 
 message AuthUserRsp {
-    bool Valid = 1;
-    int64 UserID = 2;
+  bool Valid = 1;
+  int64 UserID = 2;
 }
 
 message Contact {
-    string mail = 1;
-    string telegram = 2;
+  string mail = 1;
+  int64 telegram = 2;
 }
 
 message User {
-   int64 user_id = 1;
-   string nickname = 2;
-   string password = 3;
-   Contact contact = 4;
+  int64 user_id = 1;
+  string nickname = 2;
+  string password = 3;
+  Contact contact = 4;
 }
 
 message CreateUserRequest {
-    User user = 1;
+  User user = 1;
 }
 
 message CreateUserResponse {
-    int64 UserID = 1;
+  int64 UserID = 1;
 }
 
 message GetUserRequest {
-    int64 UserID = 1;
+  int64 UserID = 1;
 }
 
 message GetUserResponse {
-    User user = 1;
+  User user = 1;
 }
 
 message UpdateUserRequest {
-    User user = 1;
+  User user = 1;
 }

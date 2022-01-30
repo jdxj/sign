@@ -22,8 +22,7 @@ type Root struct {
 }
 
 type Bot struct {
-	Token  string `yaml:"token"`
-	ChatID int64  `yaml:"chat_id"`
+	Token string `yaml:"token"`
 }
 
 type Logger struct {
