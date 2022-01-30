@@ -5,19 +5,18 @@ import "google/protobuf/empty.proto";
 option go_package = "github.com/jdxj/sign/internal/proto/user";
 
 service UserService {
-  rpc AuthUser(AuthUserReq) returns(AuthUserRsp);
-
+  rpc AuthUser(AuthUserRequest) returns(AuthUserResponse);
   rpc CreateUser(CreateUserRequest) returns(CreateUserResponse);
   rpc GetUser(GetUserRequest) returns(GetUserResponse);
   rpc UpdateUser(UpdateUserRequest) returns (google.protobuf.Empty);
 }
 
-message AuthUserReq {
+message AuthUserRequest {
   string Nickname = 1;
   string Password = 2;
 }
 
-message AuthUserRsp {
+message AuthUserResponse {
   bool Valid = 1;
   int64 UserID = 2;
 }

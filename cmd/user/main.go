@@ -1,45 +1,65 @@
 package main
 
 import (
-	"os"
+	"fmt"
+	"log"
 
-	"github.com/spf13/pflag"
-	"google.golang.org/grpc"
+	"github.com/asim/go-micro/plugins/registry/etcd/v4"
+	"github.com/urfave/cli/v2"
+	"go-micro.dev/v4"
+	"go-micro.dev/v4/registry"
 
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/db"
 	"github.com/jdxj/sign/internal/pkg/logger"
-	"github.com/jdxj/sign/internal/pkg/rpc"
 	"github.com/jdxj/sign/internal/pkg/util"
-	"github.com/jdxj/sign/internal/proto/user"
-	"github.com/jdxj/sign/internal/user/service"
+	pb "github.com/jdxj/sign/internal/proto/user"
+	impl "github.com/jdxj/sign/internal/user/service"
 )
 
 func main() {
-	flagSet := pflag.NewFlagSet(user.ServiceName, pflag.ExitOnError)
-	file := flagSet.StringP("file", "f", "config.yaml", "configure path")
-	_ = flagSet.Parse(os.Args) // 忽略 err, 因为使用了 ExitOnError
+	service := micro.NewService(
+		micro.Name(pb.ServiceName),
+		micro.Registry(etcd.NewRegistry()),
+	)
 
-	root := config.ReadConfigs(*file)
-	loggerConf := root.Logger
-	logger.Init(loggerConf.Path+user.ServiceName+".log",
-		logger.WithMode(loggerConf.Mode))
+	service.Init(
+		micro.Action(func(cli *cli.Context) (err error) {
+			path := cli.String("config")
+			if path == "" {
+				return fmt.Errorf("config not found")
+			}
+			log.Printf(" config path:[%s]\n", path)
 
-	dbConf := root.DB
-	db.InitGorm(dbConf)
+			root := config.ReadConfigs(path)
 
-	rpcConf := root.RPC
-	server, err := rpc.NewServer(user.ServiceName,
-		rpcConf.EtcdAddr, rpcConf.UserPort, rpc.WithMod(loggerConf.Mode))
+			err = service.Options().
+				Registry.Init(
+				registry.Addrs(root.Etcd.Endpoints...),
+				registry.TLSConfig(
+					util.NewTLSConfig(root.Etcd.Ca, root.Etcd.Cert, root.Etcd.Key),
+				),
+			)
+			if err != nil {
+				return
+			}
+
+			err = db.InitGorm(root.DB)
+			if err != nil {
+				return
+			}
+
+			logger.Init("")
+			return nil
+		}),
+	)
+
+	err := pb.RegisterUserServiceHandler(service.Server(), new(impl.Service))
 	if err != nil {
-		logger.Errorf("new %s rpc server err: %s", user.ServiceName, err)
-		return
+		log.Fatalln(err)
 	}
 
-	server.Register(func(registrar grpc.ServiceRegistrar) {
-		user.RegisterUserServiceServer(registrar, &service.Service{})
-	})
-	server.Serve()
-	util.Hold()
-	server.Stop()
+	if err := service.Run(); err != nil {
+		log.Fatalln(err)
+	}
 }

@@ -18,13 +18,9 @@ import (
 	impl "github.com/jdxj/sign/internal/trigger/service"
 )
 
-const (
-	serviceName = "trigger"
-)
-
 func main() {
 	service := micro.NewService(
-		micro.Name(serviceName),
+		micro.Name(pb.ServiceName),
 		micro.Registry(etcd.NewRegistry()),
 	)
 
@@ -74,6 +70,6 @@ func main() {
 	}
 
 	if err := service.Run(); err != nil {
-		log.Printf("Run: %s\n", err)
+		log.Fatalln(err)
 	}
 }

@@ -10,7 +10,7 @@ type User struct {
 	Password  string
 	Salt      string
 	Mail      string
-	Telegram  string
+	Telegram  int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt time.Time

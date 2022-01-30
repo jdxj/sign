@@ -37,7 +37,7 @@ func NewUserServiceEndpoints() []*api.Endpoint {
 // Client API for UserService service
 
 type UserService interface {
-	AuthUser(ctx context.Context, in *AuthUserReq, opts ...client.CallOption) (*AuthUserRsp, error)
+	AuthUser(ctx context.Context, in *AuthUserRequest, opts ...client.CallOption) (*AuthUserResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...client.CallOption) (*CreateUserResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...client.CallOption) (*GetUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...client.CallOption) (*emptypb.Empty, error)
@@ -55,9 +55,9 @@ func NewUserService(name string, c client.Client) UserService {
 	}
 }
 
-func (c *userService) AuthUser(ctx context.Context, in *AuthUserReq, opts ...client.CallOption) (*AuthUserRsp, error) {
+func (c *userService) AuthUser(ctx context.Context, in *AuthUserRequest, opts ...client.CallOption) (*AuthUserResponse, error) {
 	req := c.c.NewRequest(c.name, "UserService.AuthUser", in)
-	out := new(AuthUserRsp)
+	out := new(AuthUserResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (c *userService) UpdateUser(ctx context.Context, in *UpdateUserRequest, opt
 // Server API for UserService service
 
 type UserServiceHandler interface {
-	AuthUser(context.Context, *AuthUserReq, *AuthUserRsp) error
+	AuthUser(context.Context, *AuthUserRequest, *AuthUserResponse) error
 	CreateUser(context.Context, *CreateUserRequest, *CreateUserResponse) error
 	GetUser(context.Context, *GetUserRequest, *GetUserResponse) error
 	UpdateUser(context.Context, *UpdateUserRequest, *emptypb.Empty) error
@@ -106,7 +106,7 @@ type UserServiceHandler interface {
 
 func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) error {
 	type userService interface {
-		AuthUser(ctx context.Context, in *AuthUserReq, out *AuthUserRsp) error
+		AuthUser(ctx context.Context, in *AuthUserRequest, out *AuthUserResponse) error
 		CreateUser(ctx context.Context, in *CreateUserRequest, out *CreateUserResponse) error
 		GetUser(ctx context.Context, in *GetUserRequest, out *GetUserResponse) error
 		UpdateUser(ctx context.Context, in *UpdateUserRequest, out *emptypb.Empty) error
@@ -122,7 +122,7 @@ type userServiceHandler struct {
 	UserServiceHandler
 }
 
-func (h *userServiceHandler) AuthUser(ctx context.Context, in *AuthUserReq, out *AuthUserRsp) error {
+func (h *userServiceHandler) AuthUser(ctx context.Context, in *AuthUserRequest, out *AuthUserResponse) error {
 	return h.UserServiceHandler.AuthUser(ctx, in, out)
 }
 
