@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/jdxj/sign/internal/proto/app";
+
+service AppService {
+  rpc Version(google.protobuf.Empty) returns (VersionResponse);
+}
+
+message VersionResponse {
+  string version = 1;
+}

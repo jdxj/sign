@@ -1,4 +1,4 @@
-package apiserver
+package app
 
 import (
 	"fmt"
@@ -6,24 +6,27 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+
+	"github.com/jdxj/sign/internal/app/api"
+	"github.com/jdxj/sign/internal/app/handler"
 )
 
 func TestGenerateToken(t *testing.T) {
-	JwtKey = "jdxj"
-	claim := &Claim{
+	api.JwtKey = "jdxj"
+	claim := &handler.Claim{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(3 * time.Second).Unix(),
 		},
 		UserID:   1,
 		Nickname: "test",
 	}
-	token, err := GenerateToken(claim)
+	token, err := handler.GenerateToken(claim)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
 	time.Sleep(5 * time.Second)
 
-	claim, err = CheckToken(token)
+	claim, err = handler.CheckToken(token)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
