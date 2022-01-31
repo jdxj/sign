@@ -10,26 +10,12 @@ import (
 	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/proto/notice"
 	pb "github.com/jdxj/sign/internal/proto/task"
-	"github.com/jdxj/sign/internal/task/service/executor"
-	"github.com/jdxj/sign/internal/task/service/executor/bilibili"
-	"github.com/jdxj/sign/internal/task/service/executor/evo"
-	"github.com/jdxj/sign/internal/task/service/executor/github"
 )
 
 type Executor interface {
 	Kind() string
 	Execute([]byte) (string, error)
 }
-
-var (
-	executors = map[string]Executor{
-		pb.Kind_MOCK.String():              &executor.MockExecutor{},
-		pb.Kind_BILIBILI_SIGN_IN.String():  &bilibili.SignIn{},
-		pb.Kind_BILIBILI_B_COUNT.String():  &bilibili.Bi{},
-		pb.Kind_EVOLUTION_RAPHAEL.String(): &evo.Updater{},
-		pb.Kind_GITHUB_RELEASE.String():    &github.Release{},
-	}
-)
 
 func execute(e broker.Event) error {
 	task := &pb.Task{}

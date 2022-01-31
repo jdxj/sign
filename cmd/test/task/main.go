@@ -116,11 +116,11 @@ func main() {
 
 func testCreateTask(ctx context.Context) {
 	ctRsp, err := TaskService.CreateTask(ctx, &pb.CreateTaskRequest{Task: &pb.Task{
-		Description: "test create github release task",
+		Description: "test create juejin cal task",
 		UserId:      1,
-		Kind:        pb.Kind_GITHUB_RELEASE.String(),
+		Kind:        pb.Kind_JUEJIN_CALENDAR.String(),
 		Spec:        "*/5 * * * *",
-		Param:       configs.GetGithubReleaseParam(),
+		Param:       configs.GetJueJinParam(),
 	}})
 	if err != nil {
 		log.Println(err)

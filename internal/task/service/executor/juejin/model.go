@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"google.golang.org/protobuf/proto"
+
 	"github.com/jdxj/sign/internal/pkg/util"
+	pb "github.com/jdxj/sign/internal/proto/task"
 )
 
 const (
@@ -20,7 +23,14 @@ const (
 )
 
 const (
+	msgParseParamFailed = "解析参数失败"
 	msgJueJinExecFailed = "掘金任务执行失败"
+)
+
+const (
+	stageAuth   = "auth"
+	stageSignIn = "sign-in"
+	stageVerify = "verify"
 )
 
 var (
@@ -33,20 +43,24 @@ type response struct {
 	Data   interface{} `json:"data"`
 }
 
-func execute(key, url string, data fmt.Stringer) (string, error) {
-	jar := util.NewJar(key, domain, home)
+func execute(body []byte, url string, data fmt.Stringer) (string, error) {
+	param, err := parseParam(body)
+	if err != nil {
+		return msgParseParamFailed, err
+	}
+	jar := util.NewJar(param.GetCookie(), domain, home)
 	client := &http.Client{Jar: jar}
 
 	rsp := &response{
 		Data: data,
 	}
-	err := util.ParseBody(client, url, rsp)
+	err = util.ParseBody(client, url, rsp)
 	if err != nil {
-		return msgJueJinExecFailed, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
+		return msgJueJinExecFailed, fmt.Errorf("%w, stage: %s", err, stageAuth)
 	}
 	if rsp.ErrNo != 0 {
 		return msgJueJinExecFailed, fmt.Errorf("%w: %s, stage: %s",
-			ErrUnknownMistake, rsp.ErrMsg, crontab.Stage_Auth)
+			ErrUnknownMistake, rsp.ErrMsg, stageAuth)
 	}
 	return data.String(), nil
 }
@@ -93,4 +107,9 @@ func (j *jokes) String() string {
 格言: %s
 宜忌: %s`
 	return fmt.Sprintf(format, j.Aphorism, j.ShouldOrNot)
+}
+
+func parseParam(body []byte) (*pb.JueJin, error) {
+	param := &pb.JueJin{}
+	return param, proto.Unmarshal(body, param)
 }

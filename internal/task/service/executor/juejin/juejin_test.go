@@ -7,7 +7,7 @@ import (
 
 func TestSignIn_Execute(t *testing.T) {
 	si := &SignIn{}
-	res, err := si.Execute(key)
+	res, err := si.Execute(nil)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
@@ -16,7 +16,7 @@ func TestSignIn_Execute(t *testing.T) {
 
 func TestCount_Execute(t *testing.T) {
 	count := &Count{}
-	res, err := count.Execute(key)
+	res, err := count.Execute(nil)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
@@ -25,7 +25,7 @@ func TestCount_Execute(t *testing.T) {
 
 func TestPoint_Execute(t *testing.T) {
 	p := &Point{}
-	res, err := p.Execute(key)
+	res, err := p.Execute(nil)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
@@ -34,7 +34,7 @@ func TestPoint_Execute(t *testing.T) {
 
 func TestCalendar_Execute(t *testing.T) {
 	cal := &Calendar{}
-	res, err := cal.Execute(key)
+	res, err := cal.Execute(nil)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

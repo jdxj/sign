@@ -14,3 +14,7 @@ message GithubRelease {
   string owner = 1;
   string repo = 2;
 }
+
+message JueJin {
+  string cookie = 1;
+}

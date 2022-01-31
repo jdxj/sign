@@ -5,13 +5,13 @@ import (
 	"net/url"
 
 	"github.com/jdxj/sign/internal/executor/task/hpi"
-	"github.com/jdxj/sign/internal/executor/task/juejin"
 	"github.com/jdxj/sign/internal/executor/task/nokey"
 	"github.com/jdxj/sign/internal/executor/task/stg"
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
 	bilibili2 "github.com/jdxj/sign/internal/task/service/executor/bilibili"
 	"github.com/jdxj/sign/internal/task/service/executor/evo"
 	"github.com/jdxj/sign/internal/task/service/executor/github"
+	juejin2 "github.com/jdxj/sign/internal/task/service/executor/juejin"
 )
 
 func init() {
@@ -36,13 +36,13 @@ func init() {
 	release := &github.Release{}
 	agents[release.Kind()] = release
 
-	jueSI := &juejin.SignIn{}
+	jueSI := &juejin2.SignIn{}
 	agents[jueSI.Kind()] = jueSI
-	jueCo := &juejin.Count{}
+	jueCo := &juejin2.Count{}
 	agents[jueCo.Kind()] = jueCo
-	juePo := &juejin.Point{}
+	juePo := &juejin2.Point{}
 	agents[juePo.Kind()] = juePo
-	jueCa := &juejin.Calendar{}
+	jueCa := &juejin2.Calendar{}
 	agents[jueCa.Kind()] = jueCa
 
 	cm := &nokey.CustomMessage{}
