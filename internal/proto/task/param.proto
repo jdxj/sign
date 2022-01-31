@@ -5,3 +5,7 @@ option go_package = "github.com/jdxj/sign/internal/proto/task";
 message BiLiBiLi {
   string cookie = 1;
 }
+
+message Evolution {
+  string device = 1;
+}

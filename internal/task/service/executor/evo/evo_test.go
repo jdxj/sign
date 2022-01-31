@@ -18,7 +18,7 @@ func TestBiString(t *testing.T) {
 
 func TestUpdater_Execute(t *testing.T) {
 	updater := &Updater{}
-	msg, err := updater.Execute("raphael")
+	msg, err := updater.Execute(nil)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

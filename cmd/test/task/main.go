@@ -110,17 +110,17 @@ func main() {
 	//}
 	//testDispatchTasks()
 
-	//testCreateTask(ctx)
-	testDeleteTask(ctx)
+	testCreateTask(ctx)
+	//testDeleteTask(ctx)
 }
 
 func testCreateTask(ctx context.Context) {
 	ctRsp, err := TaskService.CreateTask(ctx, &pb.CreateTaskRequest{Task: &pb.Task{
-		Description: "test create bili b count task",
+		Description: "test create evo raphael task",
 		UserId:      1,
-		Kind:        pb.Kind_BILIBILI_B_COUNT.String(),
-		Spec:        "* * * * *",
-		Param:       configs.GetBiLiParam(),
+		Kind:        pb.Kind_EVOLUTION_RAPHAEL.String(),
+		Spec:        "*/5 * * * *",
+		Param:       configs.GetEvoParam(),
 	}})
 	if err != nil {
 		log.Println(err)

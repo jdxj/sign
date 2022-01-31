@@ -8,7 +8,7 @@ import (
 func TestSignIn_Execute(t *testing.T) {
 	si := &SignIn{}
 
-	msg, err := si.Execute(key)
+	msg, err := si.Execute(nil)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
@@ -17,7 +17,7 @@ func TestSignIn_Execute(t *testing.T) {
 
 func TestBi_Execute(t *testing.T) {
 	bi := &Bi{}
-	msg, err := bi.Execute(key)
+	msg, err := bi.Execute(nil)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

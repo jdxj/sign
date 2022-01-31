@@ -15,7 +15,8 @@ const (
 )
 
 const (
-	msgEvoUpdateFailed = "evo获取更新失败"
+	msgEvoUpdateFailed  = "evo获取更新失败"
+	msgParseParamFailed = "解析参数失败"
 )
 
 var (

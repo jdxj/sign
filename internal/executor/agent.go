@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/jdxj/sign/internal/executor/task/evo"
 	"github.com/jdxj/sign/internal/executor/task/github"
 	"github.com/jdxj/sign/internal/executor/task/hpi"
 	"github.com/jdxj/sign/internal/executor/task/juejin"
@@ -12,6 +11,7 @@ import (
 	"github.com/jdxj/sign/internal/executor/task/stg"
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
 	bilibili2 "github.com/jdxj/sign/internal/task/service/executor/bilibili"
+	"github.com/jdxj/sign/internal/task/service/executor/evo"
 )
 
 func init() {

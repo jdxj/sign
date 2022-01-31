@@ -12,6 +12,7 @@ import (
 	pb "github.com/jdxj/sign/internal/proto/task"
 	"github.com/jdxj/sign/internal/task/service/executor"
 	"github.com/jdxj/sign/internal/task/service/executor/bilibili"
+	"github.com/jdxj/sign/internal/task/service/executor/evo"
 )
 
 type Executor interface {
@@ -21,9 +22,10 @@ type Executor interface {
 
 var (
 	executors = map[string]Executor{
-		pb.Kind_MOCK.String():             &executor.MockExecutor{},
-		pb.Kind_BILIBILI_SIGN_IN.String(): &bilibili.SignIn{},
-		pb.Kind_BILIBILI_B_COUNT.String(): &bilibili.Bi{},
+		pb.Kind_MOCK.String():              &executor.MockExecutor{},
+		pb.Kind_BILIBILI_SIGN_IN.String():  &bilibili.SignIn{},
+		pb.Kind_BILIBILI_B_COUNT.String():  &bilibili.Bi{},
+		pb.Kind_EVOLUTION_RAPHAEL.String(): &evo.Updater{},
 	}
 )
 
