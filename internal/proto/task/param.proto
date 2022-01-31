@@ -23,3 +23,7 @@ message STG {
   string username = 1;
   string passwd = 2;
 }
+
+message V2ex {
+  string cookie = 1;
+}

@@ -116,11 +116,11 @@ func main() {
 
 func testCreateTask(ctx context.Context) {
 	ctRsp, err := TaskService.CreateTask(ctx, &pb.CreateTaskRequest{Task: &pb.Task{
-		Description: "test create stg sign in task",
+		Description: "test create v2ex sign in task",
 		UserId:      1,
-		Kind:        pb.Kind_STG_SIGN_IN.String(),
+		Kind:        pb.Kind_V2EX_SIGN_IN.String(),
 		Spec:        "*/5 * * * *",
-		Param:       configs.GetSTGParam(),
+		Param:       configs.GetV2exParam(),
 	}})
 	if err != nil {
 		log.Println(err)
