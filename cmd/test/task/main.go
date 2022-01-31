@@ -116,11 +116,11 @@ func main() {
 
 func testCreateTask(ctx context.Context) {
 	ctRsp, err := TaskService.CreateTask(ctx, &pb.CreateTaskRequest{Task: &pb.Task{
-		Description: "test create v2ex sign in task",
+		Description: "test create custom message task",
 		UserId:      1,
-		Kind:        pb.Kind_V2EX_SIGN_IN.String(),
-		Spec:        "*/5 * * * *",
-		Param:       configs.GetV2exParam(),
+		Kind:        pb.Kind_CUSTOM_MESSAGE.String(),
+		Spec:        "* * * * *",
+		Param:       configs.GetCustomMessageParam(),
 	}})
 	if err != nil {
 		log.Println(err)

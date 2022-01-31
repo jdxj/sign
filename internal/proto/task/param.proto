@@ -31,3 +31,7 @@ message V2ex {
 message HPI {
   string token = 1;
 }
+
+message CustomMessage {
+  string content = 1;
+}

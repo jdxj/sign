@@ -4,6 +4,7 @@ import (
 	pb "github.com/jdxj/sign/internal/proto/task"
 	"github.com/jdxj/sign/internal/task/service/executor"
 	"github.com/jdxj/sign/internal/task/service/executor/bilibili"
+	custom_message "github.com/jdxj/sign/internal/task/service/executor/custom-message"
 	"github.com/jdxj/sign/internal/task/service/executor/evo"
 	"github.com/jdxj/sign/internal/task/service/executor/github"
 	"github.com/jdxj/sign/internal/task/service/executor/juejin"
@@ -30,5 +31,7 @@ var (
 		pb.Kind_STG_SIGN_IN.String(): &stg.SignIn{},
 
 		pb.Kind_V2EX_SIGN_IN.String(): &v2ex.SignIn{},
+
+		pb.Kind_CUSTOM_MESSAGE.String(): &custom_message.CustomMessage{},
 	}
 )

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/jdxj/sign/internal/executor/task/nokey"
 	bilibili2 "github.com/jdxj/sign/internal/task/service/executor/bilibili"
+	custom_msg "github.com/jdxj/sign/internal/task/service/executor/custom-message"
 	"github.com/jdxj/sign/internal/task/service/executor/evo"
 	"github.com/jdxj/sign/internal/task/service/executor/github"
 	"github.com/jdxj/sign/internal/task/service/executor/hpi"
@@ -45,7 +45,7 @@ func init() {
 	jueCa := &juejin2.Calendar{}
 	agents[jueCa.Kind()] = jueCa
 
-	cm := &nokey.CustomMessage{}
+	cm := &custom_msg.CustomMessage{}
 	agents[cm.Kind()] = cm
 	url.Values{}
 	req := http.Request{}

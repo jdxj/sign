@@ -365,6 +365,53 @@ func (x *HPI) GetToken() string {
 	return ""
 }
 
+type CustomMessage struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Content string `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
+}
+
+func (x *CustomMessage) Reset() {
+	*x = CustomMessage{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_task_param_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CustomMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CustomMessage) ProtoMessage() {}
+
+func (x *CustomMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_task_param_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CustomMessage.ProtoReflect.Descriptor instead.
+func (*CustomMessage) Descriptor() ([]byte, []int) {
+	return file_task_param_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CustomMessage) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
 var File_task_param_proto protoreflect.FileDescriptor
 
 var file_task_param_proto_rawDesc = []byte{
@@ -387,10 +434,12 @@ var file_task_param_proto_rawDesc = []byte{
 	0x6f, 0x6f, 0x6b, 0x69, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x63, 0x6f, 0x6f,
 	0x6b, 0x69, 0x65, 0x22, 0x1b, 0x0a, 0x03, 0x48, 0x50, 0x49, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x6f,
 	0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x6f, 0x6b, 0x65, 0x6e,
-	0x42, 0x2a, 0x5a, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6a,
-	0x64, 0x78, 0x6a, 0x2f, 0x73, 0x69, 0x67, 0x6e, 0x2f, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61,
-	0x6c, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x74, 0x61, 0x73, 0x6b, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x22, 0x29, 0x0a, 0x0d, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x42, 0x2a, 0x5a, 0x28, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6a, 0x64, 0x78, 0x6a, 0x2f, 0x73,
+	0x69, 0x67, 0x6e, 0x2f, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x2f, 0x74, 0x61, 0x73, 0x6b, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -405,7 +454,7 @@ func file_task_param_proto_rawDescGZIP() []byte {
 	return file_task_param_proto_rawDescData
 }
 
-var file_task_param_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_task_param_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_task_param_proto_goTypes = []interface{}{
 	(*BiLiBiLi)(nil),      // 0: BiLiBiLi
 	(*Evolution)(nil),     // 1: Evolution
@@ -414,6 +463,7 @@ var file_task_param_proto_goTypes = []interface{}{
 	(*STG)(nil),           // 4: STG
 	(*V2Ex)(nil),          // 5: V2ex
 	(*HPI)(nil),           // 6: HPI
+	(*CustomMessage)(nil), // 7: CustomMessage
 }
 var file_task_param_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -513,6 +563,18 @@ func file_task_param_proto_init() {
 				return nil
 			}
 		}
+		file_task_param_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CustomMessage); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -520,7 +582,7 @@ func file_task_param_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_task_param_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
