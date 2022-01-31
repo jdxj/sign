@@ -40,7 +40,7 @@ func Init(cc client.Client, conf config.Rabbit) error {
 	if err != nil {
 		return err
 	}
-	_, err = mq.Subscribe(pb.Topic, execute, broker.Queue(pb.Queue))
+	_, err = mq.Subscribe(pb.Topic, execute, broker.Queue(pb.Queue), broker.DisableAutoAck())
 	if err != nil {
 		return err
 	}

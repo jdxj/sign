@@ -18,6 +18,9 @@ type Executor interface {
 }
 
 func execute(e broker.Event) error {
+	// todo: 手动 ack 能实现一个一个处理?
+	defer e.Ack()
+
 	task := &pb.Task{}
 	err := proto.Unmarshal(e.Message().Body, task)
 	if err != nil {
