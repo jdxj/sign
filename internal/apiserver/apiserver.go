@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/rpc"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/code"
 	"github.com/jdxj/sign/internal/pkg/config"
-	"github.com/jdxj/sign/internal/pkg/rpc"
 	"github.com/jdxj/sign/internal/proto/user"
 )
 

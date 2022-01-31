@@ -116,11 +116,11 @@ func main() {
 
 func testCreateTask(ctx context.Context) {
 	ctRsp, err := TaskService.CreateTask(ctx, &pb.CreateTaskRequest{Task: &pb.Task{
-		Description: "test create juejin cal task",
+		Description: "test create stg sign in task",
 		UserId:      1,
-		Kind:        pb.Kind_JUEJIN_CALENDAR.String(),
+		Kind:        pb.Kind_STG_SIGN_IN.String(),
 		Spec:        "*/5 * * * *",
-		Param:       configs.GetJueJinParam(),
+		Param:       configs.GetSTGParam(),
 	}})
 	if err != nil {
 		log.Println(err)

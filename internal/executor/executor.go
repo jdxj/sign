@@ -2,6 +2,7 @@ package executor
 
 import (
 	"context"
+	"net/rpc"
 	"sync"
 	"time"
 
@@ -10,8 +11,6 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/jdxj/sign/internal/pkg/logger"
-	"github.com/jdxj/sign/internal/pkg/mq"
-	"github.com/jdxj/sign/internal/pkg/rpc"
 	"github.com/jdxj/sign/internal/proto/notice"
 	"github.com/jdxj/sign/internal/proto/user"
 )

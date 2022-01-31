@@ -10,7 +10,6 @@ import (
 	"github.com/jdxj/sign/internal/pkg/api"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
-	"github.com/jdxj/sign/internal/pkg/rpc"
 	"github.com/jdxj/sign/internal/pkg/util"
 )
 

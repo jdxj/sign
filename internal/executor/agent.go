@@ -6,12 +6,12 @@ import (
 
 	"github.com/jdxj/sign/internal/executor/task/hpi"
 	"github.com/jdxj/sign/internal/executor/task/nokey"
-	"github.com/jdxj/sign/internal/executor/task/stg"
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
 	bilibili2 "github.com/jdxj/sign/internal/task/service/executor/bilibili"
 	"github.com/jdxj/sign/internal/task/service/executor/evo"
 	"github.com/jdxj/sign/internal/task/service/executor/github"
 	juejin2 "github.com/jdxj/sign/internal/task/service/executor/juejin"
+	"github.com/jdxj/sign/internal/task/service/executor/stg"
 )
 
 func init() {

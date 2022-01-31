@@ -24,7 +24,7 @@ var (
 )
 
 func Init(cc client.Client, conf config.Rabbit) error {
-	log.Printf("init other service\n")
+	log.Printf(" init other service\n")
 	// grpc client
 	triggerService = trigger.NewTriggerService(trigger.ServiceName, cc)
 	noticeService = notice.NewNoticeService(notice.ServiceName, cc)

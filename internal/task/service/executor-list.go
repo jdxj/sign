@@ -7,6 +7,7 @@ import (
 	"github.com/jdxj/sign/internal/task/service/executor/evo"
 	"github.com/jdxj/sign/internal/task/service/executor/github"
 	"github.com/jdxj/sign/internal/task/service/executor/juejin"
+	"github.com/jdxj/sign/internal/task/service/executor/stg"
 )
 
 var (
@@ -24,5 +25,7 @@ var (
 		pb.Kind_JUEJIN_POINT.String():    &juejin.Point{},
 		pb.Kind_JUEJIN_COUNT.String():    &juejin.Count{},
 		pb.Kind_JUEJIN_CALENDAR.String(): &juejin.Calendar{},
+
+		pb.Kind_STG_SIGN_IN.String(): &stg.SignIn{},
 	}
 )

@@ -1,8 +1,9 @@
 package main
 
 import (
+	"net/rpc"
+
 	"github.com/jdxj/sign/internal/pkg/logger"
-	"github.com/jdxj/sign/internal/pkg/rpc"
 	"github.com/jdxj/sign/internal/pkg/util"
 	testPB "github.com/jdxj/sign/internal/proto/test-grpc"
 	service "github.com/jdxj/sign/internal/test-grpc"

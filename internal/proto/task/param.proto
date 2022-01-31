@@ -18,3 +18,8 @@ message GithubRelease {
 message JueJin {
   string cookie = 1;
 }
+
+message STG {
+  string username = 1;
+  string passwd = 2;
+}
