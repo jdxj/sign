@@ -2,8 +2,8 @@ package executor
 
 import (
 	"net/http"
+	"net/url"
 
-	"github.com/jdxj/sign/internal/executor/task/bili"
 	"github.com/jdxj/sign/internal/executor/task/evo"
 	"github.com/jdxj/sign/internal/executor/task/github"
 	"github.com/jdxj/sign/internal/executor/task/hpi"
@@ -11,15 +11,14 @@ import (
 	"github.com/jdxj/sign/internal/executor/task/nokey"
 	"github.com/jdxj/sign/internal/executor/task/stg"
 	"github.com/jdxj/sign/internal/executor/task/v2ex"
-
-	"net/url"
+	bilibili2 "github.com/jdxj/sign/internal/task/service/executor/bilibili"
 )
 
 func init() {
-	biSI := &bili.SignIn{}
+	biSI := &bilibili2.SignIn{}
 	agents[biSI.Kind()] = biSI
 
-	bi := &bili.Bi{}
+	bi := &bilibili2.Bi{}
 	agents[bi.Kind()] = bi
 
 	hpiSI := &hpi.SignIn{}

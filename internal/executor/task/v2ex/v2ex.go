@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/pkg/util"
 )
 
 const (
@@ -73,10 +73,10 @@ func (si *SignIn) Execute(key string) (string, error) {
 }
 
 func auth(cookies string) (*http.Client, error) {
-	jar := task.NewJar(cookies, domain, home)
+	jar := util.NewJar(cookies, domain, home)
 	client := &http.Client{Jar: jar}
 
-	body, err := task.ParseRawBody(client, authURL)
+	body, err := util.ParseRawBody(client, authURL)
 	if err != nil {
 		return client, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}
@@ -89,7 +89,7 @@ func auth(cookies string) (*http.Client, error) {
 }
 
 func getSignToken(c *http.Client) (string, error) {
-	body, err := task.ParseRawBody(c, tokenURL)
+	body, err := util.ParseRawBody(c, tokenURL)
 	if err != nil {
 		return "", fmt.Errorf("%w, stage: %s", err, crontab.Stage_Query)
 	}
@@ -103,7 +103,7 @@ func getSignToken(c *http.Client) (string, error) {
 
 func signIn(c *http.Client, token string) error {
 	u := fmt.Sprintf(signURL, token)
-	err := task.ParseBody(c, u, nil)
+	err := util.ParseBody(c, u, nil)
 	if err != nil {
 		return fmt.Errorf("%w, stage: %s", err, crontab.Stage_SignIn)
 	}
@@ -111,12 +111,12 @@ func signIn(c *http.Client, token string) error {
 }
 
 func verify(c *http.Client) error {
-	body, err := task.ParseRawBody(c, verifyURL)
+	body, err := util.ParseRawBody(c, verifyURL)
 	if err != nil {
 		return fmt.Errorf("%w, stage: %s", err, crontab.Stage_Verify)
 	}
 	date := regVerify.FindString(string(body))
-	err = task.VerifyDate(date)
+	err = util.VerifyDate(date)
 	if err != nil {
 		err = fmt.Errorf("%w, stage: %s", err, crontab.Stage_Verify)
 	}

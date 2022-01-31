@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/pkg/util"
 )
 
 const (
@@ -34,13 +34,13 @@ type response struct {
 }
 
 func execute(key, url string, data fmt.Stringer) (string, error) {
-	jar := task.NewJar(key, domain, home)
+	jar := util.NewJar(key, domain, home)
 	client := &http.Client{Jar: jar}
 
 	rsp := &response{
 		Data: data,
 	}
-	err := task.ParseBody(client, url, rsp)
+	err := util.ParseBody(client, url, rsp)
 	if err != nil {
 		return msgJueJinExecFailed, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}

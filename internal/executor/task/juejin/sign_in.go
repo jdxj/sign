@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/pkg/util"
 )
 
 type SignIn struct{}
@@ -18,13 +18,13 @@ func (si *SignIn) Kind() crontab.Kind {
 }
 
 func (si *SignIn) Execute(key string) (string, error) {
-	jar := task.NewJar(key, domain, home)
+	jar := util.NewJar(key, domain, home)
 	client := &http.Client{Jar: jar}
 
 	rsp := &response{
 		Data: &checkIn{},
 	}
-	err := task.ParseBodyPost(client, signInURL, nil, rsp)
+	err := util.ParseBodyPost(client, signInURL, nil, rsp)
 	if err != nil {
 		return msgJueJinExecFailed, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
 	}

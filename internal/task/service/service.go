@@ -188,6 +188,22 @@ func (s *Service) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest, _ *
 	return nil
 }
 
+func (s *Service) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest, _ *emptypb.Empty) error {
+	if req.GetTaskId() == 0 || req.GetUserId() == 0 {
+		return status.Errorf(codes.InvalidArgument, "invalid param")
+	}
+
+	err := db.WithCtx(ctx).
+		Where("task_id = ?", req.GetTaskId()).
+		Where("user_id = ?", req.GetUserId()).
+		Delete(&dao.Task{}).
+		Error
+	if err != nil {
+		return status.Errorf(codes.Internal, "Delete: %s", err)
+	}
+	return nil
+}
+
 func (s *Service) DispatchTasks(_ context.Context, req *pb.DispatchTasksRequest, _ *emptypb.Empty) error {
 	err := gPool.Submit(newJob(s.key, req.GetSpec()).dispatchTasks)
 	if err != nil {

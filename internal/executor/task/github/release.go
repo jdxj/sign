@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jdxj/sign/internal/executor/task"
 	"github.com/jdxj/sign/internal/pkg/util"
 )
 
@@ -37,7 +36,7 @@ func (rel *Release) Kind() crontab.Kind {
 
 func (rel *Release) Execute(key string) (string, error) {
 	req := &request{}
-	err := task.PopulateStruct(key, req)
+	err := util.PopulateStruct(key, req)
 	if err != nil {
 		return msgReleaseUpdateFailed, err
 	}

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/pkg/util"
 )
 
 type Updater struct{}
@@ -21,7 +21,7 @@ func (u *Updater) Kind() crontab.Kind {
 func (u *Updater) Execute(key string) (string, error) {
 	url := fmt.Sprintf(buildURL, key)
 	bi := &buildInfo{}
-	err := task.ParseBody(&http.Client{}, url, bi)
+	err := util.ParseBody(&http.Client{}, url, bi)
 	if err != nil {
 		return msgEvoUpdateFailed, err
 	}

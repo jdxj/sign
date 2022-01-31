@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+option go_package = "github.com/jdxj/sign/internal/proto/task";
+
+message BiLiBiLi {
+  string cookie = 1;
+}

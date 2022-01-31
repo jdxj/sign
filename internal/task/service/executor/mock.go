@@ -11,6 +11,6 @@ func (m *MockExecutor) Kind() string {
 	return pb.Kind_MOCK.String()
 }
 
-func (m *MockExecutor) Execute(param []byte) string {
-	return "hello"
+func (m *MockExecutor) Execute(param []byte) (string, error) {
+	return "hello", nil
 }

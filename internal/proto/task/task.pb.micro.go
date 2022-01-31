@@ -42,6 +42,7 @@ type TaskService interface {
 	GetTask(ctx context.Context, in *GetTaskRequest, opts ...client.CallOption) (*GetTaskResponse, error)
 	GetTasks(ctx context.Context, in *GetTasksRequest, opts ...client.CallOption) (*GetTasksResponse, error)
 	UpdateTask(ctx context.Context, in *UpdateTaskRequest, opts ...client.CallOption) (*emptypb.Empty, error)
+	DeleteTask(ctx context.Context, in *DeleteTaskRequest, opts ...client.CallOption) (*emptypb.Empty, error)
 	DispatchTasks(ctx context.Context, in *DispatchTasksRequest, opts ...client.CallOption) (*emptypb.Empty, error)
 }
 
@@ -97,6 +98,16 @@ func (c *taskService) UpdateTask(ctx context.Context, in *UpdateTaskRequest, opt
 	return out, nil
 }
 
+func (c *taskService) DeleteTask(ctx context.Context, in *DeleteTaskRequest, opts ...client.CallOption) (*emptypb.Empty, error) {
+	req := c.c.NewRequest(c.name, "TaskService.DeleteTask", in)
+	out := new(emptypb.Empty)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *taskService) DispatchTasks(ctx context.Context, in *DispatchTasksRequest, opts ...client.CallOption) (*emptypb.Empty, error) {
 	req := c.c.NewRequest(c.name, "TaskService.DispatchTasks", in)
 	out := new(emptypb.Empty)
@@ -114,6 +125,7 @@ type TaskServiceHandler interface {
 	GetTask(context.Context, *GetTaskRequest, *GetTaskResponse) error
 	GetTasks(context.Context, *GetTasksRequest, *GetTasksResponse) error
 	UpdateTask(context.Context, *UpdateTaskRequest, *emptypb.Empty) error
+	DeleteTask(context.Context, *DeleteTaskRequest, *emptypb.Empty) error
 	DispatchTasks(context.Context, *DispatchTasksRequest, *emptypb.Empty) error
 }
 
@@ -123,6 +135,7 @@ func RegisterTaskServiceHandler(s server.Server, hdlr TaskServiceHandler, opts .
 		GetTask(ctx context.Context, in *GetTaskRequest, out *GetTaskResponse) error
 		GetTasks(ctx context.Context, in *GetTasksRequest, out *GetTasksResponse) error
 		UpdateTask(ctx context.Context, in *UpdateTaskRequest, out *emptypb.Empty) error
+		DeleteTask(ctx context.Context, in *DeleteTaskRequest, out *emptypb.Empty) error
 		DispatchTasks(ctx context.Context, in *DispatchTasksRequest, out *emptypb.Empty) error
 	}
 	type TaskService struct {
@@ -150,6 +163,10 @@ func (h *taskServiceHandler) GetTasks(ctx context.Context, in *GetTasksRequest, 
 
 func (h *taskServiceHandler) UpdateTask(ctx context.Context, in *UpdateTaskRequest, out *emptypb.Empty) error {
 	return h.TaskServiceHandler.UpdateTask(ctx, in, out)
+}
+
+func (h *taskServiceHandler) DeleteTask(ctx context.Context, in *DeleteTaskRequest, out *emptypb.Empty) error {
+	return h.TaskServiceHandler.DeleteTask(ctx, in, out)
 }
 
 func (h *taskServiceHandler) DispatchTasks(ctx context.Context, in *DispatchTasksRequest, out *emptypb.Empty) error {

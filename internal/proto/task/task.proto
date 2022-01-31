@@ -10,6 +10,7 @@ service TaskService {
   rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
   rpc GetTasks(GetTasksRequest) returns (GetTasksResponse);
   rpc UpdateTask(UpdateTaskRequest) returns(google.protobuf.Empty);
+  rpc DeleteTask(DeleteTaskRequest) returns(google.protobuf.Empty);
   rpc DispatchTasks(DispatchTasksRequest) returns (google.protobuf.Empty);
 }
 
@@ -58,6 +59,11 @@ message GetTasksResponse {
 
 message UpdateTaskRequest {
   Task task = 1;
+}
+
+message DeleteTaskRequest {
+  int64 task_id = 1;
+  int64 user_id = 2;
 }
 
 // Kind 使用时要用字符串形式

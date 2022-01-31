@@ -3,6 +3,8 @@ package task
 import (
 	"fmt"
 	"testing"
+
+	"github.com/jdxj/sign/internal/pkg/util"
 )
 
 type A struct {
@@ -13,7 +15,7 @@ type A struct {
 func TestPopulateStruct(t *testing.T) {
 	key := "name=jdxj;addr=earth"
 	a := &A{}
-	err := PopulateStruct(key, a)
+	err := util.PopulateStruct(key, a)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

@@ -1,4 +1,4 @@
-package bili
+package bilibili
 
 import (
 	"errors"
@@ -13,8 +13,16 @@ const (
 )
 
 const (
+	msgParseParam   = "解析参数失败"
 	msgSignInFailed = "B站签到失败"
 	msgGetBiFailed  = "获取B币失败"
+)
+
+const (
+	stageAuth   = "auth"
+	stageSignIn = "sign-in"
+	stageVerify = "verify"
+	stageQuery  = "query"
 )
 
 var (

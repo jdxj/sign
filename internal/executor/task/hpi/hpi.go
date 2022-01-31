@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/pkg/util"
 )
 
 const (
@@ -83,13 +83,13 @@ func (si *SignIn) Execute(key string) (string, error) {
 }
 
 func auth(cookies string) (*http.Client, error) {
-	jar := task.NewJar(cookies, domain, home)
+	jar := util.NewJar(cookies, domain, home)
 	client := &http.Client{Jar: jar}
 	authResp := make(map[string]interface{})
 
 	param := time.Now().UnixNano() / 1000000
 	u := fmt.Sprintf(authURL, param)
-	err := task.ParseBody(client, u, &authResp)
+	err := util.ParseBody(client, u, &authResp)
 	if err != nil {
 		return client, err
 	}
@@ -112,7 +112,7 @@ type loginRsp struct {
 
 func login(key string) (string, error) {
 	req := &loginReq{}
-	err := task.PopulateStruct(key, req)
+	err := util.PopulateStruct(key, req)
 	if err != nil {
 		return "", err
 	}
@@ -125,7 +125,7 @@ func login(key string) (string, error) {
 	reader := bytes.NewReader(d)
 	rsp := &loginRsp{}
 
-	err = task.ParseBodyPost(c, loginURL, reader, rsp)
+	err = util.ParseBodyPost(c, loginURL, reader, rsp)
 	if err != nil {
 		return "", err
 	}
@@ -136,7 +136,7 @@ func login(key string) (string, error) {
 }
 
 func getSignToken(client *http.Client) (string, string, error) {
-	body, err := task.ParseRawBody(client, signTokenURL)
+	body, err := util.ParseRawBody(client, signTokenURL)
 	if err != nil {
 		return "", "", fmt.Errorf("%w: %s, stage: %s",
 			ErrGetToken, err, crontab.Stage_Auth)
@@ -163,15 +163,15 @@ func signIn(client *http.Client, token string) error {
 	header := map[string]string{
 		"Referer": signTokenURL,
 	}
-	return task.ParseBodyHeader(client, u, header)
+	return util.ParseBodyHeader(client, u, header)
 }
 
 func verify(client *http.Client, id string) error {
 	u := fmt.Sprintf(verifyURL, id)
-	d, err := task.ParseRawBody(client, u)
+	d, err := util.ParseRawBody(client, u)
 	if err != nil {
 		return err
 	}
 	date := regVerify.FindString(string(d))
-	return task.VerifyDate(date)
+	return util.VerifyDate(date)
 }

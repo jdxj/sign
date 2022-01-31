@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/pkg/util"
 )
 
 const (
@@ -65,12 +65,12 @@ func (si *SignIn) Execute(key string) (string, error) {
 }
 
 func auth(key string) (*http.Client, error) {
-	d := task.ConvertStringToMap(key)
+	d := util.ConvertStringToMap(key)
 	f := url.Values{}
 	for k, v := range d {
 		f.Set(k, v)
 	}
-	client, rsp, err := task.PostForm(loginURL, f)
+	client, rsp, err := util.PostForm(loginURL, f)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func auth(key string) (*http.Client, error) {
 		return nil, ErrLoginFailed
 	}
 
-	body, err := task.ParseRawBody(client, authURL)
+	body, err := util.ParseRawBody(client, authURL)
 	if err != nil {
 		return client, err
 	}
@@ -92,7 +92,7 @@ func auth(key string) (*http.Client, error) {
 }
 
 func signIn(c *http.Client) error {
-	err := task.ParseBody(c, signURL, nil)
+	err := util.ParseBody(c, signURL, nil)
 	if err != nil {
 		return fmt.Errorf("%w, stage: %s",
 			err, crontab.Stage_SignIn)
@@ -101,13 +101,13 @@ func signIn(c *http.Client) error {
 }
 
 func verify(c *http.Client) error {
-	body, err := task.ParseRawBody(c, verifyURL)
+	body, err := util.ParseRawBody(c, verifyURL)
 	if err != nil {
 		return fmt.Errorf("%w, stage: %s",
 			err, crontab.Stage_Verify)
 	}
 	date := regVerify.FindString(string(body))
-	err = task.VerifyDate(date)
+	err = util.VerifyDate(date)
 	if err != nil {
 		return fmt.Errorf("%w, stage: %s",
 			err, crontab.Stage_Verify)

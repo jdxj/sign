@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/jdxj/sign/internal/executor/task"
+	"github.com/jdxj/sign/internal/pkg/util"
 )
 
 func TestFindSignToken(t *testing.T) {
@@ -54,7 +54,7 @@ func TestJsonEncoding(t *testing.T) {
 
 	key := "userName=abc;userPassword=def"
 	req := &loginReq{}
-	err = task.PopulateStruct(key, req)
+	err = util.PopulateStruct(key, req)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

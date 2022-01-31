@@ -1,4 +1,4 @@
-package bili
+package bilibili
 
 import (
 	"fmt"

@@ -1,25 +1,30 @@
-package bili
+package bilibili
 
 import (
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/jdxj/sign/internal/executor/task"
+	"google.golang.org/protobuf/proto"
+
+	"github.com/jdxj/sign/internal/pkg/util"
+	pb "github.com/jdxj/sign/internal/proto/task"
 )
 
 type SignIn struct{}
 
-func (si *SignIn) Domain() crontab.Domain {
-	return crontab.Domain_BILI
+func (si *SignIn) Kind() string {
+	return pb.Kind_BILIBILI_SIGN_IN.String()
 }
 
-func (si *SignIn) Kind() crontab.Kind {
-	return crontab.Kind_BILISignIn
-}
+func (si *SignIn) Execute(body []byte) (string, error) {
+	param := &pb.BiLiBiLi{}
+	err := proto.Unmarshal(body, param)
+	if err != nil {
+		return msgParseParam, err
+	}
 
-func (si *SignIn) Execute(key string) (string, error) {
-	c, err := auth(key)
+	c, err := auth(param.GetCookie())
 	if err != nil {
 		return msgSignInFailed, err
 	}
@@ -35,23 +40,23 @@ func (si *SignIn) Execute(key string) (string, error) {
 }
 
 func auth(cookies string) (*http.Client, error) {
-	jar := task.NewJar(cookies, domain, signURL)
+	jar := util.NewJar(cookies, domain, signURL)
 	client := &http.Client{Jar: jar}
 	authResp := &authResp{}
-	err := task.ParseBody(client, authURL, authResp)
+	err := util.ParseBody(client, authURL, authResp)
 	if err != nil {
-		return client, fmt.Errorf("%w, stage: %s", err, crontab.Stage_Auth)
+		return client, fmt.Errorf("%w, stage: %s", err, stageAuth)
 	}
 	if authResp.Code != 0 {
-		return client, fmt.Errorf("%w, stage: %s", ErrInvalidCookie, crontab.Stage_Auth)
+		return client, fmt.Errorf("%w, stage: %s", ErrInvalidCookie, stageAuth)
 	}
 	return client, nil
 }
 
 func signIn(c *http.Client) error {
-	err := task.ParseBody(c, signURL, nil)
+	err := util.ParseBody(c, signURL, nil)
 	if err != nil {
-		err = fmt.Errorf("%w, stage: %s", err, crontab.Stage_SignIn)
+		err = fmt.Errorf("%w, stage: %s", err, stageSignIn)
 	}
 	return err
 }
@@ -59,12 +64,12 @@ func signIn(c *http.Client) error {
 func verify(client *http.Client) (err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("%w, stage: %s", err, crontab.Stage_Verify)
+			err = fmt.Errorf("%w, stage: %s", err, stageVerify)
 		}
 	}()
 
 	verifyResp := &verifyResp{}
-	err = task.ParseBody(client, verifyURL, verifyResp)
+	err = util.ParseBody(client, verifyURL, verifyResp)
 	if err != nil {
 		return
 	}
