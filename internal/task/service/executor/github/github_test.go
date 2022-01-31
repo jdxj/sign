@@ -1,24 +1,12 @@
 package github
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
 )
 
 func TestRelease_Execute(t *testing.T) {
-	rel := &Release{}
-	req := request{
-		Owner: "v2fly",
-		Repo:  "v2ray-core",
-	}
-	d, _ := json.Marshal(req)
-	msg, err := rel.Execute(string(d))
-	if err != nil {
-		t.Fatalf("%s\n", err)
-	}
-	fmt.Printf("msg: %s", msg)
 }
 
 func TestSince(t *testing.T) {
@@ -64,5 +52,13 @@ func TestReleased(t *testing.T) {
 				t.Errorf("expect: %t, get: %t\n", c.Expect, res)
 			}
 		})
+	}
+}
+
+func TestReleased2(t *testing.T) {
+	rsp := &response{CreatedAt: "2022-01-31T11:46:00Z"}
+	_, err := released(rsp)
+	if err != nil {
+		t.Fatalf("%s\n", err)
 	}
 }

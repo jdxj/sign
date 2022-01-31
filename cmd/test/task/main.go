@@ -116,11 +116,11 @@ func main() {
 
 func testCreateTask(ctx context.Context) {
 	ctRsp, err := TaskService.CreateTask(ctx, &pb.CreateTaskRequest{Task: &pb.Task{
-		Description: "test create evo raphael task",
+		Description: "test create github release task",
 		UserId:      1,
-		Kind:        pb.Kind_EVOLUTION_RAPHAEL.String(),
+		Kind:        pb.Kind_GITHUB_RELEASE.String(),
 		Spec:        "*/5 * * * *",
-		Param:       configs.GetEvoParam(),
+		Param:       configs.GetGithubReleaseParam(),
 	}})
 	if err != nil {
 		log.Println(err)

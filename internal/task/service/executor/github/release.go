@@ -5,11 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"google.golang.org/protobuf/proto"
+
 	"github.com/jdxj/sign/internal/pkg/util"
+	pb "github.com/jdxj/sign/internal/proto/task"
 )
 
 const (
 	msgReleaseUpdateFailed = "获取release更新失败"
+	msgParseParamFailed    = "解析参数失败"
 )
 
 const (
@@ -26,34 +30,29 @@ var (
 
 type Release struct{}
 
-func (rel *Release) Domain() crontab.Domain {
-	return crontab.Domain_Github
+func (rel *Release) Kind() string {
+	return pb.Kind_GITHUB_RELEASE.String()
 }
 
-func (rel *Release) Kind() crontab.Kind {
-	return crontab.Kind_Release
-}
-
-func (rel *Release) Execute(key string) (string, error) {
-	req := &request{}
-	err := util.PopulateStruct(key, req)
+func (rel *Release) Execute(body []byte) (string, error) {
+	param := &pb.GithubRelease{}
+	err := proto.Unmarshal(body, param)
 	if err != nil {
-		return msgReleaseUpdateFailed, err
+		return msgParseParamFailed, err
 	}
-	rsp, err := getRelease(req.Owner, req.Repo)
-	if err != nil {
+
+	rsp, err := getRelease(param.GetOwner(), param.GetRepo())
+	if errors.Is(err, ErrReleaseNotFound) {
+		return "", nil
+	} else if err != nil {
 		return msgReleaseUpdateFailed, err
 	}
 	ok, err := released(rsp)
 	if ok {
-		return fmt.Sprintf("%s/%s 有新的 release", req.Owner, req.Repo), nil
+		return fmt.Sprintf("%s/%s 有新的 release",
+			param.GetOwner(), param.GetRepo()), nil
 	}
 	return "", fmt.Errorf("release not found: %w", err)
-}
-
-type request struct {
-	Owner string
-	Repo  string
 }
 
 type response struct {
@@ -82,15 +81,11 @@ func getJsonWithHeader(url string, rsp interface{}) error {
 }
 
 func released(rsp *response) (bool, error) {
-	loc, err := time.LoadLocation("Asia/Shanghai")
+	createdAt, err := time.Parse(time.RFC3339, rsp.CreatedAt)
 	if err != nil {
 		return false, err
 	}
-	createAt, err := time.ParseInLocation(time.RFC3339, rsp.CreatedAt, loc)
-	if err != nil {
-		return false, err
-	}
-	if time.Since(createAt) <= 24*time.Hour {
+	if time.Since(createdAt) <= 24*time.Hour {
 		return true, nil
 	}
 	return false, nil

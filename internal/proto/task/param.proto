@@ -9,3 +9,8 @@ message BiLiBiLi {
 message Evolution {
   string device = 1;
 }
+
+message GithubRelease {
+  string owner = 1;
+  string repo = 2;
+}
