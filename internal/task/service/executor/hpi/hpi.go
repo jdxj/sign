@@ -9,7 +9,10 @@ import (
 	"regexp"
 	"time"
 
+	"google.golang.org/protobuf/proto"
+
 	"github.com/jdxj/sign/internal/pkg/util"
+	pb "github.com/jdxj/sign/internal/proto/task"
 )
 
 const (
@@ -23,7 +26,15 @@ const (
 )
 
 const (
-	msgHPISignInFailed = "黑客派签到失败"
+	msgParseParamFailed = "解析参数失败"
+	msgHPISignInFailed  = "黑客派签到失败"
+)
+
+const (
+	stageAuth   = "auth"
+	stageSignIn = "sign-in"
+	stageQuery  = "query"
+	stageVerify = "verify"
 )
 
 var (
@@ -44,18 +55,22 @@ func init() {
 	regUserName = regexp.MustCompile(`currentUserName: '(.+)'`)
 }
 
+// Deprecated
+// SignIn 官方加了 ddos 机制, 导致签到失败, 需要重新测试
 type SignIn struct{}
 
-func (si *SignIn) Domain() crontab.Domain {
-	return crontab.Domain_HPI
+func (si *SignIn) Kind() string {
+	return pb.Kind_HPI_SIGN_IN.String()
 }
 
-func (si *SignIn) Kind() crontab.Kind {
-	return crontab.Kind_HPISign
-}
+func (si *SignIn) Execute(body []byte) (string, error) {
+	param := &pb.HPI{}
+	err := proto.Unmarshal(body, param)
+	if err != nil {
+		return msgParseParamFailed, err
+	}
 
-func (si *SignIn) Execute(key string) (string, error) {
-	token, err := login(key)
+	token, err := login(param.GetToken())
 	if err != nil {
 		return msgHPISignInFailed, err
 	}
@@ -139,20 +154,20 @@ func getSignToken(client *http.Client) (string, string, error) {
 	body, err := util.ParseRawBody(client, signTokenURL)
 	if err != nil {
 		return "", "", fmt.Errorf("%w: %s, stage: %s",
-			ErrGetToken, err, crontab.Stage_Auth)
+			ErrGetToken, err, stageAuth)
 	}
 
 	matched := regSignToken.FindStringSubmatch(string(body))
 	if len(matched) != 2 {
 		return "", "", fmt.Errorf("%w, stage: %s",
-			ErrTokenNotFound, crontab.Stage_Auth)
+			ErrTokenNotFound, stageAuth)
 	}
 	token := matched[1]
 
 	matched = regUserName.FindStringSubmatch(string(body))
 	if len(matched) != 2 {
 		return token, "", fmt.Errorf("%w, stage: %s",
-			ErrUserNameNotFound, crontab.Stage_Auth)
+			ErrUserNameNotFound, stageAuth)
 	}
 	userName := matched[1]
 	return token, userName, nil

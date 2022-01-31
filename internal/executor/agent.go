@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/jdxj/sign/internal/executor/task/hpi"
 	"github.com/jdxj/sign/internal/executor/task/nokey"
 	bilibili2 "github.com/jdxj/sign/internal/task/service/executor/bilibili"
 	"github.com/jdxj/sign/internal/task/service/executor/evo"
 	"github.com/jdxj/sign/internal/task/service/executor/github"
+	"github.com/jdxj/sign/internal/task/service/executor/hpi"
 	juejin2 "github.com/jdxj/sign/internal/task/service/executor/juejin"
 	"github.com/jdxj/sign/internal/task/service/executor/stg"
 	"github.com/jdxj/sign/internal/task/service/executor/v2ex"

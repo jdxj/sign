@@ -91,6 +91,8 @@ enum Kind {
   JUEJIN_CALENDAR = 10;
   // 自定义消息
   CUSTOM_MESSAGE = 11;
+  // Deprecated
+  HPI_SIGN_IN = 13;
 }
 
 message DispatchTasksRequest {

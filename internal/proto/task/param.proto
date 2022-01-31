@@ -27,3 +27,7 @@ message STG {
 message V2ex {
   string cookie = 1;
 }
+
+message HPI {
+  string token = 1;
+}

@@ -27,7 +27,7 @@ func TestRegDate(t *testing.T) {
 
 func TestSignIn_Execute(t *testing.T) {
 	si := &SignIn{}
-	msg, err := si.Execute(loginKey)
+	msg, err := si.Execute(nil)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
@@ -62,7 +62,7 @@ func TestJsonEncoding(t *testing.T) {
 }
 
 func TestLogin(t *testing.T) {
-	token, err := login(loginKey)
+	token, err := login("")
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
