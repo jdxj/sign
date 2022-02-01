@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -18,7 +19,8 @@ import (
 )
 
 var (
-	TaskService pb.TaskService
+	TaskService       pb.TaskService
+	ErrConfigNotFound = errors.New("config not found")
 )
 
 func main() {
@@ -31,7 +33,7 @@ func main() {
 		micro.Action(func(cli *cli.Context) (err error) {
 			path := cli.String("config")
 			if path == "" {
-				return fmt.Errorf("config not found")
+				return ErrConfigNotFound
 			}
 			log.Printf(" config path:[%s]\n", path)
 
@@ -129,12 +131,12 @@ func testCreateTask(ctx context.Context) {
 	fmt.Printf("ctRsp: %+v\n", ctRsp)
 }
 
-func testDeleteTask(ctx context.Context) {
-	_, err := TaskService.DeleteTask(ctx, &pb.DeleteTaskRequest{
-		TaskId: 2,
-		UserId: 1,
-	})
-	if err != nil {
-		log.Println(err)
-	}
-}
+//func testDeleteTask(ctx context.Context) {
+//	_, err := TaskService.DeleteTask(ctx, &pb.DeleteTaskRequest{
+//		TaskId: 2,
+//		UserId: 1,
+//	})
+//	if err != nil {
+//		log.Println(err)
+//	}
+//}

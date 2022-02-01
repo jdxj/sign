@@ -44,12 +44,14 @@ func WithSalt(pass, salt string) string {
 	return base64.StdEncoding.EncodeToString(sum[:])
 }
 
-func Encrypt(key, text []byte) []byte {
+func Encrypt(key, text []byte) (d []byte) {
 	sum := sha256.Sum256(key)
 	iv := make([]byte, aes.BlockSize)
 	_, _ = rand.Read(iv)
 	ciphertext := encrypt(sum[:], iv, text)
-	return append(iv, ciphertext...)
+	d = append(d, iv...)
+	d = append(d, ciphertext...)
+	return
 }
 
 func Decrypt(key, ciphertext []byte) []byte {

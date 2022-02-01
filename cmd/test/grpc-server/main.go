@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"log"
 
 	"github.com/asim/go-micro/plugins/registry/etcd/v4"
@@ -16,6 +16,10 @@ import (
 	testImpl "github.com/jdxj/sign/internal/test-grpc"
 )
 
+var (
+	ErrConfigNotFound = errors.New("config not found")
+)
+
 func main() {
 	service := micro.NewService(
 		micro.Name("test-grpc-server"),
@@ -26,7 +30,7 @@ func main() {
 		micro.Action(func(cli *cli.Context) (err error) {
 			path := cli.String("config")
 			if path == "" {
-				return fmt.Errorf("config not found")
+				return ErrConfigNotFound
 			}
 			log.Printf(" config path:[%s]\n", path)
 

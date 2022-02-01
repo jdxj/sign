@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -21,7 +22,8 @@ func Respond(ctx *gin.Context, data interface{}, err error) {
 	}
 
 	if err != nil {
-		if se, ok := err.(*ser.SignError); ok {
+		var se *ser.SignError
+		if errors.As(err, &se) {
 			rsp.Code = se.Code
 			rsp.Description = fmt.Sprintf("%s - %s", se.CodeDesc, se.Description)
 		} else {

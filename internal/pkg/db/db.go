@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	"github.com/jdxj/sign/internal/pkg/config"
 )
@@ -36,4 +39,14 @@ func InitGorm(conf config.DB) error {
 
 func WithCtx(ctx context.Context) *gorm.DB {
 	return gormDB.WithContext(ctx)
+}
+
+func Debug() {
+	gormDB.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold:             200 * time.Millisecond,
+			Colorful:                  true,
+			IgnoreRecordNotFoundError: false,
+			LogLevel:                  logger.Info,
+		})
 }

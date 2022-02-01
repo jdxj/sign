@@ -35,6 +35,9 @@ func testSub(id string) {
 	}
 
 	_, err = b.Subscribe("task-dispatch", eventHandlerD(id), broker.Queue("task-consumer"))
+	if err != nil {
+		log.Printf("Subscribe: %s\n", err)
+	}
 	time.Sleep(time.Hour)
 }
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -17,6 +18,10 @@ import (
 	pb "github.com/jdxj/sign/internal/proto/user"
 )
 
+var (
+	ErrConfigNotFound = errors.New("config not found")
+)
+
 func main() {
 	service := micro.NewService(
 		micro.Name("test-user"),
@@ -27,7 +32,7 @@ func main() {
 		micro.Action(func(cli *cli.Context) (err error) {
 			path := cli.String("config")
 			if path == "" {
-				return fmt.Errorf("config not found")
+				return ErrConfigNotFound
 			}
 			log.Printf(" config path:[%s]\n", path)
 

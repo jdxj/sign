@@ -28,9 +28,7 @@ const (
 )
 
 const (
-	stageAuth   = "auth"
-	stageSignIn = "sign-in"
-	stageVerify = "verify"
+	stageAuth = "auth"
 )
 
 var (

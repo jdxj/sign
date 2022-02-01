@@ -9,7 +9,7 @@ import (
 )
 
 func TestMain(t *testing.M) {
-	db.InitGorm(config.DB{
+	_ = db.InitGorm(config.DB{
 		User:   "root",
 		Pass:   "123456",
 		Host:   "127.0.0.1",

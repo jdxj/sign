@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"log"
 
 	"github.com/asim/go-micro/plugins/registry/etcd/v4"
@@ -18,6 +18,10 @@ import (
 	pb "github.com/jdxj/sign/internal/proto/app"
 )
 
+var (
+	ErrConfigNotFound = errors.New("config not found")
+)
+
 func main() {
 	var root config.Root
 
@@ -30,7 +34,7 @@ func main() {
 		micro.Action(func(cli *cli.Context) (err error) {
 			path := cli.String("config")
 			if path == "" {
-				return fmt.Errorf("config not found")
+				return ErrConfigNotFound
 			}
 			log.Printf(" config path:[%s]\n", path)
 

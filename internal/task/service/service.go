@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"gorm.io/gorm"
 
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/db"
@@ -90,39 +91,42 @@ func (s *Service) GetTask(ctx context.Context, req *pb.GetTaskRequest, rsp *pb.G
 	return nil
 }
 
-func (s *Service) GetTasks(ctx context.Context, req *pb.GetTasksRequest, rsp *pb.GetTasksResponse) error {
-	if req.GetOffset() < 0 || req.GetLimit() < 1 {
-		return status.Errorf(codes.InvalidArgument, "invalid pagination")
-	}
-
-	db := db.WithCtx(ctx).
-		Model(&dao.Task{})
+func genListCond(tx *gorm.DB, req *pb.GetTasksRequest) {
 	if req.GetTaskId() != 0 {
-		db.Where("task_id = ?", req.GetTaskId())
+		tx.Where("task_id = ?", req.GetTaskId())
 	}
 	if req.GetDescription() != "" {
-		db.Where("description LIKE ?", fmt.Sprintf("%%%s%%", req.GetDescription()))
-	}
-	if req.GetUserId() != 0 {
-		db.Where("user_id = ?", req.GetUserId())
+		tx.Where("description LIKE ?", fmt.Sprintf("%%%s%%", req.GetDescription()))
 	}
 	if req.GetKind() != "" {
-		db.Where("kind = ?", req.GetKind())
+		tx.Where("kind = ?", req.GetKind())
 	}
 	if req.GetSpec() != "" {
-		db.Where("spec = ?", req.GetSpec())
+		tx.Where("spec = ?", req.GetSpec())
 	}
 	if req.GetCreatedAt().IsValid() {
-		db.Where("created_at >= ?", req.GetCreatedAt().AsTime())
+		tx.Where("created_at >= ?", req.GetCreatedAt().AsTime())
+	}
+}
+
+func (s *Service) GetTasks(ctx context.Context, req *pb.GetTasksRequest, rsp *pb.GetTasksResponse) error {
+	if req.GetUserId() == 0 ||
+		req.GetOffset() < 0 || req.GetLimit() < 1 {
+		return status.Errorf(codes.InvalidArgument, "invalid param")
 	}
 
-	err := db.Count(&rsp.Count).Error
+	gormDB := db.WithCtx(ctx).
+		Model(&dao.Task{}).
+		Where("user_id = ?", req.GetUserId())
+	genListCond(gormDB, req)
+
+	err := gormDB.Count(&rsp.Count).Error
 	if err != nil {
 		return status.Errorf(codes.Internal, "Count: %s", err)
 	}
 
 	var rows []dao.Task
-	err = db.Order("created_at DESC, task_id DESC").
+	err = gormDB.Order("created_at DESC, task_id DESC").
 		Offset(int(req.GetOffset())).
 		Limit(int(req.GetLimit())).
 		Find(&rows).
