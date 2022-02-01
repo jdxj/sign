@@ -21,28 +21,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: trigger-dep
+  name: notice-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: trigger
+      app: notice
   template:
     metadata:
-      name: trigger-pod
+      name: notice-pod
       labels:
-        app: trigger
+        app: notice
     spec:
       containers:
-        - name: trigger
-          image: jdxj/trigger:v0.3.0
-          imagePullPolicy: Always
-          command: ["/sign/trigger.run"]
-          args: ["-f", "/sign/config/config.yaml"]
+        - name: notice-run
+          image: jdxj/notice:test-2e85bdf
+          command: [ "/sign/notice.run" ]
+          args: [ "--config", "/sign/config/conf.yaml" ]
           volumeMounts:
             - mountPath: /sign/config
-              name: apiserver-config
+              name: notice-conf
       volumes:
-        - name: apiserver-config
-          configMap:
-            name: apiserver-cm
+        - name: notice-conf
+          secret:
+            secretName: sign-config

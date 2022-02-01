@@ -21,31 +21,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: notice-dep
+  name: trigger-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: notice
+      app: trigger
   template:
     metadata:
-      name: notice-pod
+      name: trigger-pod
       labels:
-        app: notice
+        app: trigger
     spec:
       containers:
-        - name: notice
-          image: jdxj/notice:v0.3.0
-          imagePullPolicy: Always
-          command: ["/sign/notice.run"]
-          args: ["-f", "/sign/config/config.yaml"]
+        - name: trigger-run
+          image: jdxj/trigger:test-2e85bdf
+          command: [ "/sign/trigger.run" ]
+          args: [ "--config", "/sign/config/conf.yaml" ]
           volumeMounts:
             - mountPath: /sign/config
-              name: apiserver-config
-          ports:
-            - containerPort: 49155
-              protocol: TCP
+              name: trigger-conf
       volumes:
-        - name: apiserver-config
-          configMap:
-            name: apiserver-cm
+        - name: trigger-conf
+          secret:
+            secretName: sign-config

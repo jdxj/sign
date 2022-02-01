@@ -21,31 +21,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: crontab-dep
+  name: user-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: crontab
+      app: user
   template:
     metadata:
-      name: crontab-pod
+      name: user-pod
       labels:
-        app: crontab
+        app: user
     spec:
       containers:
-        - name: crontab
-          image: jdxj/crontab:v0.3.0
-          imagePullPolicy: Always
-          command: ["/sign/crontab.run"]
-          args: ["-f", "/sign/config/config.yaml"]
+        - name: user-run
+          image: jdxj/user:test-2e85bdf
+          command: [ "/sign/user.run" ]
+          args: [ "--config", "/sign/config/conf.yaml" ]
           volumeMounts:
             - mountPath: /sign/config
-              name: apiserver-config
-          ports:
-            - containerPort: 49152
-              protocol: TCP
+              name: user-conf
       volumes:
-        - name: apiserver-config
-          configMap:
-            name: apiserver-cm
+        - name: user-conf
+          secret:
+            secretName: sign-config

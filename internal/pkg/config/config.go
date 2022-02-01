@@ -9,14 +9,14 @@ import (
 )
 
 type Root struct {
-	Bot       Bot       `yaml:"bot"`
-	Logger    Logger    `yaml:"logger"`
-	APIServer APIServer `yaml:"api_server"`
-	DB        DB        `yaml:"db"`
-	RDB       RDB       `yaml:"rdb"`
-	Rabbit    Rabbit    `yaml:"rabbit"`
-	Secret    Secret    `yaml:"secret"`
-	Etcd      Etcd      `yaml:"etcd"`
+	Bot    Bot    `yaml:"bot"`
+	Logger Logger `yaml:"logger"`
+	App    App    `yaml:"app"`
+	DB     DB     `yaml:"db"`
+	RDB    RDB    `yaml:"rdb"`
+	Rabbit Rabbit `yaml:"rabbit"`
+	Secret Secret `yaml:"secret"`
+	Etcd   Etcd   `yaml:"etcd"`
 }
 
 type Bot struct {
@@ -28,7 +28,7 @@ type Logger struct {
 	Mode string `yaml:"mode"`
 }
 
-type APIServer struct {
+type App struct {
 	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
 	Key  string `yaml:"key"`

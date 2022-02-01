@@ -21,14 +21,15 @@
 # tmp
 *.jpeg
 
-configs.yaml
-config.yaml
 
 *.bak
 *.dia*
 key_test.go
 *.run
+*.upx
 
+config.yaml
+configs.yaml
 configs/ca.crt
 configs/client.crt
 configs/client.key

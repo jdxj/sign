@@ -51,13 +51,13 @@ func main() {
 		}),
 
 		micro.BeforeStart(func() error {
-			api.Init(root.APIServer.Key)
+			api.Init(root.App.Key)
 			ref.Init(service.Client())
 			return nil
 		}),
 	)
 
-	srv := impl.New(root.APIServer)
+	srv := impl.New(root.App)
 	err := pb.RegisterAppServiceHandler(service.Server(), srv)
 	if err != nil {
 		log.Fatalln(err)

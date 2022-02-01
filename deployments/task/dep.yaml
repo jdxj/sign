@@ -21,31 +21,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-dep
+  name: task-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user
+      app: task
   template:
     metadata:
-      name: user-pod
+      name: task-pod
       labels:
-        app: user
+        app: task
     spec:
       containers:
-        - name: user
-          image: jdxj/user:v0.3.0
-          imagePullPolicy: Always
-          command: ["/sign/user.run"]
-          args: ["-f", "/sign/config/config.yaml"]
+        - name: task-run
+          image: jdxj/task:test-2e85bdf
+          command: [ "/sign/task.run" ]
+          args: [ "--config", "/sign/config/conf.yaml" ]
           volumeMounts:
             - mountPath: /sign/config
-              name: apiserver-config
-          ports:
-            - containerPort: 49154
-              protocol: TCP
+              name: task-conf
       volumes:
-        - name: apiserver-config
-          configMap:
-            name: apiserver-cm
+        - name: task-conf
+          secret:
+            secretName: sign-config

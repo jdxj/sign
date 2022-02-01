@@ -21,34 +21,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: apiserver-dep
+  name: app-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: apiserver
+      app: app
   template:
     metadata:
-      name: apiserver-pod
+      name: app-pod
       labels:
-        app: apiserver
+        app: app
     spec:
       containers:
-        - name: apiserver
-          image: jdxj/apiserver:v0.3.0
-          imagePullPolicy: Always
-          command: ["/sign/apiserver.run"]
-          args: ["-f", "/sign/config/config.yaml"]
+        - name: app-run
+          image: jdxj/app:test-2e85bdf
+          command: [ "/sign/app.run" ]
+          args: [ "--config", "/sign/config/conf.yaml" ]
           env:
             - name: GIN_MODE
               value: release
           volumeMounts:
             - mountPath: /sign/config
-              name: apiserver-config
+              name: app-conf
           ports:
             - containerPort: 8081
               protocol: TCP
       volumes:
-        - name: apiserver-config
-          configMap:
-            name: apiserver-cm
+        - name: app-conf
+          secret:
+            secretName: sign-config

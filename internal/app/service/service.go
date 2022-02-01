@@ -21,7 +21,7 @@ const (
 	version = "0.1.0"
 )
 
-func New(conf config.APIServer) *Service {
+func New(conf config.App) *Service {
 	s := &Service{
 		wg: &sync.WaitGroup{},
 		httpServer: &http.Server{

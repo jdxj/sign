@@ -3,7 +3,7 @@ bot:
 logger:
   path: ""
   mode: ""
-api_server:
+app:
   host: ""
   port: 0
   key: ""
