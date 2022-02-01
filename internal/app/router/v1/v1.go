@@ -17,12 +17,12 @@ func New(p gin.IRouter) {
 	session := v1.Group("/session")
 	{
 		session.POST("/login", handler.Login)
-		session.POST("/sign-up", handler.SignUp)
 	}
 
 	// user
 	user := v1.Group("/user")
 	{
+		user.POST("/sign-up", handler.SignUp)
 		user.POST("/update", handler.UpdateUser)
 	}
 
