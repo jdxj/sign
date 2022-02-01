@@ -10,6 +10,7 @@ import (
 	"go-micro.dev/v4/registry"
 
 	"github.com/jdxj/sign/internal/app/api"
+	"github.com/jdxj/sign/internal/app/ref"
 	impl "github.com/jdxj/sign/internal/app/service"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
@@ -46,7 +47,8 @@ func main() {
 		}),
 
 		micro.BeforeStart(func() error {
-			api.Init(service.Client(), root.APIServer.Key)
+			api.Init(root.APIServer.Key)
+			ref.Init(service.Client())
 			return nil
 		}),
 	)

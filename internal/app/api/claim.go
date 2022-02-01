@@ -8,6 +8,14 @@ import (
 )
 
 var (
+	JwtKey string
+)
+
+func Init(jwtKey string) {
+	JwtKey = jwtKey
+}
+
+var (
 	ErrParseToken = errors.New("parse token")
 )
 

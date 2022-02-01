@@ -10,7 +10,7 @@ import (
 )
 
 type HelloReq struct {
-	Name string `json:"name" validate:"required"`
+	Name string `json:"name" binding:"required"`
 }
 
 type HelloRsp struct {

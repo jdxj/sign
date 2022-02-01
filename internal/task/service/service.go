@@ -64,13 +64,14 @@ func (s *Service) CreateTask(ctx context.Context, req *pb.CreateTaskRequest, rsp
 }
 
 func (s *Service) GetTask(ctx context.Context, req *pb.GetTaskRequest, rsp *pb.GetTaskResponse) error {
-	if req.GetTaskId() == 0 {
-		return status.Errorf(codes.InvalidArgument, "taskId is empty")
+	if req.GetTaskId() == 0 || req.GetUserId() == 0 {
+		return status.Errorf(codes.InvalidArgument, "invalid param")
 	}
 
 	var row dao.Task
 	err := db.WithCtx(ctx).
 		Where("task_id = ?", req.GetTaskId()).
+		Where("user_id = ?", req.GetUserId()).
 		Take(&row).
 		Error
 	if err != nil {
@@ -154,12 +155,6 @@ func (s *Service) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest, _ *
 	data := make(map[string]interface{})
 	if task.GetDescription() != "" {
 		data["description"] = task.GetDescription()
-	}
-	if task.GetKind() != "" {
-		if _, ok := pb.Kind_value[task.GetKind()]; !ok || task.GetKind() == pb.Kind_UNKNOWN_KIND.String() {
-			return status.Errorf(codes.InvalidArgument, "invalid kind")
-		}
-		data["kind"] = task.GetKind()
 	}
 	if task.GetSpec() != "" {
 		_, err := triggerService.CreateTrigger(ctx, &trigger.CreateTriggerRequest{Trigger: &trigger.Trigger{

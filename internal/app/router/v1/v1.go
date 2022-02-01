@@ -12,10 +12,27 @@ func New(p gin.IRouter) {
 	{
 		v1.POST("/hello", handler.Hello)
 	}
-	// task
+
+	// session
+	session := v1.Group("/session")
 	{
-		//v1.POST("/task", model.CreateTask)
-		//v1.DELETE("/task", model.DeleteTask)
-		//v1.POST("/tasks", model.GetTasks)
+		session.POST("/login", handler.Login)
+		session.POST("/sign-up", handler.SignUp)
+	}
+
+	// user
+	user := v1.Group("/user")
+	{
+		user.POST("/update", handler.UpdateUser)
+	}
+
+	// task
+	task := v1.Group("/task")
+	{
+		task.POST("/create", handler.CreateTask)
+		task.POST("/get", handler.GetTask)
+		task.POST("list", handler.GetTasks)
+		task.POST("/update", handler.UpdateTask)
+		task.POST("/delete", handler.DeleteTask)
 	}
 }

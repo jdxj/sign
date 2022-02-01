@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/jdxj/sign/internal/pkg/logger"
 	ser "github.com/jdxj/sign/internal/pkg/sign-error"
 )
 
@@ -13,11 +14,11 @@ type Request struct {
 	Token string      `json:"token"`
 	Data  interface{} `json:"data"`
 
-	claim *Claim
+	Claim *Claim `json:"-"`
 }
 
 func checkToken(req *Request) (err error) {
-	req.claim, err = NewClaimFromToken(req.Token)
+	req.Claim, err = NewClaimFromToken(req.Token)
 	if err != nil {
 		return ser.New(ser.ErrAuthFailed, "无效的 token")
 	}
@@ -29,6 +30,7 @@ func Process(ctx *gin.Context, d interface{}, handle handler, checkers ...checke
 		Data: d,
 	}
 	if err := ctx.Bind(req); err != nil {
+		logger.Errorf("Bind: %s", err)
 		Respond(ctx, nil, ser.New(ser.ErrBindReqFailed, err.Error()))
 		return
 	}

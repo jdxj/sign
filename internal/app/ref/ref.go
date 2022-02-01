@@ -1,4 +1,4 @@
-package api
+package ref
 
 import (
 	"go-micro.dev/v4/client"
@@ -14,15 +14,11 @@ var (
 	TaskService    task.TaskService
 	NoticeService  notice.NoticeService
 	TriggerService trigger.TriggerService
-
-	JwtKey string
 )
 
-func Init(cc client.Client, jwtKey string) {
+func Init(cc client.Client) {
 	UserService = user.NewUserService(user.ServiceName, cc)
 	TaskService = task.NewTaskService(task.ServiceName, cc)
 	NoticeService = notice.NewNoticeService(notice.ServiceName, cc)
 	TriggerService = trigger.NewTriggerService(trigger.ServiceName, cc)
-
-	JwtKey = jwtKey
 }

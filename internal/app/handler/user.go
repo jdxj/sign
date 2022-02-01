@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/jdxj/sign/internal/app/api"
+	"github.com/jdxj/sign/internal/app/ref"
 	"github.com/jdxj/sign/internal/pkg/logger"
 	ser "github.com/jdxj/sign/internal/pkg/sign-error"
 	"github.com/jdxj/sign/internal/proto/user"
@@ -22,7 +23,7 @@ type LoginRsp struct {
 }
 
 func login(ctx context.Context, req *LoginReq) (*LoginRsp, error) {
-	auRsp, err := api.UserService.AuthUser(ctx, &user.AuthUserRequest{
+	auRsp, err := ref.UserService.AuthUser(ctx, &user.AuthUserRequest{
 		Nickname: req.Nickname,
 		Password: req.Password,
 	})
@@ -54,8 +55,8 @@ func Login(ctx *gin.Context) {
 }
 
 type SignUpReq struct {
-	Nickname string `json:"nickname" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Nickname string `json:"nickname" binding:"required"`
+	Password string `json:"password" binding:"required"`
 	Mail     string `json:"mail"`
 	Telegram int64  `json:"telegram"`
 }
@@ -66,7 +67,7 @@ type SignUpRsp struct {
 }
 
 func signUp(ctx context.Context, req *SignUpReq) (*SignUpRsp, error) {
-	cuRsp, err := api.UserService.CreateUser(ctx, &user.CreateUserRequest{User: &user.User{
+	cuRsp, err := ref.UserService.CreateUser(ctx, &user.CreateUserRequest{User: &user.User{
 		Nickname: req.Nickname,
 		Password: req.Password,
 		Contact: &user.Contact{
@@ -93,5 +94,35 @@ func SignUp(ctx *gin.Context) {
 	req := &SignUpReq{}
 	api.Process(ctx, req, func(request *api.Request) (interface{}, error) {
 		return signUp(ctx, req)
+	})
+}
+
+type UpdateUserReq struct {
+	Nickname string `json:"nickname"`
+	Password string `json:"password"`
+	Mail     string `json:"mail"`
+	Telegram int64  `json:"telegram"`
+}
+
+func updateUser(ctx context.Context, req *UpdateUserReq, userID int64) error {
+	_, err := ref.UserService.UpdateUser(ctx, &user.UpdateUserRequest{User: &user.User{
+		UserId:   userID,
+		Nickname: req.Nickname,
+		Password: req.Password,
+		Contact: &user.Contact{
+			Mail:     req.Mail,
+			Telegram: req.Telegram,
+		},
+	}})
+	if err != nil {
+		return ser.New(ser.ErrRPCRequest, "UpdateUser: %s", err)
+	}
+	return nil
+}
+
+func UpdateUser(ctx *gin.Context) {
+	req := &UpdateUserReq{}
+	api.ProcessCheckToken(ctx, req, func(request *api.Request) (interface{}, error) {
+		return nil, updateUser(ctx, req, request.Claim.UserID)
 	})
 }

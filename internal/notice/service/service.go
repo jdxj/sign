@@ -49,6 +49,9 @@ func (srv *Service) SendNotice(ctx context.Context, req *pb.SendNoticeRequest, r
 
 	// todo: 配置化
 	contact := userRsp.GetUser().GetContact().GetTelegram()
+	if contact == 0 {
+		return nil
+	}
 
 	msgConf := bot.NewMessage(contact, req.GetContent())
 	_, err = srv.botClient.Send(msgConf)
