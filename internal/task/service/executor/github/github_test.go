@@ -1,12 +1,31 @@
 package github
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
+
+	"google.golang.org/protobuf/proto"
+
+	"github.com/jdxj/sign/internal/proto/task"
 )
 
 func TestRelease_Execute(t *testing.T) {
+	exe := &Release{}
+	param := &task.GithubRelease{
+		Owner: "asim",
+		Repo:  "go-micro",
+	}
+	d, err := proto.Marshal(param)
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	str, err := exe.Execute(d)
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	fmt.Printf("%s\n", str)
 }
 
 func TestSince(t *testing.T) {
@@ -60,5 +79,13 @@ func TestReleased2(t *testing.T) {
 	_, err := released(rsp)
 	if err != nil {
 		t.Fatalf("%s\n", err)
+	}
+}
+
+func TestErrorsIs(t *testing.T) {
+	err := ErrReleaseNotFound
+
+	if !errors.Is(err, ErrReleaseNotFound) {
+		t.Fatalf("failed")
 	}
 }

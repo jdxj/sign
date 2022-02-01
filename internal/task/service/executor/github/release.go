@@ -47,12 +47,11 @@ func (rel *Release) Execute(body []byte) (string, error) {
 	} else if err != nil {
 		return msgReleaseUpdateFailed, err
 	}
-	ok, err := released(rsp)
-	if ok {
-		return fmt.Sprintf("%s/%s 有新的 release",
-			param.GetOwner(), param.GetRepo()), nil
+
+	if released(rsp) {
+		return fmt.Sprintf("%s/%s 有新的 release", param.GetOwner(), param.GetRepo()), nil
 	}
-	return "", fmt.Errorf("release not found: %w", err)
+	return "", nil
 }
 
 type response struct {
@@ -80,13 +79,10 @@ func getJsonWithHeader(url string, rsp interface{}) error {
 	return util.GetJson(url, header, rsp)
 }
 
-func released(rsp *response) (bool, error) {
-	createdAt, err := time.Parse(time.RFC3339, rsp.CreatedAt)
-	if err != nil {
-		return false, err
-	}
+func released(rsp *response) bool {
+	createdAt, _ := time.Parse(time.RFC3339, rsp.CreatedAt)
 	if time.Since(createdAt) <= 24*time.Hour {
-		return true, nil
+		return true
 	}
-	return false, nil
+	return false
 }
