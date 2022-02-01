@@ -63,22 +63,11 @@ func TestReleased(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.Name, func(t *testing.T) {
-			res, err := released(c.Rsp)
-			if err != nil {
-				t.Fatalf("%s\n", err)
-			}
+			res := released(c.Rsp)
 			if res != c.Expect {
 				t.Errorf("expect: %t, get: %t\n", c.Expect, res)
 			}
 		})
-	}
-}
-
-func TestReleased2(t *testing.T) {
-	rsp := &response{CreatedAt: "2022-01-31T11:46:00Z"}
-	_, err := released(rsp)
-	if err != nil {
-		t.Fatalf("%s\n", err)
 	}
 }
 
