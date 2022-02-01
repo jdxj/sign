@@ -79,7 +79,7 @@ enum Kind {
   // V2ex
   V2EX_SIGN_IN = 4;
   // Evolution X
-  EVOLUTION_RAPHAEL = 5;
+  EVOLUTION_RELEASE = 5;
 
   GITHUB_RELEASE = 6;
   // 掘金签到

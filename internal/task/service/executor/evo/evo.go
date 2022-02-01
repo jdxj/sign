@@ -14,7 +14,7 @@ import (
 type Updater struct{}
 
 func (u *Updater) Kind() string {
-	return pb.Kind_EVOLUTION_RAPHAEL.String()
+	return pb.Kind_EVOLUTION_RELEASE.String()
 }
 
 func (u *Updater) Execute(body []byte) (string, error) {

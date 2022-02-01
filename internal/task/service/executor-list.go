@@ -19,7 +19,7 @@ var (
 		pb.Kind_BILIBILI_SIGN_IN.String(): &bilibili.SignIn{},
 		pb.Kind_BILIBILI_B_COUNT.String(): &bilibili.Bi{},
 
-		pb.Kind_EVOLUTION_RAPHAEL.String(): &evo.Updater{},
+		pb.Kind_EVOLUTION_RELEASE.String(): &evo.Updater{},
 
 		pb.Kind_GITHUB_RELEASE.String(): &github.Release{},
 

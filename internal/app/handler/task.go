@@ -23,7 +23,7 @@ func getMessage(kind string) (msg proto.Message) {
 		msg = &task.STG{}
 	case task.Kind_V2EX_SIGN_IN.String():
 		msg = &task.V2Ex{}
-	case task.Kind_EVOLUTION_RAPHAEL.String():
+	case task.Kind_EVOLUTION_RELEASE.String():
 		msg = &task.Evolution{}
 	case task.Kind_GITHUB_RELEASE.String():
 		msg = &task.GithubRelease{}
