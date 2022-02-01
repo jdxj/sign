@@ -13,7 +13,7 @@ docker: $(images)
 $(images): src := _output/build
 $(images): des := build/docker
 $(images): all
-	upx --best $(src)/$@.out
+	upx -7 $(src)/$@.out
 	mkdir -p $(des)/$@
 	cp $(src)/$@.out $(des)/$@/$@.run
 	cd $(des) && ./build.sh $@
