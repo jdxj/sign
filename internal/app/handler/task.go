@@ -27,7 +27,7 @@ func getMessage(kind string) (msg proto.Message) {
 		msg = &task.Evolution{}
 	case task.Kind_GITHUB_RELEASE.String():
 		msg = &task.GithubRelease{}
-	case task.Kind_JUEJIN_Sign_IN.String(), task.Kind_JUEJIN_COUNT.String(),
+	case task.Kind_JUEJIN_SIGN_IN.String(), task.Kind_JUEJIN_COUNT.String(),
 		task.Kind_JUEJIN_POINT.String(), task.Kind_JUEJIN_CALENDAR.String():
 		msg = &task.JueJin{}
 	case task.Kind_CUSTOM_MESSAGE.String():

@@ -23,7 +23,7 @@ var (
 
 		pb.Kind_GITHUB_RELEASE.String(): &github.Release{},
 
-		pb.Kind_JUEJIN_Sign_IN.String():  &juejin.SignIn{},
+		pb.Kind_JUEJIN_SIGN_IN.String():  &juejin.SignIn{},
 		pb.Kind_JUEJIN_POINT.String():    &juejin.Point{},
 		pb.Kind_JUEJIN_COUNT.String():    &juejin.Count{},
 		pb.Kind_JUEJIN_CALENDAR.String(): &juejin.Calendar{},

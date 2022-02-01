@@ -11,7 +11,7 @@ import (
 type SignIn struct{}
 
 func (si *SignIn) Kind() string {
-	return pb.Kind_JUEJIN_Sign_IN.String()
+	return pb.Kind_JUEJIN_SIGN_IN.String()
 }
 
 func (si *SignIn) Execute(body []byte) (string, error) {
