@@ -12,7 +12,6 @@ import (
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
 
-	"github.com/jdxj/sign/configs"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/util"
 	pb "github.com/jdxj/sign/internal/proto/user"
@@ -58,8 +57,8 @@ func main() {
 			Nickname: "jdxj",
 			Password: "jdxj",
 			Contact: &pb.Contact{
-				Mail:     configs.MyMail,
-				Telegram: configs.MyTelID,
+				Mail:     "",
+				Telegram: 0,
 			},
 		}})
 		if err != nil {
@@ -72,7 +71,7 @@ func main() {
 
 	testAuthUser := func() {
 		auRsp, err := userService.AuthUser(ctx, &pb.AuthUserRequest{
-			Nickname: configs.Nickname,
+			Nickname: "",
 			Password: "iii",
 		})
 		if err != nil {

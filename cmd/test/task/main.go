@@ -12,7 +12,6 @@ import (
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
 
-	"github.com/jdxj/sign/configs"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/util"
 	pb "github.com/jdxj/sign/internal/proto/task"
@@ -122,7 +121,7 @@ func testCreateTask(ctx context.Context) {
 		UserId:      1,
 		Kind:        pb.Kind_CUSTOM_MESSAGE.String(),
 		Spec:        "* * * * *",
-		Param:       configs.GetCustomMessageParam(),
+		Param:       nil,
 	}})
 	if err != nil {
 		log.Println(err)

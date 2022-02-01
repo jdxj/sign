@@ -8,7 +8,6 @@ import (
 	"go-micro.dev/v4/broker"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/jdxj/sign/configs"
 	testPB "github.com/jdxj/sign/internal/proto/test-grpc"
 )
 
@@ -21,7 +20,7 @@ func main() {
 func testSub(id string) {
 	b := rabbitmq.NewBroker()
 	err := b.Init(
-		broker.Addrs(configs.RabbitMQEndpoint),
+		broker.Addrs(""),
 	)
 	if err != nil {
 		log.Printf("%s\n", err)

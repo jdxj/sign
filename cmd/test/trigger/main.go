@@ -11,7 +11,6 @@ import (
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
 
-	"github.com/jdxj/sign/configs"
 	"github.com/jdxj/sign/internal/pkg/util"
 	pb "github.com/jdxj/sign/internal/proto/trigger"
 )
@@ -24,12 +23,9 @@ func main() {
 		micro.Action(func(cli *cli.Context) error {
 			return service.Options().
 				Registry.Init(
-				registry.Addrs(configs.EtcdEndpoint),
+				registry.Addrs(""),
 				registry.TLSConfig(
-					util.NewTLSConfig(
-						configs.Ca,
-						configs.Cert,
-						configs.Key)))
+					util.NewTLSConfig("", "", "")))
 		}))
 
 	triggerService := pb.NewTriggerService(pb.ServiceName, service.Client())
