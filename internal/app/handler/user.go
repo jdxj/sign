@@ -38,7 +38,7 @@ func login(ctx context.Context, req *LoginReq) (*LoginRsp, error) {
 	rsp := &LoginRsp{
 		UserID: auRsp.GetUserID(),
 	}
-	token, err := api.NewClaim(auRsp.GetUserID(), req.Nickname).Token()
+	token, err := api.NewSignClaim(auRsp.GetUserID(), req.Nickname).Token()
 	if err != nil {
 		logger.Errorf("GenerateToken: %s", err)
 		return nil, ser.New(ser.ErrInternal, "认证失败")
@@ -82,7 +82,7 @@ func signUp(ctx context.Context, req *SignUpReq) (*SignUpRsp, error) {
 	rsp := &SignUpRsp{
 		UserID: cuRsp.GetUserID(),
 	}
-	token, err := api.NewClaim(cuRsp.UserID, req.Nickname).Token()
+	token, err := api.NewSignClaim(cuRsp.UserID, req.Nickname).Token()
 	if err != nil {
 		return nil, ser.New(ser.ErrInternal, "获取 token 失败: %s", err)
 	}

@@ -3,7 +3,6 @@ module github.com/jdxj/sign
 go 1.17
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/validator/v10 v10.8.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.3
@@ -37,6 +36,7 @@ require (
 require (
 	github.com/asim/go-micro/plugins/broker/rabbitmq/v4 v4.0.0-20220118152736-9e0be6c85d75
 	github.com/asim/go-micro/plugins/registry/etcd/v4 v4.0.0-20220118152736-9e0be6c85d75
+	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/urfave/cli/v2 v2.3.0
 	go-micro.dev/v4 v4.5.0
 )

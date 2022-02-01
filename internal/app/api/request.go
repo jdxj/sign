@@ -14,7 +14,7 @@ type Request struct {
 	Token string      `json:"token"`
 	Data  interface{} `json:"data"`
 
-	Claim *Claim `json:"-"`
+	Claim *SignClaim `json:"-"`
 }
 
 func checkToken(req *Request) (err error) {
