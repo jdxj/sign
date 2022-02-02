@@ -46,7 +46,6 @@ func New() *cobra.Command {
 	// flags
 
 	// subcommands
-	cmd.AddCommand(newSecretCmd())
 	cmd.AddCommand(newTaskCmd())
 	return cmd
 }

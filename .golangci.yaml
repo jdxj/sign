@@ -27,6 +27,8 @@ linters:
     - exportloopref
     - rowserrcheck
     - nestif
+    - contextcheck
+    - nilnil
 
 linters-settings:
   errorlint:

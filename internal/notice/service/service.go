@@ -3,17 +3,16 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
+	"log"
 
 	bot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/jdxj/sign/internal/pkg/config"
-	"github.com/jdxj/sign/internal/pkg/rpc"
-	"github.com/jdxj/sign/internal/proto/notice"
+	"github.com/jdxj/sign/internal/pkg/logger"
+	pb "github.com/jdxj/sign/internal/proto/notice"
 	"github.com/jdxj/sign/internal/proto/user"
 )
 
@@ -22,50 +21,44 @@ var (
 )
 
 func New(conf config.Bot) *Service {
-	if conf.Token == "" || conf.ChatID == 0 {
+	if conf.Token == "" {
 		panic(ErrInvalidConfig)
 	}
-	srv := &Service{
-		chatID: conf.ChatID,
-	}
+	srv := &Service{}
+	log.Printf("new bot api...")
 	client, err := bot.NewBotAPI(conf.Token)
 	if err != nil {
 		panic(err)
 	}
 	srv.botClient = client
-
-	rpc.NewClient(user.ServiceName, func(cc *grpc.ClientConn) {
-		srv.userClient = user.NewUserServiceClient(cc)
-	})
 	return srv
 }
 
 type Service struct {
-	notice.UnimplementedNoticeServiceServer
-
-	botClient  *bot.BotAPI
-	chatID     int64
-	userClient user.UserServiceClient
+	botClient *bot.BotAPI
 }
 
-func (srv *Service) SendMessage(ctx context.Context, req *notice.SendMessageReq) (*emptypb.Empty, error) {
-	if req.UserID == 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "empty user id")
-	}
-	if req.Text == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "empty text")
+func (srv *Service) SendNotice(ctx context.Context, req *pb.SendNoticeRequest, rsp *emptypb.Empty) error {
+	if req.GetUserId() == 0 {
+		return status.Errorf(codes.InvalidArgument, "empty user id")
 	}
 
-	userInfo, err := srv.userClient.GetUser(ctx, &user.GetUserReq{UserID: req.UserID})
+	userRsp, err := UserService.GetUser(ctx, &user.GetUserRequest{UserID: req.GetUserId()})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "get user failed: %s", err)
+		return status.Errorf(codes.Internal, "GetUser: %s", err)
 	}
-	text := fmt.Sprintf("%s: %s", userInfo.Nickname, req.Text)
 
-	msgConf := bot.NewMessage(srv.chatID, text)
+	// todo: 配置化
+	contact := userRsp.GetUser().GetContact().GetTelegram()
+	if contact == 0 {
+		return nil
+	}
+
+	msgConf := bot.NewMessage(contact, req.GetContent())
 	_, err = srv.botClient.Send(msgConf)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "send message failed: %s", err)
+		logger.Errorf("Send: %s, userID: %d", err, req.GetUserId())
+		return status.Errorf(codes.Internal, "Send: %s", err)
 	}
-	return &emptypb.Empty{}, nil
+	return nil
 }

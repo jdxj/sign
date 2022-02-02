@@ -8,8 +8,8 @@ fi
 echo "build $1 image"
 
 workDir=$(pwd)
-version=$(git describe --tags --abbrev=0)
-tag=jdxj/$1:$version
+commit=$(git rev-parse --short HEAD)
+tag=jdxj/$1:test-$commit
 
 cd "$workDir/$1" && docker build -t="$tag" .
 if [ $? -ne 0 ]; then

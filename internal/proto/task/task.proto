@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/jdxj/sign/internal/proto/task";
+
+service TaskService {
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  rpc GetTasks(GetTasksRequest) returns (GetTasksResponse);
+  rpc UpdateTask(UpdateTaskRequest) returns(google.protobuf.Empty);
+  rpc DeleteTask(DeleteTaskRequest) returns(google.protobuf.Empty);
+  rpc DispatchTasks(DispatchTasksRequest) returns (google.protobuf.Empty);
+}
+
+
+message Task {
+  int64 task_id = 1;
+  string description = 2;
+  int64 user_id = 3;
+  string kind = 4;
+  string spec = 5;
+  bytes param = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message CreateTaskRequest {
+  Task task = 1;
+}
+
+message CreateTaskResponse {
+  int64 task_id = 1;
+}
+
+message GetTaskRequest {
+  int64 task_id = 1;
+  int64 user_id = 2;
+}
+
+message GetTaskResponse {
+  Task task = 1;
+}
+
+message GetTasksRequest {
+  int64 task_id = 1;
+  string description = 2;
+  int64 user_id = 3;
+  string kind = 4;
+  string spec = 5;
+  google.protobuf.Timestamp created_at = 6;
+  int64 offset = 7;
+  int64 limit = 8;
+}
+
+message GetTasksResponse {
+  int64 count = 1;
+  repeated Task tasks = 2;
+}
+
+message UpdateTaskRequest {
+  Task task = 1;
+}
+
+message DeleteTaskRequest {
+  int64 task_id = 1;
+  int64 user_id = 2;
+}
+
+// Kind 使用时要用字符串形式
+enum Kind {
+  UNKNOWN_KIND = 0;
+  MOCK = 12;
+  // B站
+  BILIBILI_SIGN_IN = 1;
+  BILIBILI_B_COUNT = 2;
+  // Go语言中文网
+  STG_SIGN_IN = 3;
+  // V2ex
+  V2EX_SIGN_IN = 4;
+  // Evolution X
+  EVOLUTION_RELEASE = 5;
+
+  GITHUB_RELEASE = 6;
+  // 掘金签到
+  JUEJIN_SIGN_IN = 7;
+  // 签到天数统计
+  JUEJIN_COUNT = 8;
+  // 矿石数
+  JUEJIN_POINT = 9;
+  // 码农日历
+  JUEJIN_CALENDAR = 10;
+  // 自定义消息
+  CUSTOM_MESSAGE = 11;
+  // Deprecated
+  HPI_SIGN_IN = 13;
+}
+
+message DispatchTasksRequest {
+  string spec = 1;
+}
+
+message ReadyTasks {
+  repeated Task tasks = 1;
+}

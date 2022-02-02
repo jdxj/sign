@@ -2,45 +2,56 @@ package help
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
+	"strings"
 
-	"github.com/jdxj/sign/internal/proto/crontab"
+	"github.com/jdxj/sign/internal/proto/task"
 )
 
-func AvailableDomain() string {
-	help := "Available domain:"
+func AvailableKind() string {
+	help := "Available kind and params:\n"
+	help = fmt.Sprintf("%s  %-18s\t%s\n", help, "Kind Name", "Kind ID")
+	help = fmt.Sprintf("%s    Task Param\n", help)
+	help = fmt.Sprintf("%s  %-18s\t%s\n", help, "---------", "-------")
 
-	keys := make([]int, 0, len(crontab.Domain_name))
-	for key := range crontab.Domain_name {
-		if key == 0 {
+	kinds := make([]string, 0, len(task.Kind_value))
+	for k := range task.Kind_value {
+		if k == task.Kind_UNKNOWN_KIND.String() ||
+			k == task.Kind_MOCK.String() ||
+			k == task.Kind_HPI_SIGN_IN.String() {
 			continue
 		}
-		keys = append(keys, int(key))
+		kinds = append(kinds, k)
 	}
-	sort.Ints(keys)
+	sort.Strings(kinds)
 
-	for _, key := range keys {
-		help = fmt.Sprintf("%s\n  %-15s %d",
-			help, crontab.Domain_name[int32(key)], key)
+	for _, k := range kinds {
+		help = fmt.Sprintf("%s  %-18s\t%7d\n", help, k, task.Kind_value[k])
+		paramList := getParamList(k)
+		if paramList != "" {
+			help = fmt.Sprintf("%s   %s\n", help, getParamList(k))
+		}
 	}
 	return help
 }
 
-func AvailableKind() string {
-	help := "Available kind:"
+func getParamList(kind string) string {
+	msg := task.GetParamByKind(kind)
+	if msg == nil {
+		return ""
+	}
 
-	keys := make([]int, 0, len(crontab.Kind_name))
-	for key := range crontab.Kind_name {
-		if key == 0 {
+	var paramList string
+	msgRt := reflect.TypeOf(msg).Elem()
+	for i := 0; i < msgRt.NumField(); i++ {
+		key := msgRt.Field(i).Tag.Get("json")
+		if key == "" {
 			continue
 		}
-		keys = append(keys, int(key))
+		key = strings.Split(key, ",")[0]
+		keyKind := msgRt.Field(i).Type.Kind()
+		paramList = fmt.Sprintf("%s %s(%s)", paramList, key, keyKind)
 	}
-	sort.Ints(keys)
-
-	for _, key := range keys {
-		help = fmt.Sprintf("%s\n  %-15s %d",
-			help, crontab.Kind_name[int32(key)], key)
-	}
-	return help
+	return paramList
 }

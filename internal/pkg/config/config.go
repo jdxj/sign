@@ -9,20 +9,18 @@ import (
 )
 
 type Root struct {
-	Bot       Bot       `yaml:"bot"`
-	Logger    Logger    `yaml:"logger"`
-	APIServer APIServer `yaml:"api_server"`
-	Storage   Storage   `yaml:"storage"`
-	DB        DB        `yaml:"db"`
-	RDB       RDB       `yaml:"rdb"`
-	RPC       RPC       `yaml:"rpc"`
-	Rabbit    Rabbit    `yaml:"rabbit"`
-	Secret    Secret    `yaml:"secret"`
+	Bot    Bot    `yaml:"bot"`
+	Logger Logger `yaml:"logger"`
+	App    App    `yaml:"app"`
+	DB     DB     `yaml:"db"`
+	RDB    RDB    `yaml:"rdb"`
+	Rabbit Rabbit `yaml:"rabbit"`
+	Secret Secret `yaml:"secret"`
+	Etcd   Etcd   `yaml:"etcd"`
 }
 
 type Bot struct {
-	Token  string `yaml:"token"`
-	ChatID int64  `yaml:"chat_id"`
+	Token string `yaml:"token"`
 }
 
 type Logger struct {
@@ -30,14 +28,10 @@ type Logger struct {
 	Mode string `yaml:"mode"`
 }
 
-type APIServer struct {
+type App struct {
 	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
 	Key  string `yaml:"key"`
-}
-
-type Storage struct {
-	Path string `yaml:"path"`
 }
 
 type DB struct {
@@ -55,14 +49,6 @@ type RDB struct {
 	DB   int    `yaml:"db"`
 }
 
-type RPC struct {
-	EtcdAddr    string `yaml:"etcd_addr"`
-	CrontabPort int    `yaml:"crontab_port"`
-	SecretPort  int    `yaml:"secret_port"`
-	UserPort    int    `yaml:"user_port"`
-	NoticePort  int    `yaml:"notice_port"`
-}
-
 type Rabbit struct {
 	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
@@ -72,6 +58,13 @@ type Rabbit struct {
 
 type Secret struct {
 	Key string `yaml:"key"`
+}
+
+type Etcd struct {
+	Endpoints []string `yaml:"endpoints"`
+	Ca        string   `yaml:"ca"`
+	Cert      string   `yaml:"cert"`
+	Key       string   `yaml:"key"`
 }
 
 func ReadConfigs(path string) Root {

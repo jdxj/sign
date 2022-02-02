@@ -7,10 +7,13 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -41,22 +44,21 @@ func WithSalt(pass, salt string) string {
 	return base64.StdEncoding.EncodeToString(sum[:])
 }
 
-func Encrypt(key, text string) string {
-	sum := sha256.Sum256([]byte(key))
+func Encrypt(key, text []byte) (d []byte) {
+	sum := sha256.Sum256(key)
 	iv := make([]byte, aes.BlockSize)
 	_, _ = rand.Read(iv)
-	ciphertext := encrypt(sum[:], iv, []byte(text))
-	ciphertext = append(iv, ciphertext...)
-	return base64.StdEncoding.EncodeToString(ciphertext)
+	ciphertext := encrypt(sum[:], iv, text)
+	d = append(d, iv...)
+	d = append(d, ciphertext...)
+	return
 }
 
-func Decrypt(key, text string) string {
-	sum := sha256.Sum256([]byte(key))
-	ciphertext, _ := base64.StdEncoding.DecodeString(text)
+func Decrypt(key, ciphertext []byte) []byte {
+	sum := sha256.Sum256(key)
 	iv := ciphertext[:aes.BlockSize]
 	ciphertext = ciphertext[aes.BlockSize:]
-	res := encrypt(sum[:], iv, ciphertext)
-	return string(res)
+	return encrypt(sum[:], iv, ciphertext)
 }
 
 func encrypt(key, iv, text []byte) []byte {
@@ -126,6 +128,10 @@ func ReadPassword(prompt string) (string, error) {
 }
 
 func GetPassword() (string, error) {
+	return ReadPassword(EnterPassword)
+}
+
+func ConfirmPassword() (string, error) {
 	pass1, err := ReadPassword(EnterPassword)
 	if err != nil {
 		return "", err
@@ -162,4 +168,24 @@ func GetJson(url string, header map[string]string, rsp interface{}) error {
 
 	decoder := json.NewDecoder(httpRsp.Body)
 	return decoder.Decode(rsp)
+}
+
+func NewTLSConfig(ca, cert, key string) *tls.Config {
+	kp, err := tls.LoadX509KeyPair(cert, key)
+	if err != nil {
+		log.Printf("LoadX509KeyPair: %s\n", err)
+		return nil
+	}
+	d, err := os.ReadFile(ca)
+	if err != nil {
+		log.Printf("ReadFile: %s\n", err)
+		return nil
+	}
+	cp := x509.NewCertPool()
+	cp.AppendCertsFromPEM(d)
+	tc := &tls.Config{
+		Certificates: []tls.Certificate{kp},
+		RootCAs:      cp,
+	}
+	return tc
 }

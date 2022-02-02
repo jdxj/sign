@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/jdxj/sign/internal/proto/trigger";
+
+service TriggerService {
+    rpc CreateTrigger(CreateTriggerRequest) returns (google.protobuf.Empty);
+    rpc GetTriggers(GetTriggersRequest) returns (GetTriggersResponse);
+}
+
+message Trigger {
+    int64 trigger_id = 1;
+    string spec = 2;
+}
+
+message CreateTriggerRequest {
+    Trigger trigger = 1;
+}
+
+message GetTriggersRequest {
+    int64 offset = 1;
+    int64 limit = 2;
+}
+
+message GetTriggersResponse {
+    int64 count = 1;
+    repeated Trigger triggers = 2;
+}

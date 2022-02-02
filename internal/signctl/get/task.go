@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/jdxj/sign/internal/pkg/util"
+	"github.com/jdxj/sign/internal/proto/task"
 	"github.com/jdxj/sign/internal/signctl/consts"
 	"github.com/jdxj/sign/internal/signctl/model"
 )
@@ -52,30 +53,42 @@ func newTaskCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	kinds = flagSet.IntSlice(consts.Kind, nil, "specify multiple kind for query")
-	secretIDsTask = flagSet.Int64Slice(consts.SecretID, nil, "specify multiple secret id for query")
+	flagSet.Int64(consts.TaskID, 0, "task id")
+	flagSet.String(consts.Description, "", "task description")
+	flagSet.Int32(consts.Kind, 0, "task kind")
+	flagSet.String(consts.Spec, "", "task spec")
+	flagSet.Int64(consts.CreatedAt, 0, "create timestamp")
+	flagSet.Int64(consts.PageID, 1, "page id")
+	flagSet.Int64(consts.PageSize, 10, "page size")
 	return cmd
 }
-
-var (
-	kinds         *[]int
-	secretIDsTask *[]int64
-)
 
 func taskCmdRun(cmd *cobra.Command, args []string) {
 	host := cmd.Flag(consts.Host)
 	token := cmd.Flag(consts.Token)
+	taskID, _ := cmd.Flags().GetInt64(consts.TaskID)
+	desc, _ := cmd.Flags().GetString(consts.Description)
+	kind, _ := cmd.Flags().GetInt32(consts.Kind)
+	spec, _ := cmd.Flags().GetString(consts.Spec)
+	createdAt, _ := cmd.Flags().GetInt64(consts.CreatedAt)
+	pageID, _ := cmd.Flags().GetInt64(consts.PageID)
+	pageSize, _ := cmd.Flags().GetInt64(consts.PageSize)
 
 	req := &model.Request{
 		Token: token.Value.String(),
 		Data: &model.GetTasksReq{
-			Kinds:     *kinds,
-			SecretIDs: *secretIDsTask,
+			TaskID:    taskID,
+			Desc:      desc,
+			Kind:      task.Kind_name[kind],
+			Spec:      spec,
+			CreatedAt: createdAt,
+			PageID:    pageID,
+			PageSize:  pageSize,
 		},
 	}
 	rsp := &model.Response{}
 	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.GetTasks)
+		strings.TrimSuffix(host.Value.String(), "/"), consts.TaskList)
 
 	err := util.PostJson(url, req, rsp)
 	if err != nil {

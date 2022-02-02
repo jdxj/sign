@@ -1,4 +1,5 @@
-components := apiserver.out crontab.out executor.out notice.out secret.out trigger.out user.out
+# components := apiserver.out crontab.out executor.out notice.out secret.out trigger.out user.out
+components := trigger.out user.out notice.out task.out app.out
 images := $(subst .out,,$(components))
 
 .PHONY: all
@@ -12,7 +13,7 @@ docker: $(images)
 $(images): src := _output/build
 $(images): des := build/docker
 $(images): all
-	upx --best $(src)/$@.out
+	upx -7 $(src)/$@.out
 	mkdir -p $(des)/$@
 	cp $(src)/$@.out $(des)/$@/$@.run
 	cd $(des) && ./build.sh $@

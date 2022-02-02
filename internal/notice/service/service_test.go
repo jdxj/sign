@@ -1,37 +1,29 @@
 package service
 
 import (
-	"context"
+	"fmt"
 	"os"
 	"testing"
 
-	"google.golang.org/grpc"
+	bot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/jdxj/sign/internal/pkg/logger"
-	"github.com/jdxj/sign/internal/pkg/rpc"
-	"github.com/jdxj/sign/internal/proto/notice"
-)
-
-var (
-	client notice.NoticeServiceClient
 )
 
 func TestMain(t *testing.M) {
 	logger.Init("./notice.log")
-	rpc.Init("127.0.0.1:2379")
 	os.Exit(t.Run())
 }
 
-func TestService_SendMessage(t *testing.T) {
-	rpc.NewClient(notice.ServiceName, func(cc *grpc.ClientConn) {
-		client = notice.NewNoticeServiceClient(cc)
-	})
-
-	_, err := client.SendMessage(context.Background(), &notice.SendMessageReq{
-		UserID: 1,
-		Text:   "test notice service",
-	})
+func TestSendNotice(t *testing.T) {
+	client, err := bot.NewBotAPI("")
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
+	mc := bot.NewMessage(0, "abc")
+	m, err := client.Send(mc)
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	fmt.Printf("m: %+v\n", m)
 }

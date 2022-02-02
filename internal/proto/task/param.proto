@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option go_package = "github.com/jdxj/sign/internal/proto/task";
+
+message BiLiBiLi {
+  string cookie = 1;
+}
+
+message Evolution {
+  string device = 1;
+}
+
+message GithubRelease {
+  string owner = 1;
+  string repo = 2;
+}
+
+message JueJin {
+  string cookie = 1;
+}
+
+message STG {
+  string username = 1;
+  string passwd = 2;
+}
+
+message V2ex {
+  string cookie = 1;
+}
+
+message HPI {
+  string token = 1;
+}
+
+message CustomMessage {
+  string content = 1;
+}

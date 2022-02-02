@@ -76,10 +76,12 @@ func authCmdRun(cmd *cobra.Command, args []string) {
 	}
 
 	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.AuthUser)
-	req := &model.AuthReq{
-		Nickname: nickname.Value.String(),
-		Password: pass,
+		strings.TrimSuffix(host.Value.String(), "/"), consts.SessionLogin)
+	req := &model.Request{
+		Data: &model.AuthReq{
+			Nickname: nickname.Value.String(),
+			Password: pass,
+		},
 	}
 	rsp := &model.Response{}
 

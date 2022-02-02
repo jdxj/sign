@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/jdxj/sign/internal/pkg/config"
@@ -21,12 +20,5 @@ func TestInitGorm(t *testing.T) {
 		Port:   3306,
 		Dbname: "sign",
 	}
-	InitGorm(conf)
-
-	user := &User{}
-	err := Gorm.Raw("select * from user").First(user).Error
-	if err != nil {
-		t.Fatalf("%s\n", err)
-	}
-	fmt.Printf("%#v\n", *user)
+	_ = InitGorm(conf)
 }

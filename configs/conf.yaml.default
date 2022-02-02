@@ -1,0 +1,32 @@
+bot:
+  token: ""
+logger:
+  path: ""
+  mode: ""
+app:
+  host: ""
+  port: 0
+  key: ""
+db:
+  user: ""
+  pass: ""
+  host: ""
+  port: 0
+  dbname: ""
+rdb:
+  host: ""
+  port: 0
+  pass: ""
+  db: 0
+rabbit:
+  host: ""
+  port: 0
+  user: ""
+  pass: ""
+secret:
+  key: ""
+etcd:
+  endpoints: [ ]
+  ca: ""
+  cert: ""
+  key: ""

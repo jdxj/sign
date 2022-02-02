@@ -43,10 +43,7 @@ func New() *cobra.Command {
 		SuggestionsMinimumDistance: 0,
 	}
 
-	// flags
-
 	// subcommands
-	cmd.AddCommand(newSecretCmd())
 	cmd.AddCommand(newTaskCmd())
 	return cmd
 }
