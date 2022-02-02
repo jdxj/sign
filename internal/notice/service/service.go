@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/jdxj/sign/internal/pkg/config"
+	"github.com/jdxj/sign/internal/pkg/logger"
 	pb "github.com/jdxj/sign/internal/proto/notice"
 	"github.com/jdxj/sign/internal/proto/user"
 )
@@ -56,6 +57,7 @@ func (srv *Service) SendNotice(ctx context.Context, req *pb.SendNoticeRequest, r
 	msgConf := bot.NewMessage(contact, req.GetContent())
 	_, err = srv.botClient.Send(msgConf)
 	if err != nil {
+		logger.Errorf("Send: %s, userID: %d", err, req.GetUserId())
 		return status.Errorf(codes.Internal, "Send: %s", err)
 	}
 	return nil

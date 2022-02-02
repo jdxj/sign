@@ -76,20 +76,57 @@ $ make ctl
 $ ./signctl.out create user -H server_address --nickname xxx
 ```
 
-3. 创建 secret
-
-创建 secret 后会返回 secretID.
+3. 创建 task
 
 ```shell
-$ ./signctl.out create secret -H server_address -T token --domain 101 --key xxx
+$ ./signctl.out create task -H server_address -T token \
+    --kind 6 -p 'owner=jfcere' -p 'repo=ngx-markdown' --spec '*/5 * * * *'
 ```
 
-4. 创建 task
-
-`--secret-id` 用于指定要使用的 secret.
+查看支持的任务及其参数:
 
 ```shell
-$ ./signctl.out create task -H server_address -T token --kind 102 --secret-id xxx --spec "0 8 * * *"
+$ ./signctl.out create task -h
+Available kind and params:
+  Kind Name         	Kind ID
+    Task Param
+  ---------         	-------
+  BILIBILI_B_COUNT  	      2
+    cookie(string)
+  BILIBILI_SIGN_IN  	      1
+    cookie(string)
+  CUSTOM_MESSAGE    	     11
+    content(string)
+  EVOLUTION_RELEASE 	      5
+    device(string)
+  GITHUB_RELEASE    	      6
+    owner(string) repo(string)
+  JUEJIN_CALENDAR   	     10
+    cookie(string)
+  JUEJIN_COUNT      	      8
+    cookie(string)
+  JUEJIN_POINT      	      9
+    cookie(string)
+  JUEJIN_SIGN_IN    	      7
+    cookie(string)
+  STG_SIGN_IN       	      3
+    username(string) passwd(string)
+  V2EX_SIGN_IN      	      4
+    cookie(string)
+
+Usage:
+  signctl create task [flags]
+
+Flags:
+      --description string   description of the task
+  -h, --help                 help for task
+      --kind int32           kind of the task
+  -p, --param strings        the param required by the task can be specified multiple times (key=value)
+      --spec string          crontab expression
+
+Global Flags:
+  -H, --host string    apiserver address (default "http://127.0.0.1:8080")
+  -T, --token string   user token
 ```
 
 # 各组件介绍
@@ -119,5 +156,7 @@ $ ./signctl.out create task -H server_address -T token --kind 102 --secret-id xx
 一个简单的命令行工具, 用于创建任务.
 
 # 程序架构
+
+非常简单.
 
 ![sign](./docs/images/sign.drawio.png)

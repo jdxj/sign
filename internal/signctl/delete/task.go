@@ -75,7 +75,7 @@ func taskCmdRun(cmd *cobra.Command, args []string) {
 		},
 	}
 	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.DeleteTask)
+		strings.TrimSuffix(host.Value.String(), "/"), consts.TaskDelete)
 	err = util.DeleteJson(url, req, nil)
 	if err != nil {
 		cmd.PrintErrf("%s: delete, %s", consts.ErrSendJson, err)

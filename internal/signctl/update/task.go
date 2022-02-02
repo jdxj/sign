@@ -1,8 +1,8 @@
 package update
 
 import (
+	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -12,9 +12,9 @@ import (
 	"github.com/jdxj/sign/internal/signctl/model"
 )
 
-func newSecretCmd() *cobra.Command {
+func newTaskCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "secret",
+		Use:                        "task",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
@@ -32,7 +32,7 @@ func newSecretCmd() *cobra.Command {
 		PersistentPreRunE:          nil,
 		PreRun:                     nil,
 		PreRunE:                    nil,
-		Run:                        secretCmdRun,
+		Run:                        taskCmdRun,
 		RunE:                       nil,
 		PostRun:                    nil,
 		PostRunE:                   nil,
@@ -53,43 +53,48 @@ func newSecretCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	flagSet.Int64(consts.SecretID, 0, "secret id")
-	flagSet.String(consts.Describe, "", "description of the secret")
-	flagSet.Int(consts.Domain, 0, "domain represents the website specified by key")
-	flagSet.String(consts.Key, "", "key represents the cookie or authentication information of a certain website")
+	flagSet.Int64(consts.TaskID, 0, "task id")
+	flagSet.String(consts.Description, "", "task description")
+	flagSet.String(consts.Spec, "", "task spec")
+	flagSet.StringSlice(consts.Param, nil, "task params")
 	return cmd
 }
 
-func secretCmdRun(cmd *cobra.Command, args []string) {
+func taskCmdRun(cmd *cobra.Command, args []string) {
 	host := cmd.Flag(consts.Host)
 	token := cmd.Flag(consts.Token)
-
-	secretID := cmd.Flag(consts.SecretID)
-	describe := cmd.Flag(consts.Describe)
-	domain := cmd.Flag(consts.Domain)
-	key := cmd.Flag(consts.Key)
-
-	secretIDInt64, err := strconv.ParseInt(secretID.Value.String(), 10, 64)
+	taskID, _ := cmd.Flags().GetInt64(consts.TaskID)
+	desc, _ := cmd.Flags().GetString(consts.Description)
+	spec, _ := cmd.Flags().GetString(consts.Spec)
+	params, err := cmd.Flags().GetStringSlice(consts.Param)
 	if err != nil {
-		cmd.PrintErrf("%s: secret-id: %s", consts.ErrInvalidParam, secretID.Value)
+		cmd.PrintErrf("%s, params: %s", consts.ErrInvalidParam, cmd.Flag(consts.Param).Value)
 		return
 	}
-	domainInt, err := strconv.Atoi(domain.Value.String())
-	if err != nil {
-		cmd.PrintErrf("%s: domain: %s\n", consts.ErrInvalidParam, domain.Value)
-		return
+
+	paramMap := make(map[string]string)
+	for _, param := range params {
+		pair := strings.Split(param, "=")
+		if len(pair) != 2 {
+			cmd.PrintErrf("%s, param: %s", consts.ErrInvalidParam, param)
+			return
+		}
+		paramMap[pair[0]] = pair[1]
 	}
+	param, _ := json.Marshal(paramMap)
+
+	url := fmt.Sprintf("%s%s",
+		strings.TrimSuffix(host.Value.String(), "/"), consts.TaskUpdate)
+
 	req := &model.Request{
 		Token: token.Value.String(),
-		Data: &model.UpdateSecretReq{
-			SecretID: secretIDInt64,
-			Describe: describe.Value.String(),
-			Domain:   domainInt,
-			Key:      key.Value.String(),
+		Data: &model.UpdateTaskReq{
+			TaskID: taskID,
+			Desc:   desc,
+			Spec:   spec,
+			Param:  param,
 		},
 	}
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.UpdateSecret)
 
 	err = util.PutJson(url, req, nil)
 	if err != nil {
@@ -97,5 +102,5 @@ func secretCmdRun(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	cmd.Println("update secret successfully")
+	cmd.Println("update task successfully")
 }

@@ -54,20 +54,25 @@ func newUserCmd() *cobra.Command {
 	flagSet := cmd.Flags()
 	flagSet.String(consts.Nickname, "", "user nickname")
 	flagSet.String(consts.Password, "", "user password")
+	flagSet.String(consts.Mail, "", "user email address")
+	flagSet.Int64(consts.Telegram, 0, "user telegram id")
 	return cmd
 }
 
 func userCmdRun(cmd *cobra.Command, args []string) {
 	var (
-		host     = cmd.Flag(consts.Host)
-		nickname = cmd.Flag(consts.Nickname)
-		passFlag = cmd.Flag(consts.Password)
-		pass     = passFlag.Value.String()
-		err      error
+		host        = cmd.Flag(consts.Host)
+		nickname    = cmd.Flag(consts.Nickname)
+		passFlag    = cmd.Flag(consts.Password)
+		mail        = cmd.Flag(consts.Mail)
+		telegram, _ = cmd.Flags().GetInt64(consts.Telegram)
+
+		pass = passFlag.Value.String()
+		err  error
 	)
 
 	if pass == "" {
-		pass, err = util.GetPassword()
+		pass, err = util.ConfirmPassword()
 		if err != nil {
 			cmd.PrintErrf("get password failed: %s", err)
 			return
@@ -75,10 +80,14 @@ func userCmdRun(cmd *cobra.Command, args []string) {
 	}
 
 	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.CreateUser)
-	req := &model.CreateUserReq{
-		Nickname: nickname.Value.String(),
-		Password: pass,
+		strings.TrimSuffix(host.Value.String(), "/"), consts.UserCreate)
+	req := &model.Request{
+		Data: &model.CreateUserReq{
+			Nickname: nickname.Value.String(),
+			Password: pass,
+			Mail:     mail.Value.String(),
+			Telegram: telegram,
+		},
 	}
 	rsp := &model.Response{}
 

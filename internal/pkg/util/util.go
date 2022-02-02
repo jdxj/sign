@@ -128,6 +128,10 @@ func ReadPassword(prompt string) (string, error) {
 }
 
 func GetPassword() (string, error) {
+	return ReadPassword(EnterPassword)
+}
+
+func ConfirmPassword() (string, error) {
 	pass1, err := ReadPassword(EnterPassword)
 	if err != nil {
 		return "", err

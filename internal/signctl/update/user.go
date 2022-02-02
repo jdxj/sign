@@ -1,25 +1,23 @@
-package create
+package update
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/signctl/consts"
-	"github.com/jdxj/sign/internal/signctl/help"
 	"github.com/jdxj/sign/internal/signctl/model"
 )
 
-func newSecretCmd() *cobra.Command {
+func newUserCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                        "secret",
+		Use:                        "user",
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
-		Long:                       help.AvailableDomain(),
+		Long:                       "",
 		Example:                    "",
 		ValidArgs:                  nil,
 		ValidArgsFunction:          nil,
@@ -33,7 +31,7 @@ func newSecretCmd() *cobra.Command {
 		PersistentPreRunE:          nil,
 		PreRun:                     nil,
 		PreRunE:                    nil,
-		Run:                        secretCmdRun,
+		Run:                        userCmdRun,
 		RunE:                       nil,
 		PostRun:                    nil,
 		PostRunE:                   nil,
@@ -54,42 +52,39 @@ func newSecretCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	flagSet.String(consts.Describe, "", "description of the secret")
-	flagSet.Int(consts.Domain, 0, "domain represents the website specified by key")
-	flagSet.String(consts.Key, "", "key represents the cookie or authentication information of a certain website. format: 'key1=value1;key2=value2'")
+	flagSet.String(consts.Nickname, "", "user nickname")
+	flagSet.String(consts.Password, "", "user password")
+	flagSet.String(consts.Mail, "", "user email address")
+	flagSet.Int64(consts.Telegram, 0, "user telegram id")
 	return cmd
 }
 
-func secretCmdRun(cmd *cobra.Command, args []string) {
+func userCmdRun(cmd *cobra.Command, args []string) {
 	host := cmd.Flag(consts.Host)
 	token := cmd.Flag(consts.Token)
 
-	domain := cmd.Flag(consts.Domain)
-	key := cmd.Flag(consts.Key)
-	describe := cmd.Flag(consts.Describe)
+	nickname, _ := cmd.Flags().GetString(consts.Nickname)
+	password, _ := cmd.Flags().GetString(consts.Password)
+	mail, _ := cmd.Flags().GetString(consts.Mail)
+	telegram, _ := cmd.Flags().GetInt64(consts.Telegram)
 
-	domainInt, err := strconv.Atoi(domain.Value.String())
-	if err != nil {
-		cmd.Printf("%s: domain: %s\n", consts.ErrInvalidParam, domain.Value)
-		return
-	}
+	url := fmt.Sprintf("%s%s",
+		strings.TrimSuffix(host.Value.String(), "/"), consts.UserUpdate)
+
 	req := &model.Request{
 		Token: token.Value.String(),
-		Data: &model.CreateSecretReq{
-			Describe: describe.Value.String(),
-			Domain:   domainInt,
-			Key:      key.Value.String(),
+		Data: &model.UpdateUserReq{
+			Nickname: nickname,
+			Password: password,
+			Mail:     mail,
+			Telegram: telegram,
 		},
 	}
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.CreateSecret)
-
-	rsp := &model.Response{}
-	err = util.PostJson(url, req, rsp)
+	err := util.PutJson(url, req, nil)
 	if err != nil {
-		cmd.Printf("%s: post, %s", consts.ErrSendJson, err)
+		cmd.PrintErrf("%s: put, %s\n", consts.ErrSendJson, err)
 		return
 	}
 
-	cmd.Printf("%s\n", rsp)
+	cmd.Println("update user successfully")
 }

@@ -15,29 +15,8 @@ import (
 	"github.com/jdxj/sign/internal/proto/task"
 )
 
-func getMessage(kind string) (msg proto.Message) {
-	switch kind {
-	case task.Kind_BILIBILI_SIGN_IN.String(), task.Kind_BILIBILI_B_COUNT.String():
-		msg = &task.BiLiBiLi{}
-	case task.Kind_STG_SIGN_IN.String():
-		msg = &task.STG{}
-	case task.Kind_V2EX_SIGN_IN.String():
-		msg = &task.V2Ex{}
-	case task.Kind_EVOLUTION_RELEASE.String():
-		msg = &task.Evolution{}
-	case task.Kind_GITHUB_RELEASE.String():
-		msg = &task.GithubRelease{}
-	case task.Kind_JUEJIN_SIGN_IN.String(), task.Kind_JUEJIN_COUNT.String(),
-		task.Kind_JUEJIN_POINT.String(), task.Kind_JUEJIN_CALENDAR.String():
-		msg = &task.JueJin{}
-	case task.Kind_CUSTOM_MESSAGE.String():
-		msg = &task.CustomMessage{}
-	}
-	return
-}
-
 func paramToPB(kind string, body json.RawMessage) ([]byte, error) {
-	msg := getMessage(kind)
+	msg := task.GetParamByKind(kind)
 	if msg == nil {
 		return nil, nil
 	}
@@ -57,7 +36,7 @@ func paramToPB(kind string, body json.RawMessage) ([]byte, error) {
 }
 
 func pbToParam(kind string, body []byte) ([]byte, error) {
-	msg := getMessage(kind)
+	msg := task.GetParamByKind(kind)
 	if msg == nil {
 		return nil, nil
 	}
@@ -179,9 +158,9 @@ type GetTasksReq struct {
 	Desc      string `json:"desc"`
 	Kind      string `json:"kind"`
 	Spec      string `json:"spec"`
-	CreatedAt int64  `json:"created_at"`
-	PageID    int64  `json:"page_id" binding:"gt=0"`
-	PageSize  int64  `json:"page_size" binding:"gt=0"`
+	CreatedAt int64  `json:"created_at,string"`
+	PageID    int64  `json:"page_id,string" binding:"gt=0"`
+	PageSize  int64  `json:"page_size,string" binding:"gt=0"`
 }
 
 type GetTasksRsp struct {
@@ -234,7 +213,7 @@ func GetTasks(ctx *gin.Context) {
 }
 
 type UpdateTaskReq struct {
-	TaskID int64  `json:"task_id" binding:"required"`
+	TaskID int64  `json:"task_id,string" binding:"required"`
 	Desc   string `json:"desc"`
 	Spec   string `json:"spec"`
 

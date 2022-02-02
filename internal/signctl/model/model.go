@@ -10,9 +10,9 @@ type Request struct {
 }
 
 type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Code        int         `json:"code"`
+	Description string      `json:"description"`
+	Data        interface{} `json:"data"`
 }
 
 func (rsp *Response) String() string {
@@ -23,6 +23,8 @@ func (rsp *Response) String() string {
 type CreateUserReq struct {
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
+	Mail     string `json:"mail"`
+	Telegram int64  `json:"telegram"`
 }
 
 type CreateUserRsp struct {
@@ -50,11 +52,11 @@ type CreateSecretRsp struct {
 	SecretID int64 `json:"secret_id"`
 }
 
-type UpdateSecretReq struct {
-	SecretID int64  `json:"secret_id"`
-	Describe string `json:"describe"`
-	Domain   int    `json:"domain"`
-	Key      string `json:"key"`
+type UpdateTaskReq struct {
+	TaskID int64           `json:"task_id"`
+	Desc   string          `json:"desc"`
+	Spec   string          `json:"spec"`
+	Param  json.RawMessage `json:"param"`
 }
 
 type DeleteSecretReq struct {
@@ -78,10 +80,10 @@ type GetSecretsRsp struct {
 }
 
 type CreateTaskReq struct {
-	Describe string `json:"describe"`
-	Kind     int    `json:"kind"`
-	Spec     string `json:"spec"`
-	SecretID int64  `json:"secret_id"`
+	Describe string          `json:"describe"`
+	Kind     string          `json:"kind"`
+	Spec     string          `json:"spec"`
+	Param    json.RawMessage `json:"param"`
 }
 
 type CreateTaskRsp struct {
@@ -93,8 +95,13 @@ type DeleteTaskReq struct {
 }
 
 type GetTasksReq struct {
-	Kinds     []int   `json:"kinds"`
-	SecretIDs []int64 `json:"secret_ids"`
+	TaskID    int64  `json:"task_id"`
+	Desc      string `json:"desc"`
+	Kind      string `json:"kind"`
+	Spec      string `json:"spec"`
+	CreatedAt int64  `json:"created_at"`
+	PageID    int64  `json:"page_id"`
+	PageSize  int64  `json:"page_size"`
 }
 
 type Task struct {
@@ -102,9 +109,17 @@ type Task struct {
 	Describe string `json:"describe"`
 	Kind     int    `json:"kind"`
 	Spec     string `json:"spec"`
-	SecretID int64  `json:"secret_id"`
+	Param    string `json:"param"`
 }
 
 type GetTasksRsp struct {
-	List []*Task `json:"list"`
+	Count int64   `json:"count"`
+	List  []*Task `json:"tasks"`
+}
+
+type UpdateUserReq struct {
+	Nickname string `json:"nickname"`
+	Password string `json:"password"`
+	Mail     string `json:"mail"`
+	Telegram int64  `json:"telegram"`
 }

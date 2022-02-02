@@ -58,7 +58,7 @@ type SignUpReq struct {
 	Nickname string `json:"nickname" binding:"required"`
 	Password string `json:"password" binding:"required"`
 	Mail     string `json:"mail"`
-	Telegram int64  `json:"telegram"`
+	Telegram int64  `json:"telegram,string"`
 }
 
 type SignUpRsp struct {

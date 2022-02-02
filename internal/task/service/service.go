@@ -98,7 +98,7 @@ func genListCond(tx *gorm.DB, req *pb.GetTasksRequest) {
 	if req.GetDescription() != "" {
 		tx.Where("description LIKE ?", fmt.Sprintf("%%%s%%", req.GetDescription()))
 	}
-	if req.GetKind() != "" {
+	if req.GetKind() != "" && req.GetKind() != pb.Kind_UNKNOWN_KIND.String() {
 		tx.Where("kind = ?", req.GetKind())
 	}
 	if req.GetSpec() != "" {
