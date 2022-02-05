@@ -81,5 +81,5 @@ func getJsonWithHeader(url string, rsp interface{}) error {
 
 func released(rsp *response) bool {
 	createdAt, _ := time.Parse(time.RFC3339, rsp.CreatedAt)
-	return time.Since(createdAt) <= 24*time.Hour
+	return time.Since(createdAt) <= 5*time.Minute
 }
