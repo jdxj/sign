@@ -5,7 +5,7 @@ import (
 	"github.com/jdxj/sign/internal/task/service/executor"
 	"github.com/jdxj/sign/internal/task/service/executor/bilibili"
 	"github.com/jdxj/sign/internal/task/service/executor/bwh"
-	custom_message "github.com/jdxj/sign/internal/task/service/executor/custom-message"
+	cm "github.com/jdxj/sign/internal/task/service/executor/custom-message"
 	"github.com/jdxj/sign/internal/task/service/executor/evo"
 	"github.com/jdxj/sign/internal/task/service/executor/github"
 	"github.com/jdxj/sign/internal/task/service/executor/juejin"
@@ -33,7 +33,7 @@ var (
 
 		pb.Kind_V2EX_SIGN_IN.String(): &v2ex.SignIn{},
 
-		pb.Kind_CUSTOM_MESSAGE.String(): &custom_message.CustomMessage{},
+		pb.Kind_CUSTOM_MESSAGE.String(): &cm.CustomMessage{},
 
 		pb.Kind_BWH_NETWORK.String(): &bwh.NetworkMeter{},
 		pb.Kind_BWH_CPU.String():     &bwh.CPUMeter{},
