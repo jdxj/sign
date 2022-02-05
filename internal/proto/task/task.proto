@@ -94,6 +94,9 @@ enum Kind {
   CUSTOM_MESSAGE = 11;
   // Deprecated
   HPI_SIGN_IN = 13;
+  // bwh
+  BWH_NETWORK = 14;
+  BWH_CPU = 15;
 }
 
 message DispatchTasksRequest {

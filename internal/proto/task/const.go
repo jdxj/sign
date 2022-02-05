@@ -27,6 +27,8 @@ func GetParamByKind(kind string) (msg proto.Message) {
 		msg = &JueJin{}
 	case Kind_CUSTOM_MESSAGE.String():
 		msg = &CustomMessage{}
+	case Kind_BWH_NETWORK.String(), Kind_BWH_CPU.String():
+		msg = &BWH{}
 	}
 	return
 }

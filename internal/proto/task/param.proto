@@ -35,3 +35,8 @@ message HPI {
 message CustomMessage {
   string content = 1;
 }
+
+message BWH {
+  string ve_id = 1;
+  string api_key = 2;
+}

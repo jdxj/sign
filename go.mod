@@ -37,6 +37,7 @@ require (
 	github.com/asim/go-micro/plugins/broker/rabbitmq/v4 v4.0.0-20220118152736-9e0be6c85d75
 	github.com/asim/go-micro/plugins/registry/etcd/v4 v4.0.0-20220118152736-9e0be6c85d75
 	github.com/golang-jwt/jwt/v4 v4.2.0
+	github.com/jdxj/kiwivm-sdk-go v0.1.1
 	github.com/urfave/cli/v2 v2.3.0
 	go-micro.dev/v4 v4.5.0
 )
