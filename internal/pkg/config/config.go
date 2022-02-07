@@ -25,7 +25,6 @@ type Bot struct {
 
 type Logger struct {
 	Path string `yaml:"path"`
-	Mode string `yaml:"mode"`
 }
 
 type App struct {

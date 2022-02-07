@@ -21,27 +21,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: task-dep
+  name: notice-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: task
+      app: notice
   template:
     metadata:
-      name: task-pod
+      name: notice-pod
       labels:
-        app: task
+        app: notice
     spec:
       containers:
-        - name: task-run
-          image: jdxj/task:test-2e85bdf
-          command: [ "/sign/task.run" ]
+        - name: notice-run
+          image: jdxj/notice:test-2e85bdf
+          command: [ "/sign/notice.run" ]
           args: [ "--config", "/sign/config/conf.yaml" ]
           volumeMounts:
             - mountPath: /sign/config
-              name: task-conf
+              name: notice-conf
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
       volumes:
-        - name: task-conf
+        - name: notice-conf
           secret:
             secretName: sign-config

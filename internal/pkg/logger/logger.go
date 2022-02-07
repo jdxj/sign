@@ -6,98 +6,51 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"github.com/jdxj/sign/internal/pkg/config"
 )
 
 var (
-	desugar *zap.Logger
-	sugar   *zap.SugaredLogger
+	logger *zap.Logger
+	sugar  *zap.SugaredLogger
 )
 
-type OptionFunc func(opts *Options)
-
-type Options struct {
-	Mode     string
-	FileName string
-
-	MaxSize    int
-	MaxAge     int
-	MaxBackups int
-
-	LocalTime bool
-	Compress  bool
-}
-
-func WithMode(mode string) OptionFunc {
-	return func(opts *Options) {
-		opts.Mode = mode
-	}
-}
-
-func Init(path string, optsF ...OptionFunc) {
-	opts := &Options{
-		Mode:       "debug",
-		FileName:   path,
-		MaxSize:    50,
-		MaxAge:     30,
-		MaxBackups: 10,
-		LocalTime:  true,
-		Compress:   false,
-	}
-	for _, optF := range optsF {
-		optF(opts)
-	}
-
+func Init(conf config.Logger) {
 	core := zapcore.NewCore(
-		encoder(opts.Mode),
-		syncer(opts),
-		level(opts.Mode),
+		newEncoder(conf.Path),
+		newSyncer(conf.Path),
+		newLevel(conf.Path),
 	)
-	desugar = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
-	sugar = desugar.Sugar()
+	logger = zap.New(
+		core,
+		zap.AddCaller(),
+		zap.AddCallerSkip(1),
+		zap.AddStacktrace(zap.ErrorLevel),
+	)
+	sugar = logger.Sugar()
 }
 
-func syncer(opts *Options) zapcore.WriteSyncer {
-	var syncer zapcore.WriteSyncer
-	switch opts.Mode {
-	case "debug":
-		syncer = zapcore.AddSync(os.Stdout)
+func newEncoder(path string) zapcore.Encoder {
+	conf := zap.NewProductionEncoderConfig()
+	conf.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	case "release":
-		rotation := &lumberjack.Logger{
-			Filename:   opts.FileName,
-			MaxSize:    opts.MaxSize,
-			MaxAge:     opts.MaxAge,
-			MaxBackups: opts.MaxBackups,
-			LocalTime:  opts.LocalTime,
-			Compress:   opts.Compress,
-		}
-		syncer = zapcore.AddSync(rotation)
+	if path == "" {
+		return zapcore.NewConsoleEncoder(conf)
 	}
-	return syncer
+	return zapcore.NewJSONEncoder(conf)
 }
 
-func encoder(mode string) zapcore.Encoder {
-	var encoder zapcore.Encoder
-	switch mode {
-	case "debug":
-		cfg := zap.NewDevelopmentEncoderConfig()
-		cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
-		cfg.EncodeCaller = zapcore.FullCallerEncoder
-		encoder = zapcore.NewConsoleEncoder(cfg)
-
-	case "release":
-		cfg := zap.NewProductionEncoderConfig()
-		cfg.EncodeTime = zapcore.ISO8601TimeEncoder
-		encoder = zapcore.NewJSONEncoder(cfg)
+func newSyncer(path string) zapcore.WriteSyncer {
+	if path == "" {
+		return zapcore.AddSync(os.Stdout)
 	}
-	return encoder
+	return zapcore.AddSync(&lumberjack.Logger{
+		Filename:  path,
+		LocalTime: true,
+	})
 }
 
-func level(mode string) zapcore.Level {
-	switch mode {
-	case "release":
-		return zap.InfoLevel
-	}
+func newLevel(path string) zapcore.Level {
 	return zap.DebugLevel
 }
 
@@ -118,5 +71,5 @@ func Errorf(template string, args ...interface{}) {
 }
 
 func Sync() {
-	_ = desugar.Sync()
+	_ = logger.Sync()
 }

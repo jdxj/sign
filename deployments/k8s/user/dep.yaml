@@ -21,27 +21,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: trigger-dep
+  name: user-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: trigger
+      app: user
   template:
     metadata:
-      name: trigger-pod
+      name: user-pod
       labels:
-        app: trigger
+        app: user
     spec:
       containers:
-        - name: trigger-run
-          image: jdxj/trigger:test-2e85bdf
-          command: [ "/sign/trigger.run" ]
+        - name: user-run
+          image: jdxj/user:test-2e85bdf
+          command: [ "/sign/user.run" ]
           args: [ "--config", "/sign/config/conf.yaml" ]
           volumeMounts:
             - mountPath: /sign/config
-              name: trigger-conf
+              name: user-conf
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
       volumes:
-        - name: trigger-conf
+        - name: user-conf
           secret:
             secretName: sign-config
