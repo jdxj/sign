@@ -69,7 +69,7 @@ type checkIn struct {
 }
 
 func (ci *checkIn) String() string {
-	format := `掘金签到成功
+	format := `[掘金签到成功]
 增加点数: %d
 总计点数: %d`
 	return fmt.Sprintf(format, ci.IncrPoint, ci.SumPoint)
@@ -81,7 +81,7 @@ type counts struct {
 }
 
 func (c *counts) String() string {
-	format := `掘金签到天数统计
+	format := `[掘金签到天数统计]
 连续签到天数: %d
 累计签到天数: %d`
 	return fmt.Sprintf(format, c.ContCount, c.SumCount)
@@ -90,7 +90,7 @@ func (c *counts) String() string {
 type ore int
 
 func (o *ore) String() string {
-	format := `掘金矿石数统计
+	format := `[掘金矿石数统计]
 当前矿石数: %d`
 	return fmt.Sprintf(format, *o)
 }
@@ -101,7 +101,7 @@ type jokes struct {
 }
 
 func (j *jokes) String() string {
-	format := `码农日历
+	format := `[码农日历]
 格言: %s
 宜忌: %s`
 	return fmt.Sprintf(format, j.Aphorism, j.ShouldOrNot)
