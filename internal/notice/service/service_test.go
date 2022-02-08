@@ -2,18 +2,10 @@ package service
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	bot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-
-	"github.com/jdxj/sign/internal/pkg/logger"
 )
-
-func TestMain(t *testing.M) {
-	logger.Init("./notice.log")
-	os.Exit(t.Run())
-}
 
 func TestSendNotice(t *testing.T) {
 	client, err := bot.NewBotAPI("")

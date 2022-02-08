@@ -8,13 +8,10 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/db"
-	"github.com/jdxj/sign/internal/pkg/logger"
 	pb "github.com/jdxj/sign/internal/proto/task"
 )
 
 func TestMain(t *testing.M) {
-	logger.Init("./crontab.log")
-
 	_ = db.InitGorm(config.DB{
 		User:   "root",
 		Pass:   "123456",

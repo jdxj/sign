@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-dep
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: task
+  template:
+    metadata:
+      name: task-pod
+      labels:
+        app: task
+    spec:
+      containers:
+        - name: task-run
+          image: jdxj/task:test-da9060c
+          command: [ "/sign/task.run" ]
+          args: [ "--config", "/sign/config/conf.yaml" ]
+          volumeMounts:
+            - mountPath: /sign/config
+              name: task-conf
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+      volumes:
+        - name: task-conf
+          secret:
+            secretName: sign-config

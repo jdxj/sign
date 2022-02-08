@@ -1,103 +1,79 @@
 package logger
 
 import (
+	"errors"
 	"os"
+	"path/filepath"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var (
-	desugar *zap.Logger
-	sugar   *zap.SugaredLogger
+const (
+	envPodName = "POD_NAME"
+	logExt     = ".log"
 )
 
-type OptionFunc func(opts *Options)
+var (
+	ErrInvalidLogPath = errors.New("invalid log path")
+)
 
-type Options struct {
-	Mode     string
-	FileName string
+var (
+	logger *zap.Logger
+	sugar  *zap.SugaredLogger
+)
 
-	MaxSize    int
-	MaxAge     int
-	MaxBackups int
-
-	LocalTime bool
-	Compress  bool
-}
-
-func WithMode(mode string) OptionFunc {
-	return func(opts *Options) {
-		opts.Mode = mode
+func Init(path, base string) {
+	if os.Getenv(envPodName) != "" {
+		base = os.Getenv(envPodName)
 	}
-}
-
-func Init(path string, optsF ...OptionFunc) {
-	opts := &Options{
-		Mode:       "debug",
-		FileName:   path,
-		MaxSize:    50,
-		MaxAge:     30,
-		MaxBackups: 10,
-		LocalTime:  true,
-		Compress:   false,
+	if base == "" {
+		panic(ErrInvalidLogPath)
 	}
-	for _, optF := range optsF {
-		optF(opts)
-	}
+	base += logExt
 
 	core := zapcore.NewCore(
-		encoder(opts.Mode),
-		syncer(opts),
-		level(opts.Mode),
+		newEncoder(path),
+		newSyncer(path, base),
+		newLevel(),
 	)
-	desugar = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
-	sugar = desugar.Sugar()
+	logger = zap.New(
+		core,
+		zap.AddCaller(),
+		zap.AddCallerSkip(1),
+		zap.AddStacktrace(zap.ErrorLevel),
+	)
+	sugar = logger.Sugar()
 }
 
-func syncer(opts *Options) zapcore.WriteSyncer {
-	var syncer zapcore.WriteSyncer
-	switch opts.Mode {
-	case "debug":
-		syncer = zapcore.AddSync(os.Stdout)
+func newEncoder(path string) zapcore.Encoder {
+	conf := zap.NewProductionEncoderConfig()
+	conf.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	case "release":
-		rotation := &lumberjack.Logger{
-			Filename:   opts.FileName,
-			MaxSize:    opts.MaxSize,
-			MaxAge:     opts.MaxAge,
-			MaxBackups: opts.MaxBackups,
-			LocalTime:  opts.LocalTime,
-			Compress:   opts.Compress,
-		}
-		syncer = zapcore.AddSync(rotation)
+	if path == "" {
+		conf.EncodeLevel = zapcore.LowercaseColorLevelEncoder
+		return zapcore.NewConsoleEncoder(conf)
 	}
-	return syncer
+	return zapcore.NewJSONEncoder(conf)
 }
 
-func encoder(mode string) zapcore.Encoder {
-	var encoder zapcore.Encoder
-	switch mode {
-	case "debug":
-		cfg := zap.NewDevelopmentEncoderConfig()
-		cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
-		cfg.EncodeCaller = zapcore.FullCallerEncoder
-		encoder = zapcore.NewConsoleEncoder(cfg)
-
-	case "release":
-		cfg := zap.NewProductionEncoderConfig()
-		cfg.EncodeTime = zapcore.ISO8601TimeEncoder
-		encoder = zapcore.NewJSONEncoder(cfg)
+func newSyncer(path, base string) zapcore.WriteSyncer {
+	if path == "" {
+		return zapcore.AddSync(os.Stdout)
 	}
-	return encoder
+	bws := &zapcore.BufferedWriteSyncer{
+		WS: zapcore.AddSync(&lumberjack.Logger{
+			Filename:  filepath.Join(path, base),
+			LocalTime: true,
+		}),
+		FlushInterval: 5 * time.Second,
+	}
+	return bws
 }
 
-func level(mode string) zapcore.Level {
-	switch mode {
-	case "release":
-		return zap.InfoLevel
-	}
+func newLevel() zapcore.Level {
 	return zap.DebugLevel
 }
 
@@ -115,8 +91,4 @@ func Warnf(template string, args ...interface{}) {
 
 func Errorf(template string, args ...interface{}) {
 	sugar.Errorf(template, args...)
-}
-
-func Sync() {
-	_ = desugar.Sync()
 }

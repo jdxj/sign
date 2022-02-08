@@ -21,27 +21,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: task-dep
+  name: app-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: task
+      app: app
   template:
     metadata:
-      name: task-pod
+      name: app-pod
       labels:
-        app: task
+        app: app
     spec:
       containers:
-        - name: task-run
-          image: jdxj/task:test-2e85bdf
-          command: [ "/sign/task.run" ]
+        - name: app-run
+          image: jdxj/app:test-da9060c
+          command: [ "/sign/app.run" ]
           args: [ "--config", "/sign/config/conf.yaml" ]
+          env:
+            - name: GIN_MODE
+              value: release
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           volumeMounts:
             - mountPath: /sign/config
-              name: task-conf
+              name: app-conf
+          ports:
+            - containerPort: 8081
+              protocol: TCP
       volumes:
-        - name: task-conf
+        - name: app-conf
           secret:
             secretName: sign-config

@@ -35,23 +35,17 @@ func main() {
 			if path == "" {
 				return ErrConfigNotFound
 			}
-			log.Printf(" config path:[%s]\n", path)
 
 			root = config.ReadConfigs(path)
+			logger.Init(root.Logger.Path, pb.ServiceName)
 
-			err = service.Options().
+			return service.Options().
 				Registry.Init(
 				registry.Addrs(root.Etcd.Endpoints...),
 				registry.TLSConfig(
 					util.NewTLSConfig(root.Etcd.Ca, root.Etcd.Cert, root.Etcd.Key),
 				),
 			)
-			if err != nil {
-				return
-			}
-
-			logger.Init("")
-			return nil
 		}),
 	)
 

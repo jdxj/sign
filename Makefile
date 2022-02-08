@@ -4,13 +4,13 @@ images := $(subst .out,,$(components))
 
 .PHONY: all
 all: $(components)
-$(components): output := _output/build
+$(components): output := build/output
 $(components):
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
 
 .PHONY: docker
 docker: $(images)
-$(images): src := _output/build
+$(images): src := build/output
 $(images): des := build/docker
 $(images): all
 	upx -7 $(src)/$@.out
@@ -22,11 +22,12 @@ tools := signctl.out
 
 .PHONY: ctl
 ctl: $(tools)
-$(tools): output := _output/tools
+$(tools): output := build/tools
 $(tools):
 	mkdir -p $(output)
 	go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
 
 .PHONY: clean
 clean:
-	rm -rf ./_output
+	rm -rf build/output
+	rm -rf build/tools

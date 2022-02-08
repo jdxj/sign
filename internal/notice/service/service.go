@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"errors"
-	"log"
 
 	bot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 
+	"github.com/jdxj/sign/internal/notice/cache"
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/logger"
 	pb "github.com/jdxj/sign/internal/proto/notice"
@@ -25,7 +25,8 @@ func New(conf config.Bot) *Service {
 		panic(ErrInvalidConfig)
 	}
 	srv := &Service{}
-	log.Printf("new bot api...")
+
+	logger.Debugf("new bot api...")
 	client, err := bot.NewBotAPI(conf.Token)
 	if err != nil {
 		panic(err)
@@ -43,19 +44,23 @@ func (srv *Service) SendNotice(ctx context.Context, req *pb.SendNoticeRequest, r
 		return status.Errorf(codes.InvalidArgument, "empty user id")
 	}
 
-	userRsp, err := UserService.GetUser(ctx, &user.GetUserRequest{UserID: req.GetUserId()})
-	if err != nil {
-		return status.Errorf(codes.Internal, "GetUser: %s", err)
-	}
-
 	// todo: 配置化
-	contact := userRsp.GetUser().GetContact().GetTelegram()
+	contact := cache.GetUserTelegram(ctx, req.GetUserId())
 	if contact == 0 {
-		return nil
+		userRsp, err := UserService.GetUser(ctx, &user.GetUserRequest{UserID: req.GetUserId()})
+		if err != nil {
+			return status.Errorf(codes.Internal, "GetUser: %s", err)
+		}
+
+		contact = userRsp.GetUser().GetContact().GetTelegram()
+		if contact == 0 {
+			return nil
+		}
+		cache.SetUserTelegram(ctx, req.GetUserId(), contact)
 	}
 
 	msgConf := bot.NewMessage(contact, req.GetContent())
-	_, err = srv.botClient.Send(msgConf)
+	_, err := srv.botClient.Send(msgConf)
 	if err != nil {
 		logger.Errorf("Send: %s, userID: %d", err, req.GetUserId())
 		return status.Errorf(codes.Internal, "Send: %s", err)
