@@ -8,7 +8,7 @@ import (
 )
 
 func TestMain(t *testing.M) {
-	Init("./", "test_pod")
+	Init("./tgf", "test_pod")
 	os.Exit(t.Run())
 }
 

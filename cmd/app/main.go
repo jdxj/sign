@@ -36,10 +36,9 @@ func main() {
 			if path == "" {
 				return ErrConfigNotFound
 			}
-			log.Printf(" config path:[%s]\n", path)
 
 			root = config.ReadConfigs(path)
-			logger.Init("")
+			logger.Init(root.Logger.Path, pb.ServiceName)
 
 			return service.Options().
 				Registry.Init(

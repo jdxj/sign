@@ -35,9 +35,9 @@ func main() {
 			if path == "" {
 				return ErrConfigNotFound
 			}
-			log.Printf(" config path:[%s]\n", path)
 
 			root = config.ReadConfigs(path)
+			logger.Init(root.Logger.Path, pb.ServiceName)
 
 			err = service.Options().
 				Registry.Init(
@@ -50,13 +50,7 @@ func main() {
 				return
 			}
 
-			err = db.InitGorm(root.DB)
-			if err != nil {
-				return
-			}
-
-			logger.Init("")
-			return nil
+			return db.InitGorm(root.DB)
 		}),
 
 		micro.BeforeStart(func() error {

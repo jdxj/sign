@@ -2,7 +2,6 @@ bot:
   token: ""
 logger:
   path: ""
-  mode: ""
 app:
   host: ""
   port: 0

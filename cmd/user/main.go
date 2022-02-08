@@ -11,6 +11,7 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/config"
 	"github.com/jdxj/sign/internal/pkg/db"
+	"github.com/jdxj/sign/internal/pkg/logger"
 	"github.com/jdxj/sign/internal/pkg/util"
 	pb "github.com/jdxj/sign/internal/proto/user"
 	impl "github.com/jdxj/sign/internal/user/service"
@@ -27,16 +28,16 @@ func main() {
 	)
 
 	service.Init(
-		micro.Action(func(cli *cli.Context) (err error) {
+		micro.Action(func(cli *cli.Context) error {
 			path := cli.String("config")
 			if path == "" {
 				return ErrConfigNotFound
 			}
-			log.Printf(" config path:[%s]\n", path)
 
 			root := config.ReadConfigs(path)
+			logger.Init(root.Logger.Path, pb.ServiceName)
 
-			err = service.Options().
+			err := service.Options().
 				Registry.Init(
 				registry.Addrs(root.Etcd.Endpoints...),
 				registry.TLSConfig(
@@ -44,11 +45,10 @@ func main() {
 				),
 			)
 			if err != nil {
-				return
+				return err
 			}
 
-			err = db.InitGorm(root.DB)
-			return
+			return db.InitGorm(root.DB)
 		}),
 	)
 
