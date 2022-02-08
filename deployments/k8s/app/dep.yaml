@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: app-run
-          image: jdxj/app:test-2e85bdf
+          image: jdxj/app:test-da9060c
           command: [ "/sign/app.run" ]
           args: [ "--config", "/sign/config/conf.yaml" ]
           env:

@@ -27,7 +27,7 @@ var (
 
 func Init(path, base string) {
 	if os.Getenv(envPodName) != "" {
-		base = envPodName
+		base = os.Getenv(envPodName)
 	}
 	if base == "" {
 		panic(ErrInvalidLogPath)
