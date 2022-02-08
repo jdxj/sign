@@ -1,13 +1,23 @@
 package logger
 
 import (
+	"errors"
 	"os"
+	"path/filepath"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+)
 
-	"github.com/jdxj/sign/internal/pkg/config"
+const (
+	envPodName = "POD_NAME"
+	logExt     = ".log"
+)
+
+var (
+	ErrInvalidLogPath = errors.New("invalid log path")
 )
 
 var (
@@ -15,11 +25,19 @@ var (
 	sugar  *zap.SugaredLogger
 )
 
-func Init(conf config.Logger) {
+func Init(path, base string) {
+	if os.Getenv(envPodName) != "" {
+		base = envPodName
+	}
+	if base == "" {
+		panic(ErrInvalidLogPath)
+	}
+	base += logExt
+
 	core := zapcore.NewCore(
-		newEncoder(conf.Path),
-		newSyncer(conf.Path),
-		newLevel(conf.Path),
+		newEncoder(path),
+		newSyncer(path, base),
+		newLevel(),
 	)
 	logger = zap.New(
 		core,
@@ -35,22 +53,27 @@ func newEncoder(path string) zapcore.Encoder {
 	conf.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	if path == "" {
+		conf.EncodeLevel = zapcore.LowercaseColorLevelEncoder
 		return zapcore.NewConsoleEncoder(conf)
 	}
 	return zapcore.NewJSONEncoder(conf)
 }
 
-func newSyncer(path string) zapcore.WriteSyncer {
+func newSyncer(path, base string) zapcore.WriteSyncer {
 	if path == "" {
 		return zapcore.AddSync(os.Stdout)
 	}
-	return zapcore.AddSync(&lumberjack.Logger{
-		Filename:  path,
-		LocalTime: true,
-	})
+	bws := &zapcore.BufferedWriteSyncer{
+		WS: zapcore.AddSync(&lumberjack.Logger{
+			Filename:  filepath.Join(path, base),
+			LocalTime: true,
+		}),
+		FlushInterval: 5 * time.Second,
+	}
+	return bws
 }
 
-func newLevel(path string) zapcore.Level {
+func newLevel() zapcore.Level {
 	return zap.DebugLevel
 }
 
@@ -68,8 +91,4 @@ func Warnf(template string, args ...interface{}) {
 
 func Errorf(template string, args ...interface{}) {
 	sugar.Errorf(template, args...)
-}
-
-func Sync() {
-	_ = logger.Sync()
 }
