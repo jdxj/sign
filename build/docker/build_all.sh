@@ -8,12 +8,12 @@ for module in $modules; do
   echo "build $module image"
 
   tag=jdxj/$module:$version
-  cd "$workDir/$module" && sudo docker build -t="$tag" .
+  cd "$workDir/$module" && docker build -t="$tag" .
   if [ $? -ne 0 ]; then
     echo "build $module image failed"
     exit $?
   fi
-  sudo docker push "$tag"
+  docker push "$tag"
 
   echo
 done
