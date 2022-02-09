@@ -1,24 +1,46 @@
 package sign_error
 
-const (
-	ErrUnknown = iota
-	ErrBindReqFailed
-	ErrAuthFailed
-	ErrHandle
-	ErrRPCRequest
-	ErrInternal
-	ErrInvalidParam
+import (
+	"net/http"
 )
 
-// todo: 代码自动生成
 var (
-	ErrMap = map[int]string{
-		ErrUnknown:       "未知错误",
-		ErrBindReqFailed: "解析请求错误",
-		ErrAuthFailed:    "认证失败",
-		ErrRPCRequest:    "服务调用失败",
-		ErrInternal:      "内部错误",
-		ErrInvalidParam:  "无效数据",
-		ErrHandle:        "处理请求错误",
+	// codeMap 维护了 appCode 到 httpCode 的映射
+	codeMap = make(map[int]Code)
+	// validHTTP 有效的 httpCode
+	validHTTP = map[int]struct{}{
+		http.StatusOK:                  {},
+		http.StatusMultipleChoices:     {},
+		http.StatusBadRequest:          {},
+		http.StatusInternalServerError: {},
 	}
 )
+
+type Code struct {
+	// http 状态码
+	http int
+	// 应用层状态码
+	app int
+	// 应用层状态码描述
+	desc string
+}
+
+func (c Code) HTTP() int {
+	if c.http == 0 {
+		return http.StatusInternalServerError
+	}
+	return c.http
+}
+
+func (c Code) APP() int {
+	return c.app
+}
+
+func (c Code) String() string {
+	http.StatusOK
+	return c.desc
+}
+
+func register(app, http int, desc string) {
+
+}

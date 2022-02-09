@@ -11,9 +11,9 @@ import (
 )
 
 type Response struct {
-	Code        int         `json:"code"`
-	Description string      `json:"description"`
-	Data        interface{} `json:"data"`
+	Code        int         `json:"code,omitempty"`
+	Description string      `json:"description,omitempty"`
+	Data        interface{} `json:"data,omitempty"`
 }
 
 func Respond(ctx *gin.Context, data interface{}, err error) {

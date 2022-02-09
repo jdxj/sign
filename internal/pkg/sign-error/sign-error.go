@@ -14,9 +14,8 @@ func New(code int, format string, a ...interface{}) error {
 }
 
 type SignError struct {
-	Code        int
-	CodeDesc    string
-	Description string
+	code int
+	err  error
 }
 
 func (se *SignError) Error() string {
