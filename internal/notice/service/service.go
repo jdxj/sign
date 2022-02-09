@@ -39,7 +39,7 @@ type Service struct {
 	botClient *bot.BotAPI
 }
 
-func (srv *Service) SendNotice(ctx context.Context, req *pb.SendNoticeRequest, rsp *emptypb.Empty) error {
+func (srv *Service) SendNotice(ctx context.Context, req *pb.SendNoticeRequest, _ *emptypb.Empty) error {
 	if req.GetUserId() == 0 {
 		return status.Errorf(codes.InvalidArgument, "empty user id")
 	}

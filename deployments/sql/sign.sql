@@ -37,3 +37,24 @@ CREATE TABLE `user`
     UNIQUE KEY `user_nickname_IDX` (`nickname`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表'
 
+-- 设计中
+CREATE TABLE `contact`
+(
+    `contact_id` bigint       NOT NULL AUTO_INCREMENT,
+    `user_id`    bigint       NOT NULL,
+    `type`       varchar(100) NOT NULL COMMENT '联系方式类型',
+    `contact`    varchar(100) NOT NULL COMMENT '联系方式取值',
+    `created_at` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deleted_at` timestamp NULL DEFAULT NULL,
+    PRIMARY KEY (`contact_id`),
+    KEY          `user_id_idx` (`user_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 设计中
+CREATE TABLE `notice`
+(
+    `user_id`    bigint NOT NULL,
+    `contact_id` bigint NOT NULL,
+    PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
