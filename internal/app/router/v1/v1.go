@@ -8,31 +8,25 @@ import (
 
 func New(p gin.IRouter) {
 	v1 := p.Group("/v1")
-	// test
-	{
-		v1.POST("/hello", handler.Hello)
-	}
+	v1.GET("/", handler.Hello)
 
-	// session
-	session := v1.Group("/session")
-	{
-		session.POST("/login", handler.Login)
-	}
+	v1.POST("/login", handler.Login)
+	v1.POST("/users", handler.SignUp)
 
 	// user
-	user := v1.Group("/user")
+	users := v1.Group("/users", authnBearer)
 	{
-		user.POST("/sign-up", handler.SignUp)
-		user.POST("/update", handler.UpdateUser)
+		users.PUT("/:user_id", handler.UpdateUser)
 	}
 
 	// task
-	task := v1.Group("/task")
+	tasks := v1.Group("/tasks", authnBearer)
 	{
-		task.POST("/create", handler.CreateTask)
-		task.POST("/get", handler.GetTask)
-		task.POST("list", handler.GetTasks)
-		task.POST("/update", handler.UpdateTask)
-		task.POST("/delete", handler.DeleteTask)
+		tasks.POST("", handler.CreateTask)
+		tasks.GET("", handler.GetTasks)
+		tasks.GET("/:task_id", handler.GetTask)
+		tasks.PUT("/:task_id", handler.UpdateTask)
+		tasks.DELETE("/:task_id", handler.DeleteTask)
 	}
+
 }

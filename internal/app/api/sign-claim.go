@@ -51,7 +51,7 @@ func (c *SignClaim) Token() (string, error) {
 	return token.SignedString([]byte(JwtKey))
 }
 
-func NewClaimFromToken(sign string) (*SignClaim, error) {
+func NewSignClaimFromToken(sign string) (*SignClaim, error) {
 	token, err := jwt.ParseWithClaims(sign, &SignClaim{}, func(*jwt.Token) (interface{}, error) {
 		return []byte(JwtKey), nil
 	})

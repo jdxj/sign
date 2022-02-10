@@ -1,6 +1,7 @@
 package sign_error
 
 import (
+	"errors"
 	"net/http"
 )
 
@@ -14,6 +15,11 @@ var (
 		http.StatusBadRequest:          {},
 		http.StatusInternalServerError: {},
 	}
+)
+
+var (
+	ErrInvalidHTTPCode          = errors.New("invalid http code")
+	ErrAlreadyRegisteredAPPCode = errors.New("already registered app code")
 )
 
 type Code struct {
@@ -37,10 +43,30 @@ func (c Code) APP() int {
 }
 
 func (c Code) String() string {
-	http.StatusOK
 	return c.desc
 }
 
-func register(app, http int, desc string) {
+func register(http, app int, desc string) {
+	_, exists := validHTTP[http]
+	if exists {
+		panic(ErrInvalidHTTPCode)
+	}
+	_, exists = codeMap[app]
+	if exists {
+		panic(ErrAlreadyRegisteredAPPCode)
+	}
 
+	codeMap[app] = Code{
+		http: http,
+		app:  app,
+		desc: desc,
+	}
+}
+
+func ParseCode(err error) Code {
+	var se *SignError
+	if errors.As(err, &se) {
+		return codeMap[se.code]
+	}
+	return Code{}
 }

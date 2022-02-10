@@ -1,30 +1,29 @@
 package sign_error
 
+// common
 const (
-	ErrUnknown = iota
-	ErrBindReqFailed
-	ErrAuthFailed
-	ErrHandle
-	ErrRPCRequest
-	ErrInternal
-	ErrInvalidParam
+	// ErrUnknown 500 unknown error
+	ErrUnknown int = iota + 100000
+	// ErrBindRequest 400 parse request failed
+	ErrBindRequest
+	// ErrRPCCall 500 rpc call failed
+	ErrRPCCall
 )
 
-// todo: 代码自动生成
-var (
-	ErrMap = map[int]string{
-		ErrUnknown:       "未知错误",
-		ErrBindReqFailed: "解析请求错误",
-		ErrAuthFailed:    "认证失败",
-		ErrRPCRequest:    "服务调用失败",
-		ErrInternal:      "内部错误",
-		ErrInvalidParam:  "无效数据",
-		ErrHandle:        "处理请求错误",
-	}
+// user
+const (
+	errReserveUser int = iota + 100100
+	// ErrLogin 400 login failed
+	ErrLogin
+	// ErrAuth 400 auth failed
+	ErrAuth
 )
 
-// todo: 使用 generated
+// task
 const (
-	// ErrUserNotFound 400:user not found
-	ErrUserNotFound = iota + 100101
+	errReserveTask int = iota + 100200
+	// ErrEncodeParam 400 encode param failed
+	ErrEncodeParam
+	// ErrDecodeParam 500 decode param failed
+	ErrDecodeParam
 )

@@ -28,30 +28,32 @@ func login(ctx context.Context, req *LoginReq) (*LoginRsp, error) {
 		Password: req.Password,
 	})
 	if err != nil {
-		logger.Errorf("AuthUser: %s", err)
-		return nil, ser.New(ser.ErrRPCRequest, "认证失败")
+		return nil, ser.Wrap(ser.ErrRPCCall, err, "AuthUser")
 	}
 	if !auRsp.GetValid() {
-		return nil, ser.New(ser.ErrAuthFailed, "认证失败")
+		return nil, ser.New(ser.ErrLogin, "invalid nickname or password")
 	}
 
 	rsp := &LoginRsp{
 		UserID: auRsp.GetUserID(),
 	}
-	token, err := api.NewSignClaim(auRsp.GetUserID(), req.Nickname).Token()
+	rsp.Token, err = api.NewSignClaim(auRsp.GetUserID(), req.Nickname).Token()
 	if err != nil {
 		logger.Errorf("GenerateToken: %s", err)
-		return nil, ser.New(ser.ErrInternal, "认证失败")
+		return nil, ser.Wrap(ser.ErrUnknown, err, "NewSignClaim")
 	}
-	rsp.Token = token
 	return rsp, nil
 }
 
 func Login(ctx *gin.Context) {
 	req := &LoginReq{}
-	api.Process(ctx, req, func(request *api.Request) (interface{}, error) {
-		return login(ctx, req)
-	})
+	err := ctx.ShouldBindJSON(req)
+	if err != nil {
+		api.Respond(ctx, nil, ser.Wrap(ser.ErrBindRequest, err, "Login"))
+		return
+	}
+	data, err := login(ctx, req)
+	api.Respond(ctx, data, err)
 }
 
 type SignUpReq struct {
@@ -76,25 +78,28 @@ func signUp(ctx context.Context, req *SignUpReq) (*SignUpRsp, error) {
 		},
 	}})
 	if err != nil {
-		return nil, ser.New(ser.ErrRPCRequest, "CreateUser: %s", err)
+		return nil, ser.Wrap(ser.ErrRPCCall, err, "CreateUser")
 	}
 
 	rsp := &SignUpRsp{
 		UserID: cuRsp.GetUserID(),
 	}
-	token, err := api.NewSignClaim(cuRsp.UserID, req.Nickname).Token()
+	rsp.Token, err = api.NewSignClaim(cuRsp.UserID, req.Nickname).Token()
 	if err != nil {
-		return nil, ser.New(ser.ErrInternal, "获取 token 失败: %s", err)
+		return nil, ser.Wrap(ser.ErrUnknown, err, "NewSignClaim")
 	}
-	rsp.Token = token
 	return rsp, nil
 }
 
 func SignUp(ctx *gin.Context) {
 	req := &SignUpReq{}
-	api.Process(ctx, req, func(request *api.Request) (interface{}, error) {
-		return signUp(ctx, req)
-	})
+	err := ctx.ShouldBindJSON(req)
+	if err != nil {
+		api.Respond(ctx, nil, ser.Wrap(ser.ErrBindRequest, err, "SignUp"))
+		return
+	}
+	data, err := signUp(ctx, req)
+	api.Respond(ctx, data, err)
 }
 
 type UpdateUserReq struct {
@@ -115,14 +120,18 @@ func updateUser(ctx context.Context, req *UpdateUserReq, userID int64) error {
 		},
 	}})
 	if err != nil {
-		return ser.New(ser.ErrRPCRequest, "UpdateUser: %s", err)
+		return ser.Wrap(ser.ErrRPCCall, err, "UpdateUser")
 	}
 	return nil
 }
 
 func UpdateUser(ctx *gin.Context) {
 	req := &UpdateUserReq{}
-	api.ProcessCheckToken(ctx, req, func(request *api.Request) (interface{}, error) {
-		return nil, updateUser(ctx, req, request.Claim.UserID)
-	})
+	err := ctx.ShouldBindJSON(req)
+	if err != nil {
+		api.Respond(ctx, nil, ser.Wrap(ser.ErrBindRequest, err, "UpdateUser"))
+		return
+	}
+	err = updateUser(ctx, req, getUserID(ctx))
+	api.Respond(ctx, nil, err)
 }
