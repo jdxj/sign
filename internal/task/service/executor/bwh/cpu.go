@@ -20,7 +20,7 @@ func (cm *CPUMeter) Execute(body []byte) (string, error) {
 	if err != nil {
 		return msgParseParamFailed, err
 	}
-	client := kwv.NewClient(param.GetVeId(), param.GetApiKey(), kwv.WithDebug(true))
+	client := kwv.NewClient(param.GetVeId(), param.GetApiKey())
 	rsp, err := client.GetRawUsageStats()
 	if err != nil {
 		return msgGetCPUFailed, err
