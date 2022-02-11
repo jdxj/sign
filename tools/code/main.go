@@ -18,6 +18,12 @@ func main() {
 	WriteToFile(RenderCodes(ParseCodes()))
 }
 
+type Code struct {
+	Name string
+	HTTP int
+	Desc string
+}
+
 func ParseCodes() (codes []Code) {
 	var (
 		fileSet  = token.NewFileSet()
