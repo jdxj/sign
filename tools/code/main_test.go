@@ -40,14 +40,14 @@ func TestBuild(t *testing.T) {
 	ast.Print(fileSet, astFile)
 }
 
-func TestParseCodes(t *testing.T) {
+func TestParseCodes(_ *testing.T) {
 	codes := ParseCodes()
 	for _, v := range codes {
 		fmt.Printf("%+v\n", v)
 	}
 }
 
-func TestRenderCodes(t *testing.T) {
+func TestRenderCodes(_ *testing.T) {
 	codes := []Code{
 		{
 			Name: "abc",

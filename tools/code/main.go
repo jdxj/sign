@@ -43,17 +43,15 @@ func ParseCodes() (codes []Code) {
 		// 是否找到该 const 声明中, type 为 'code' 的声明
 		find := false
 		for _, spec := range genDecl.Specs {
-			valueSpec, ok := spec.(*ast.ValueSpec)
-			if !ok {
-				continue
-			}
-
+			valueSpec := spec.(*ast.ValueSpec)
 			ident, ok := valueSpec.Type.(*ast.Ident)
-			if ok && ident.Name == "code" {
-				find = true
-			} else if ok && ident.Name != "code" {
-				// 发现新类型时认为未找到
-				find = false
+			if ok {
+				if ident.Name == "code" {
+					find = true
+				} else {
+					// 发现新类型时认为未找到
+					find = false
+				}
 			}
 			if !find {
 				continue
