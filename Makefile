@@ -31,6 +31,10 @@ $(tools):
 lint:
 	golangci-lint run
 
+.PHONY: gen
+gen:
+	go generate ./...
+
 .PHONY: clean
 clean:
 	rm -rf build/output
