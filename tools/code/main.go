@@ -14,18 +14,6 @@ import (
 	"text/template"
 )
 
-const (
-	tplSrc = `
-package {{.pkg}}
-
-func init() {
-	{{- range .codes}}
-	register({{.HTTP}}, {{.Name}}, "{{.Desc}}")
-	{{- end}}
-}
-`
-)
-
 func main() {
 	WriteToFile(RenderCodes(ParseCodes()))
 }

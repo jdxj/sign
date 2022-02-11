@@ -1,9 +1,13 @@
 package sign_error
 
+//go:generate codegen
+
+type code = int
+
 // common
 const (
 	// ErrUnknown 500 unknown error
-	ErrUnknown int = iota + 100000
+	ErrUnknown code = iota + 100000
 	// ErrBindRequest 400 parse request failed
 	ErrBindRequest
 	// ErrRPCCall 500 rpc call failed
@@ -12,7 +16,7 @@ const (
 
 // user
 const (
-	errReserveUser int = iota + 100100
+	_ code = iota + 100100
 	// ErrLogin 400 login failed
 	ErrLogin
 	// ErrAuth 400 auth failed
@@ -21,7 +25,7 @@ const (
 
 // task
 const (
-	errReserveTask int = iota + 100200
+	_ code = iota + 100200
 	// ErrEncodeParam 400 encode param failed
 	ErrEncodeParam
 	// ErrDecodeParam 500 decode param failed
