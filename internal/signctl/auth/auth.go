@@ -58,6 +58,7 @@ func New() *cobra.Command {
 func authCmdRun(cmd *cobra.Command, _ []string) {
 	var (
 		host, _     = cmd.Flags().GetString(consts.Host)
+		debug, _    = cmd.Flags().GetBool(consts.Debug)
 		nickname, _ = cmd.Flags().GetString(consts.Nickname)
 		password, _ = cmd.Flags().GetString(consts.Password)
 		err         error
@@ -76,7 +77,7 @@ func authCmdRun(cmd *cobra.Command, _ []string) {
 	}
 	rsp := &model.Response{}
 
-	err = util.SendJson(host, req, rsp, util.WithJoin(consts.ApiToken))
+	err = util.SendJson(host, req, rsp, util.WithDebug(debug), util.WithJoin(consts.ApiToken))
 	if err != nil {
 		cmd.Printf("%s: %s", consts.ErrSendJson, err)
 		return

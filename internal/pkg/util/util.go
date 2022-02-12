@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -60,21 +61,6 @@ func encrypt(key, iv, text []byte) []byte {
 	return ciphertext
 }
 
-// Deprecated
-func PostJson(url string, req, rsp interface{}) error {
-	return SendJson(url, req, rsp, WithMethod(http.MethodPost))
-}
-
-// Deprecated
-func PutJson(url string, req, rsp interface{}) error {
-	return SendJson(url, req, rsp, WithMethod(http.MethodPut))
-}
-
-// Deprecated
-func DeleteJson(url string, req, rsp interface{}) error {
-	return SendJson(url, req, rsp, WithMethod(http.MethodDelete))
-}
-
 func newSendJsonOption() *sendJsonOption {
 	return &sendJsonOption{
 		method: http.MethodPost,
@@ -85,6 +71,7 @@ func newSendJsonOption() *sendJsonOption {
 
 type (
 	sendJsonOption struct {
+		debug  bool
 		method string
 		header map[string]string
 		path   []string
@@ -92,6 +79,12 @@ type (
 	}
 	SendJsonOption func(sjo *sendJsonOption)
 )
+
+func WithDebug(d bool) SendJsonOption {
+	return func(o *sendJsonOption) {
+		o.debug = d
+	}
+}
 
 func WithMethod(m string) SendJsonOption {
 	return func(o *sendJsonOption) {
@@ -171,6 +164,10 @@ func SendJson(u string, req, rsp interface{}, options ...SendJsonOption) error {
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 
+	if o.debug {
+		fmt.Printf("request: %+v\n", httpReq)
+	}
+
 	// 发送请求
 	client := &http.Client{}
 	httpRsp, err := client.Do(httpReq)
@@ -183,8 +180,17 @@ func SendJson(u string, req, rsp interface{}, options ...SendJsonOption) error {
 	if rsp == nil {
 		return nil
 	}
-	decoder := json.NewDecoder(httpRsp.Body)
-	return decoder.Decode(rsp)
+
+	body, err = ioutil.ReadAll(httpRsp.Body)
+	if err != nil {
+		return err
+	}
+
+	if o.debug {
+		fmt.Printf("response: %s\n", body)
+	}
+
+	return json.Unmarshal(body, rsp)
 }
 
 const (

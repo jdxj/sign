@@ -62,6 +62,7 @@ func userCmdRun(cmd *cobra.Command, _ []string) {
 	var (
 		host, _     = cmd.Flags().GetString(consts.Host)
 		t, _        = cmd.Flags().GetString(consts.Token)
+		debug, _    = cmd.Flags().GetBool(consts.Debug)
 		nickname, _ = cmd.Flags().GetString(consts.Nickname)
 		password, _ = cmd.Flags().GetString(consts.Password)
 		mail, _     = cmd.Flags().GetString(consts.Mail)
@@ -73,11 +74,13 @@ func userCmdRun(cmd *cobra.Command, _ []string) {
 		Mail:     mail,
 		Telegram: telegram,
 	}
+	rsp := &model.Response{}
 
 	err := util.SendJson(
 		host,
 		req,
-		nil,
+		rsp,
+		util.WithDebug(debug),
 		util.WithJoin(consts.ApiUser),
 		util.WithMethod(http.MethodPut),
 		util.WithBearer(t),
@@ -86,5 +89,5 @@ func userCmdRun(cmd *cobra.Command, _ []string) {
 		cmd.PrintErrf("%s: put, %s\n", consts.ErrSendJson, err)
 		return
 	}
-	cmd.Println("update user successfully")
+	cmd.Printf("%s\n", rsp)
 }

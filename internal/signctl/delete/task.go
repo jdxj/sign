@@ -7,6 +7,7 @@ import (
 
 	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/signctl/consts"
+	"github.com/jdxj/sign/internal/signctl/model"
 )
 
 func newTaskCmd() *cobra.Command {
@@ -57,14 +58,17 @@ func newTaskCmd() *cobra.Command {
 func taskCmdRun(cmd *cobra.Command, _ []string) {
 	var (
 		host, _   = cmd.Flags().GetString(consts.Host)
+		debug, _  = cmd.Flags().GetBool(consts.Debug)
 		token, _  = cmd.Flags().GetString(consts.Token)
 		taskID, _ = cmd.Flags().GetString(consts.TaskID)
 	)
+	rsp := &model.Response{}
 
 	err := util.SendJson(
 		host,
 		nil,
-		nil,
+		rsp,
+		util.WithDebug(debug),
 		util.WithJoin(consts.ApiTasks),
 		util.WithJoin(taskID),
 		util.WithMethod(http.MethodDelete),
@@ -74,5 +78,5 @@ func taskCmdRun(cmd *cobra.Command, _ []string) {
 		cmd.PrintErrf("%s: delete, %s", consts.ErrSendJson, err)
 		return
 	}
-	cmd.Println("delete task successfully")
+	cmd.Printf("%s\n", rsp)
 }

@@ -59,6 +59,7 @@ func newUserCmd() *cobra.Command {
 func userCmdRun(cmd *cobra.Command, _ []string) {
 	var (
 		host, _     = cmd.Flags().GetString(consts.Host)
+		debug, _    = cmd.Flags().GetBool(consts.Debug)
 		nickname, _ = cmd.Flags().GetString(consts.Nickname)
 		password, _ = cmd.Flags().GetString(consts.Password)
 		mail, _     = cmd.Flags().GetString(consts.Mail)
@@ -81,7 +82,7 @@ func userCmdRun(cmd *cobra.Command, _ []string) {
 	}
 	rsp := &model.Response{}
 
-	err = util.SendJson(host, req, rsp, util.WithJoin(consts.ApiUser))
+	err = util.SendJson(host, req, rsp, util.WithDebug(debug), util.WithJoin(consts.ApiUser))
 	if err != nil {
 		cmd.PrintErrf("%s: %s\n", consts.ErrSendJson, err)
 		return

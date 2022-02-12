@@ -66,6 +66,7 @@ func taskCmdRun(cmd *cobra.Command, _ []string) {
 	var (
 		host, _      = cmd.Flags().GetString(consts.Host)
 		t, _         = cmd.Flags().GetString(consts.Token)
+		debug, _     = cmd.Flags().GetBool(consts.Debug)
 		taskID, _    = cmd.Flags().GetString(consts.TaskID)
 		desc, _      = cmd.Flags().GetString(consts.Description)
 		kind, _      = cmd.Flags().GetInt32(consts.Kind)
@@ -88,6 +89,7 @@ func taskCmdRun(cmd *cobra.Command, _ []string) {
 		host,
 		req,
 		rsp,
+		util.WithDebug(debug),
 		util.WithJoin(consts.ApiTasks),
 		util.WithJoin(taskID),
 		util.WithMethod(http.MethodGet),

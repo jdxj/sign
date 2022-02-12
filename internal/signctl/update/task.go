@@ -63,6 +63,7 @@ func newTaskCmd() *cobra.Command {
 func taskCmdRun(cmd *cobra.Command, _ []string) {
 	var (
 		host, _   = cmd.Flags().GetString(consts.Host)
+		debug, _  = cmd.Flags().GetBool(consts.Debug)
 		token, _  = cmd.Flags().GetString(consts.Token)
 		taskID, _ = cmd.Flags().GetString(consts.TaskID)
 		desc, _   = cmd.Flags().GetString(consts.Description)
@@ -85,11 +86,13 @@ func taskCmdRun(cmd *cobra.Command, _ []string) {
 		Spec:  spec,
 		Param: param,
 	}
+	rsp := &model.Response{}
 
 	err := util.SendJson(
 		host,
 		req,
-		nil,
+		rsp,
+		util.WithDebug(debug),
 		util.WithJoin(consts.ApiTasks),
 		util.WithJoin(taskID),
 		util.WithMethod(http.MethodPut),
@@ -99,5 +102,5 @@ func taskCmdRun(cmd *cobra.Command, _ []string) {
 		cmd.PrintErrf("%s: put, %s\n", consts.ErrSendJson, err)
 		return
 	}
-	cmd.Println("update task successfully")
+	cmd.Printf("%s\n", rsp)
 }

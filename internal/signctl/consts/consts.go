@@ -8,6 +8,7 @@ import (
 const (
 	Host  = "host"
 	Token = "token"
+	Debug = "debug"
 
 	Nickname = "nickname"
 	Password = "password"
