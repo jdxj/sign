@@ -26,3 +26,9 @@ func Respond(ctx *gin.Context, data interface{}, err error) {
 	}
 	ctx.JSON(code.HTTP(), rsp)
 }
+
+// Abort 中间件应该使用该方法
+func Abort(ctx *gin.Context, data interface{}, err error) {
+	ctx.Abort()
+	Respond(ctx, data, err)
+}

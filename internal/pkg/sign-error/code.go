@@ -33,7 +33,8 @@ type Code struct {
 
 func (c Code) HTTP() int {
 	if c.http == 0 {
-		return http.StatusInternalServerError
+		// 表示没注册 code, 那么表示没问题
+		return http.StatusOK
 	}
 	return c.http
 }
@@ -48,7 +49,7 @@ func (c Code) String() string {
 
 func register(http, app int, desc string) {
 	_, exists := validHTTP[http]
-	if exists {
+	if !exists {
 		panic(ErrInvalidHTTPCode)
 	}
 	_, exists = codeMap[app]

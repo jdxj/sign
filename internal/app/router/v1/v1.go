@@ -7,13 +7,17 @@ import (
 func New(p gin.IRouter) {
 	v1 := p.Group("/v1")
 
-	v1.POST("/login", Login)
-	v1.POST("/users", SignUp)
+	// user 无认证
+	noAuthn := v1.Group("/users")
+	{
+		noAuthn.POST("/user", SignUp)
+		noAuthn.POST("/token", Login)
+	}
 
-	// user
+	// user 有认证
 	users := v1.Group("/users", authnBearer)
 	{
-		users.PUT("/:user_id", UpdateUser)
+		users.PUT("/user", UpdateUser)
 	}
 
 	// task

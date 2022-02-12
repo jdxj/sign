@@ -103,7 +103,7 @@ func CreateTask(ctx *gin.Context) {
 }
 
 type GetTaskReq struct {
-	TaskID int64 `json:"task_id" binding:"required"`
+	TaskID int64 `uri:"task_id" binding:"required"`
 }
 
 type Task struct {
@@ -167,9 +167,9 @@ type GetTasksReq struct {
 	Desc      string `json:"desc"`
 	Kind      string `json:"kind"`
 	Spec      string `json:"spec"`
-	CreatedAt int64  `json:"created_at,string"`
-	PageID    int64  `json:"page_id,string" binding:"gt=0"`
-	PageSize  int64  `json:"page_size,string" binding:"gt=0"`
+	CreatedAt int64  `json:"created_at"`
+	PageID    int64  `json:"page_id" binding:"gt=0"`
+	PageSize  int64  `json:"page_size" binding:"gt=0"`
 }
 
 type GetTasksRsp struct {
@@ -226,7 +226,7 @@ func GetTasks(ctx *gin.Context) {
 }
 
 type UpdateTaskReq struct {
-	TaskID int64  `json:"task_id,string" binding:"required"`
+	TaskID int64  `uri:"task_id" binding:"required"`
 	Desc   string `json:"desc"`
 	Spec   string `json:"spec"`
 
@@ -277,7 +277,7 @@ func UpdateTask(ctx *gin.Context) {
 }
 
 type DeleteTaskReq struct {
-	TaskID int64 `json:"task_id" binding:"required"`
+	TaskID int64 `uri:"task_id" binding:"required"`
 }
 
 func deleteTask(ctx context.Context, req *DeleteTaskReq, userID int64) error {

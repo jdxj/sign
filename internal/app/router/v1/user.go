@@ -13,8 +13,8 @@ import (
 )
 
 type LoginReq struct {
-	Nickname string `json:"nickname" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Nickname string `json:"nickname" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 type LoginRsp struct {
@@ -60,7 +60,7 @@ type SignUpReq struct {
 	Nickname string `json:"nickname" binding:"required"`
 	Password string `json:"password" binding:"required"`
 	Mail     string `json:"mail"`
-	Telegram int64  `json:"telegram,string"`
+	Telegram int64  `json:"telegram"`
 }
 
 type SignUpRsp struct {
