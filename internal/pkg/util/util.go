@@ -15,22 +15,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
-	"os/signal"
-	"syscall"
+	"path"
 	"time"
 
 	"golang.org/x/term"
-
-	"github.com/jdxj/sign/internal/pkg/logger"
 )
-
-func Hold() {
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	s := <-quit
-	logger.Infof("receive signal: %d", s)
-}
 
 func Salt() string {
 	b := make([]byte, 32)
@@ -69,33 +60,118 @@ func encrypt(key, iv, text []byte) []byte {
 	return ciphertext
 }
 
+// Deprecated
 func PostJson(url string, req, rsp interface{}) error {
-	return sendJson(http.MethodPost, url, req, rsp)
+	return SendJson(url, req, rsp, WithMethod(http.MethodPost))
 }
 
+// Deprecated
 func PutJson(url string, req, rsp interface{}) error {
-	return sendJson(http.MethodPut, url, req, rsp)
+	return SendJson(url, req, rsp, WithMethod(http.MethodPut))
 }
 
+// Deprecated
 func DeleteJson(url string, req, rsp interface{}) error {
-	return sendJson(http.MethodDelete, url, req, rsp)
+	return SendJson(url, req, rsp, WithMethod(http.MethodDelete))
 }
 
-func sendJson(method, url string, req, rsp interface{}) error {
+func newSendJsonOption() *sendJsonOption {
+	return &sendJsonOption{
+		method: http.MethodPost,
+		header: make(map[string]string),
+		value:  make(map[string]string),
+	}
+}
+
+type (
+	sendJsonOption struct {
+		method string
+		header map[string]string
+		path   []string
+		value  map[string]string
+	}
+	SendJsonOption func(sjo *sendJsonOption)
+)
+
+func WithMethod(m string) SendJsonOption {
+	return func(o *sendJsonOption) {
+		o.method = m
+	}
+}
+
+func WithHeader(h map[string]string) SendJsonOption {
+	return func(o *sendJsonOption) {
+		for k, v := range h {
+			o.header[k] = v
+		}
+	}
+}
+
+func WithBearer(t string) SendJsonOption {
+	return WithHeader(map[string]string{
+		"Authorization": fmt.Sprintf("bearer %s", t),
+	})
+}
+
+// WithJoin 注意拼接顺序
+func WithJoin(p string) SendJsonOption {
+	return func(o *sendJsonOption) {
+		o.path = append(o.path, p)
+	}
+}
+
+func WithValue(v map[string]string) SendJsonOption {
+	return func(o *sendJsonOption) {
+		for k, v := range v {
+			o.value[k] = v
+		}
+	}
+}
+
+func SendJson(u string, req, rsp interface{}, options ...SendJsonOption) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// 初始化选项
+	o := newSendJsonOption()
+	for _, opt := range options {
+		opt(o)
+	}
+
+	// 编码 url
+	uu, err := url.Parse(u)
+	if err != nil {
+		return err
+	}
+	for _, p := range o.path {
+		uu.Path = path.Join(uu.Path, p)
+	}
+	rawQuery := uu.Query()
+	for k, v := range o.value {
+		rawQuery.Add(k, v)
+	}
+	uu.RawQuery = rawQuery.Encode()
+
+	// 编码 body
 	body, err := json.Marshal(req)
 	if err != nil {
 		return err
 	}
 	reader := bytes.NewReader(body)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	httpReq, err := http.NewRequestWithContext(ctx, method, url, reader)
+	// 创建 request
+	httpReq, err := http.NewRequestWithContext(ctx, o.method, uu.String(), reader)
 	if err != nil {
 		return err
 	}
+
+	// 编码 header
+	for k, v := range o.header {
+		httpReq.Header.Add(k, v)
+	}
 	httpReq.Header.Set("Content-Type", "application/json")
+
+	// 发送请求
 	client := &http.Client{}
 	httpRsp, err := client.Do(httpReq)
 	if err != nil {

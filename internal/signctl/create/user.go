@@ -1,9 +1,6 @@
 package create
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/spf13/cobra"
 
 	"github.com/jdxj/sign/internal/pkg/util"
@@ -59,43 +56,35 @@ func newUserCmd() *cobra.Command {
 	return cmd
 }
 
-func userCmdRun(cmd *cobra.Command, args []string) {
+func userCmdRun(cmd *cobra.Command, _ []string) {
 	var (
-		host        = cmd.Flag(consts.Host)
-		nickname    = cmd.Flag(consts.Nickname)
-		passFlag    = cmd.Flag(consts.Password)
-		mail        = cmd.Flag(consts.Mail)
+		host, _     = cmd.Flags().GetString(consts.Host)
+		nickname, _ = cmd.Flags().GetString(consts.Nickname)
+		password, _ = cmd.Flags().GetString(consts.Password)
+		mail, _     = cmd.Flags().GetString(consts.Mail)
 		telegram, _ = cmd.Flags().GetInt64(consts.Telegram)
-
-		pass = passFlag.Value.String()
-		err  error
+		err         error
 	)
-
-	if pass == "" {
-		pass, err = util.ConfirmPassword()
+	if password == "" {
+		password, err = util.ConfirmPassword()
 		if err != nil {
 			cmd.PrintErrf("get password failed: %s", err)
 			return
 		}
 	}
 
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.UserCreate)
-	req := &model.Request{
-		Data: &model.CreateUserReq{
-			Nickname: nickname.Value.String(),
-			Password: pass,
-			Mail:     mail.Value.String(),
-			Telegram: telegram,
-		},
+	req := &model.CreateUserReq{
+		Nickname: nickname,
+		Password: password,
+		Mail:     mail,
+		Telegram: telegram,
 	}
 	rsp := &model.Response{}
 
-	err = util.PostJson(url, req, rsp)
+	err = util.SendJson(host, req, rsp, util.WithJoin(consts.ApiUser))
 	if err != nil {
-		cmd.Printf("%s: %s", consts.ErrSendJson, err)
+		cmd.PrintErrf("%s: %s\n", consts.ErrSendJson, err)
 		return
 	}
-
 	cmd.Printf("%s\n", rsp)
 }

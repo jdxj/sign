@@ -10,9 +10,10 @@ type Request struct {
 }
 
 type Response struct {
-	Code        int         `json:"code"`
-	Description string      `json:"description"`
-	Data        interface{} `json:"data"`
+	Code int         `json:"code"`
+	Desc string      `json:"desc"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
 }
 
 func (rsp *Response) String() string {
@@ -53,10 +54,9 @@ type CreateSecretRsp struct {
 }
 
 type UpdateTaskReq struct {
-	TaskID int64           `json:"task_id"`
-	Desc   string          `json:"desc"`
-	Spec   string          `json:"spec"`
-	Param  json.RawMessage `json:"param"`
+	Desc  string          `json:"desc"`
+	Spec  string          `json:"spec"`
+	Param json.RawMessage `json:"param"`
 }
 
 type DeleteSecretReq struct {
@@ -95,7 +95,6 @@ type DeleteTaskReq struct {
 }
 
 type GetTasksReq struct {
-	TaskID    int64  `json:"task_id"`
 	Desc      string `json:"desc"`
 	Kind      string `json:"kind"`
 	Spec      string `json:"spec"`

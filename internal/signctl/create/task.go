@@ -2,7 +2,6 @@ package create
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -62,21 +61,15 @@ func newTaskCmd() *cobra.Command {
 	return cmd
 }
 
-func taskCmdRun(cmd *cobra.Command, args []string) {
-	host := cmd.Flag(consts.Host)
-	token := cmd.Flag(consts.Token)
-	describe := cmd.Flag(consts.Description)
-	kind, _ := cmd.Flags().GetInt32(consts.Kind)
-	spec := cmd.Flag(consts.Spec)
-	params, err := cmd.Flags().GetStringSlice(consts.Param)
-	if err != nil {
-		cmd.PrintErrf("%s, params: %s", consts.ErrInvalidParam, cmd.Flag(consts.Param).Value)
-		return
-	}
-
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.TaskCreate)
-
+func taskCmdRun(cmd *cobra.Command, _ []string) {
+	var (
+		host, _     = cmd.Flags().GetString(consts.Host)
+		t, _        = cmd.Flags().GetString(consts.Token)
+		describe, _ = cmd.Flags().GetString(consts.Description)
+		kind, _     = cmd.Flags().GetInt32(consts.Kind)
+		spec, _     = cmd.Flags().GetString(consts.Spec)
+		params, _   = cmd.Flags().GetStringSlice(consts.Param)
+	)
 	paramMap := make(map[string]string)
 	for _, param := range params {
 		pair := strings.Split(param, "=")
@@ -88,21 +81,24 @@ func taskCmdRun(cmd *cobra.Command, args []string) {
 	}
 	param, _ := json.Marshal(paramMap)
 
-	req := &model.Request{
-		Token: token.Value.String(),
-		Data: &model.CreateTaskReq{
-			Describe: describe.Value.String(),
-			Kind:     task.Kind_name[kind],
-			Spec:     spec.Value.String(),
-			Param:    param,
-		},
+	req := &model.CreateTaskReq{
+		Describe: describe,
+		Kind:     task.Kind_name[kind],
+		Spec:     spec,
+		Param:    param,
 	}
 	rsp := &model.Response{}
-	err = util.PostJson(url, req, rsp)
+
+	err := util.SendJson(
+		host,
+		req,
+		rsp,
+		util.WithJoin(consts.ApiTasks),
+		util.WithBearer(t),
+	)
 	if err != nil {
 		cmd.PrintErrf("%s: post, %s\n", consts.ErrSendJson, err)
 		return
 	}
-
 	cmd.Printf("%s\n", rsp)
 }

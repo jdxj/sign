@@ -1,6 +1,7 @@
 package sender
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -15,6 +16,11 @@ var (
 	tb *bot.BotAPI
 )
 
+var (
+	ErrInvalidTelegramID = errors.New("invalid telegram id")
+	ErrSendFailed        = errors.New("send failed")
+)
+
 type telegram struct {
 }
 
@@ -25,7 +31,7 @@ func (t *telegram) Send(letter *Letter) error {
 
 	telegramID, err := strconv.ParseInt(letter.Recipient, 10, 64)
 	if err != nil {
-		return fmt.Errorf("parse telegram id: %s, recipient: %s", err, letter.Recipient)
+		return fmt.Errorf("%w: %s", ErrInvalidTelegramID, letter.Recipient)
 	}
 
 	var text string
@@ -37,7 +43,7 @@ func (t *telegram) Send(letter *Letter) error {
 	}
 	_, err = tb.Send(bot.NewMessage(telegramID, text))
 	if err != nil {
-		return fmt.Errorf("telegram send: %s", err)
+		return fmt.Errorf("%w, err: %s", ErrSendFailed, err)
 	}
 	return nil
 }

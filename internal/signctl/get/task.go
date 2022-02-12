@@ -1,8 +1,7 @@
 package get
 
 import (
-	"fmt"
-	"strings"
+	"net/http"
 
 	"github.com/spf13/cobra"
 
@@ -53,7 +52,7 @@ func newTaskCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	flagSet.Int64(consts.TaskID, 0, "task id")
+	flagSet.String(consts.TaskID, "", "task id")
 	flagSet.String(consts.Description, "", "task description")
 	flagSet.Int32(consts.Kind, 0, "task kind")
 	flagSet.String(consts.Spec, "", "task spec")
@@ -63,38 +62,40 @@ func newTaskCmd() *cobra.Command {
 	return cmd
 }
 
-func taskCmdRun(cmd *cobra.Command, args []string) {
-	host := cmd.Flag(consts.Host)
-	token := cmd.Flag(consts.Token)
-	taskID, _ := cmd.Flags().GetInt64(consts.TaskID)
-	desc, _ := cmd.Flags().GetString(consts.Description)
-	kind, _ := cmd.Flags().GetInt32(consts.Kind)
-	spec, _ := cmd.Flags().GetString(consts.Spec)
-	createdAt, _ := cmd.Flags().GetInt64(consts.CreatedAt)
-	pageID, _ := cmd.Flags().GetInt64(consts.PageID)
-	pageSize, _ := cmd.Flags().GetInt64(consts.PageSize)
-
-	req := &model.Request{
-		Token: token.Value.String(),
-		Data: &model.GetTasksReq{
-			TaskID:    taskID,
-			Desc:      desc,
-			Kind:      task.Kind_name[kind],
-			Spec:      spec,
-			CreatedAt: createdAt,
-			PageID:    pageID,
-			PageSize:  pageSize,
-		},
+func taskCmdRun(cmd *cobra.Command, _ []string) {
+	var (
+		host, _      = cmd.Flags().GetString(consts.Host)
+		t, _         = cmd.Flags().GetString(consts.Token)
+		taskID, _    = cmd.Flags().GetString(consts.TaskID)
+		desc, _      = cmd.Flags().GetString(consts.Description)
+		kind, _      = cmd.Flags().GetInt32(consts.Kind)
+		spec, _      = cmd.Flags().GetString(consts.Spec)
+		createdAt, _ = cmd.Flags().GetInt64(consts.CreatedAt)
+		pageID, _    = cmd.Flags().GetInt64(consts.PageID)
+		pageSize, _  = cmd.Flags().GetInt64(consts.PageSize)
+	)
+	req := &model.GetTasksReq{
+		Desc:      desc,
+		Kind:      task.Kind_name[kind],
+		Spec:      spec,
+		CreatedAt: createdAt,
+		PageID:    pageID,
+		PageSize:  pageSize,
 	}
 	rsp := &model.Response{}
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.TaskList)
 
-	err := util.PostJson(url, req, rsp)
+	err := util.SendJson(
+		host,
+		req,
+		rsp,
+		util.WithJoin(consts.ApiTasks),
+		util.WithJoin(taskID),
+		util.WithMethod(http.MethodGet),
+		util.WithBearer(t),
+	)
 	if err != nil {
 		cmd.PrintErrf("%s: post, %s", consts.ErrSendJson, err)
 		return
 	}
-
 	cmd.Printf("%s\n", rsp)
 }

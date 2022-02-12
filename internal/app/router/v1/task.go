@@ -163,7 +163,6 @@ func GetTask(ctx *gin.Context) {
 }
 
 type GetTasksReq struct {
-	TaskID    int64  `json:"task_id"`
 	Desc      string `json:"desc"`
 	Kind      string `json:"kind"`
 	Spec      string `json:"spec"`
@@ -179,7 +178,6 @@ type GetTasksRsp struct {
 
 func getTasks(ctx context.Context, req *GetTasksReq, userID int64) (*GetTasksRsp, error) {
 	gtRsp, err := ref.TaskService.GetTasks(ctx, &task.GetTasksRequest{
-		TaskId:      req.TaskID,
 		Description: req.Desc,
 		UserId:      userID,
 		Kind:        req.Kind,
