@@ -1,35 +1,34 @@
 package api
 
 import (
-	"errors"
-	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 
 	ser "github.com/jdxj/sign/internal/pkg/sign-error"
 )
 
 type Response struct {
-	Code        int         `json:"code"`
-	Description string      `json:"description"`
-	Data        interface{} `json:"data"`
+	Code int         `json:"code,omitempty"`
+	Desc string      `json:"desc,omitempty"`
+	Msg  string      `json:"msg,omitempty"`
+	Data interface{} `json:"data,omitempty"`
 }
 
 func Respond(ctx *gin.Context, data interface{}, err error) {
-	rsp := &Response{
-		Data: data,
-	}
-
+	var (
+		rsp  = &Response{Data: data}
+		code ser.Code
+	)
 	if err != nil {
-		var se *ser.SignError
-		if errors.As(err, &se) {
-			rsp.Code = se.Code
-			rsp.Description = fmt.Sprintf("%s - %s", se.CodeDesc, se.Description)
-		} else {
-			rsp.Code = ser.ErrUnknown
-			rsp.Description = err.Error()
-		}
+		code = ser.ParseCode(err)
+		rsp.Code = code.APP()
+		rsp.Desc = code.String()
+		rsp.Msg = err.Error()
 	}
-	ctx.JSON(http.StatusOK, rsp)
+	ctx.JSON(code.HTTP(), rsp)
+}
+
+// Abort 中间件应该使用该方法
+func Abort(ctx *gin.Context, data interface{}, err error) {
+	ctx.Abort()
+	Respond(ctx, data, err)
 }

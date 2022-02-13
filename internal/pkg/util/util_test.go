@@ -2,7 +2,10 @@ package util
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/url"
+	"path"
 	"testing"
 )
 
@@ -35,4 +38,48 @@ func TestEncrypt(t *testing.T) {
 	if !bytes.Equal([]byte(text), plaintext) {
 		t.Fatalf("err encrypt or decrypt")
 	}
+}
+
+func TestValues(t *testing.T) {
+	v := url.Values{}
+	res := v.Encode()
+	fmt.Printf("res: %s\n", res)
+	fmt.Printf("len: %d\n", len(v))
+}
+
+func TestParseQuery(t *testing.T) {
+	u := "https://example.com?abc=123&ghi=789"
+	uu, err := url.Parse(u)
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	fmt.Printf("raw query: %s\n", uu.RawQuery)
+
+	vs := uu.Query()
+	for k, v := range vs {
+		fmt.Printf("k: %s, v: %v\n", k, v)
+	}
+
+	vs.Add("def", "456")
+	uu.RawQuery = vs.Encode()
+	fmt.Printf("res: %s\n", uu.String())
+}
+
+func TestJoin(t *testing.T) {
+	u := "https://example.com?abc=123&ghi=789"
+	uu, err := url.Parse(u)
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	uu.Path = path.Join(uu.Path, "")
+	fmt.Printf("res: %s\n", uu.String())
+}
+
+func TestMarshal(t *testing.T) {
+	d, err := json.Marshal(nil)
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+
+	fmt.Printf("d: %v\n", d)
 }

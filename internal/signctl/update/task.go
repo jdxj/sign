@@ -2,13 +2,14 @@ package update
 
 import (
 	"encoding/json"
-	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/jdxj/sign/internal/pkg/util"
 	"github.com/jdxj/sign/internal/signctl/consts"
+	"github.com/jdxj/sign/internal/signctl/help"
 	"github.com/jdxj/sign/internal/signctl/model"
 )
 
@@ -18,7 +19,7 @@ func newTaskCmd() *cobra.Command {
 		Aliases:                    nil,
 		SuggestFor:                 nil,
 		Short:                      "",
-		Long:                       "",
+		Long:                       help.AvailableKind(),
 		Example:                    "",
 		ValidArgs:                  nil,
 		ValidArgsFunction:          nil,
@@ -53,25 +54,23 @@ func newTaskCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	flagSet.Int64(consts.TaskID, 0, "task id")
+	flagSet.String(consts.TaskID, "", "task id")
 	flagSet.String(consts.Description, "", "task description")
 	flagSet.String(consts.Spec, "", "task spec")
-	flagSet.StringSlice(consts.Param, nil, "task params")
+	flagSet.StringSliceP(consts.Param, "p", nil, "task params")
 	return cmd
 }
 
-func taskCmdRun(cmd *cobra.Command, args []string) {
-	host := cmd.Flag(consts.Host)
-	token := cmd.Flag(consts.Token)
-	taskID, _ := cmd.Flags().GetInt64(consts.TaskID)
-	desc, _ := cmd.Flags().GetString(consts.Description)
-	spec, _ := cmd.Flags().GetString(consts.Spec)
-	params, err := cmd.Flags().GetStringSlice(consts.Param)
-	if err != nil {
-		cmd.PrintErrf("%s, params: %s", consts.ErrInvalidParam, cmd.Flag(consts.Param).Value)
-		return
-	}
-
+func taskCmdRun(cmd *cobra.Command, _ []string) {
+	var (
+		host, _   = cmd.Flags().GetString(consts.Host)
+		debug, _  = cmd.Flags().GetBool(consts.Debug)
+		token, _  = cmd.Flags().GetString(consts.Token)
+		taskID, _ = cmd.Flags().GetString(consts.TaskID)
+		desc, _   = cmd.Flags().GetString(consts.Description)
+		spec, _   = cmd.Flags().GetString(consts.Spec)
+		params, _ = cmd.Flags().GetStringSlice(consts.Param)
+	)
 	paramMap := make(map[string]string)
 	for _, param := range params {
 		pair := strings.Split(param, "=")
@@ -83,24 +82,26 @@ func taskCmdRun(cmd *cobra.Command, args []string) {
 	}
 	param, _ := json.Marshal(paramMap)
 
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.TaskUpdate)
-
-	req := &model.Request{
-		Token: token.Value.String(),
-		Data: &model.UpdateTaskReq{
-			TaskID: taskID,
-			Desc:   desc,
-			Spec:   spec,
-			Param:  param,
-		},
+	req := &model.UpdateTaskReq{
+		Desc:  desc,
+		Spec:  spec,
+		Param: param,
 	}
+	rsp := &model.Response{}
 
-	err = util.PutJson(url, req, nil)
+	err := util.SendJson(
+		host,
+		req,
+		rsp,
+		util.WithDebug(debug),
+		util.WithJoin(consts.ApiTasks),
+		util.WithJoin(taskID),
+		util.WithMethod(http.MethodPut),
+		util.WithBearer(token),
+	)
 	if err != nil {
 		cmd.PrintErrf("%s: put, %s\n", consts.ErrSendJson, err)
 		return
 	}
-
-	cmd.Println("update task successfully")
+	cmd.Printf("%s\n", rsp)
 }

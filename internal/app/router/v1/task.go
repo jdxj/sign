@@ -1,4 +1,4 @@
-package handler
+package v1
 
 import (
 	"context"
@@ -26,11 +26,11 @@ func paramToPB(kind string, body json.RawMessage) ([]byte, error) {
 
 	err := json.Unmarshal(body, msg)
 	if err != nil {
-		return nil, ser.New(ser.ErrInvalidParam, "参数转换失败: %s", err)
+		return nil, ser.Wrap(ser.ErrEncodeParam, err, "Unmarshal")
 	}
 	d, err := proto.Marshal(msg)
 	if err != nil {
-		return nil, ser.New(ser.ErrInternal, "参数转换失败: %s", err)
+		return nil, ser.Wrap(ser.ErrEncodeParam, err, "Marshal")
 	}
 	return d, nil
 }
@@ -46,11 +46,11 @@ func pbToParam(kind string, body []byte) ([]byte, error) {
 
 	err := proto.Unmarshal(body, msg)
 	if err != nil {
-		return nil, ser.New(ser.ErrInternal, "Unmarshal: %s", err)
+		return nil, ser.New(ser.ErrDecodeParam, "Unmarshal")
 	}
 	body, err = json.Marshal(msg)
 	if err != nil {
-		return nil, ser.New(ser.ErrInternal, "Marshal: %s", err)
+		return nil, ser.New(ser.ErrDecodeParam, "Marshal")
 	}
 	return body, nil
 }
@@ -82,7 +82,7 @@ func createTask(ctx context.Context, req *CreateTaskReq, userID int64) (*CreateT
 		Param:       param,
 	}})
 	if err != nil {
-		return nil, ser.New(ser.ErrRPCRequest, "CreateTask: %s", err)
+		return nil, ser.Wrap(ser.ErrRPCCall, err, "CreateTask")
 	}
 
 	rsp := &CreateTaskRsp{
@@ -93,13 +93,17 @@ func createTask(ctx context.Context, req *CreateTaskReq, userID int64) (*CreateT
 
 func CreateTask(ctx *gin.Context) {
 	req := &CreateTaskReq{}
-	api.ProcessCheckToken(ctx, req, func(request *api.Request) (interface{}, error) {
-		return createTask(ctx, req, request.Claim.UserID)
-	})
+	err := ctx.ShouldBindJSON(req)
+	if err != nil {
+		api.Respond(ctx, nil, ser.Wrap(ser.ErrBindRequest, err, "CreateTask"))
+		return
+	}
+	data, err := createTask(ctx, req, getUserID(ctx))
+	api.Respond(ctx, data, err)
 }
 
 type GetTaskReq struct {
-	TaskID int64 `json:"task_id" binding:"required"`
+	TaskID int64 `uri:"task_id" binding:"required"`
 }
 
 type Task struct {
@@ -124,7 +128,7 @@ func getTask(ctx context.Context, req *GetTaskReq, userID int64) (*GetTaskRsp, e
 		UserId: userID,
 	})
 	if err != nil {
-		return nil, ser.New(ser.ErrRPCRequest, "GetTask: %s", err)
+		return nil, ser.New(ser.ErrRPCCall, "GetTask: %s", err)
 	}
 
 	t := gtRsp.GetTask()
@@ -148,19 +152,23 @@ func getTask(ctx context.Context, req *GetTaskReq, userID int64) (*GetTaskRsp, e
 
 func GetTask(ctx *gin.Context) {
 	req := &GetTaskReq{}
-	api.ProcessCheckToken(ctx, req, func(request *api.Request) (interface{}, error) {
-		return getTask(ctx, req, request.Claim.UserID)
-	})
+	err := ctx.ShouldBindUri(req)
+	if err != nil {
+		api.Respond(ctx, nil, ser.Wrap(ser.ErrBindRequest, err, "GetTask"))
+		return
+	}
+
+	data, err := getTask(ctx, req, getUserID(ctx))
+	api.Respond(ctx, data, err)
 }
 
 type GetTasksReq struct {
-	TaskID    int64  `json:"task_id"`
 	Desc      string `json:"desc"`
 	Kind      string `json:"kind"`
 	Spec      string `json:"spec"`
-	CreatedAt int64  `json:"created_at,string"`
-	PageID    int64  `json:"page_id,string" binding:"gt=0"`
-	PageSize  int64  `json:"page_size,string" binding:"gt=0"`
+	CreatedAt int64  `json:"created_at"`
+	PageID    int64  `json:"page_id" binding:"gt=0"`
+	PageSize  int64  `json:"page_size" binding:"gt=0"`
 }
 
 type GetTasksRsp struct {
@@ -170,7 +178,6 @@ type GetTasksRsp struct {
 
 func getTasks(ctx context.Context, req *GetTasksReq, userID int64) (*GetTasksRsp, error) {
 	gtRsp, err := ref.TaskService.GetTasks(ctx, &task.GetTasksRequest{
-		TaskId:      req.TaskID,
 		Description: req.Desc,
 		UserId:      userID,
 		Kind:        req.Kind,
@@ -180,7 +187,7 @@ func getTasks(ctx context.Context, req *GetTasksReq, userID int64) (*GetTasksRsp
 		Limit:       req.PageSize,
 	})
 	if err != nil {
-		return nil, ser.New(ser.ErrRPCRequest, "GetTasks: %s", err)
+		return nil, ser.Wrap(ser.ErrRPCCall, err, "GetTasks")
 	}
 
 	rsp := &GetTasksRsp{
@@ -207,13 +214,17 @@ func getTasks(ctx context.Context, req *GetTasksReq, userID int64) (*GetTasksRsp
 
 func GetTasks(ctx *gin.Context) {
 	req := &GetTasksReq{}
-	api.ProcessCheckToken(ctx, req, func(request *api.Request) (interface{}, error) {
-		return getTasks(ctx, req, request.Claim.UserID)
-	})
+	err := ctx.ShouldBindJSON(req)
+	if err != nil {
+		api.Respond(ctx, nil, ser.Wrap(ser.ErrBindRequest, err, "GetTasks"))
+		return
+	}
+	data, err := getTasks(ctx, req, getUserID(ctx))
+	api.Respond(ctx, data, err)
 }
 
 type UpdateTaskReq struct {
-	TaskID int64  `json:"task_id,string" binding:"required"`
+	TaskID int64  `uri:"task_id" binding:"required"`
 	Desc   string `json:"desc"`
 	Spec   string `json:"spec"`
 
@@ -227,7 +238,7 @@ func updateTask(ctx context.Context, req *UpdateTaskReq, userID int64) error {
 		UserId: userID,
 	})
 	if err != nil {
-		return ser.New(ser.ErrRPCRequest, "GetTask: %s", err)
+		return ser.Wrap(ser.ErrRPCCall, err, "GetTask")
 	}
 	param, err := paramToPB(gtRsp.GetTask().GetKind(), req.Param)
 	if err != nil {
@@ -242,20 +253,29 @@ func updateTask(ctx context.Context, req *UpdateTaskReq, userID int64) error {
 		Param:       param,
 	}})
 	if err != nil {
-		return ser.New(ser.ErrRPCRequest, "UpdateTask: %s", err)
+		return ser.Wrap(ser.ErrRPCCall, err, "UpdateTask")
 	}
 	return nil
 }
 
 func UpdateTask(ctx *gin.Context) {
 	req := &UpdateTaskReq{}
-	api.ProcessCheckToken(ctx, req, func(request *api.Request) (interface{}, error) {
-		return nil, updateTask(ctx, req, request.Claim.UserID)
-	})
+	err := ctx.ShouldBindUri(req)
+	if err != nil {
+		api.Respond(ctx, nil, ser.Wrap(ser.ErrBindRequest, err, "UpdateTaskReq.TaskID"))
+		return
+	}
+	err = ctx.ShouldBindJSON(req)
+	if err != nil {
+		api.Respond(ctx, nil, ser.Wrap(ser.ErrBindRequest, err, "UpdateTaskReq.left"))
+		return
+	}
+	err = updateTask(ctx, req, getUserID(ctx))
+	api.Respond(ctx, nil, err)
 }
 
 type DeleteTaskReq struct {
-	TaskID int64 `json:"task_id" binding:"required"`
+	TaskID int64 `uri:"task_id" binding:"required"`
 }
 
 func deleteTask(ctx context.Context, req *DeleteTaskReq, userID int64) error {
@@ -264,14 +284,18 @@ func deleteTask(ctx context.Context, req *DeleteTaskReq, userID int64) error {
 		UserId: userID,
 	})
 	if err != nil {
-		return ser.New(ser.ErrRPCRequest, "DeleteTask: %s", err)
+		return ser.Wrap(ser.ErrRPCCall, err, "DeleteTask")
 	}
 	return nil
 }
 
 func DeleteTask(ctx *gin.Context) {
 	req := &DeleteTaskReq{}
-	api.ProcessCheckToken(ctx, req, func(request *api.Request) (interface{}, error) {
-		return nil, deleteTask(ctx, req, request.Claim.UserID)
-	})
+	err := ctx.ShouldBindUri(req)
+	if err != nil {
+		api.Respond(ctx, nil, ser.Wrap(ser.ErrBindRequest, err, "DeleteTask"))
+		return
+	}
+	err = deleteTask(ctx, req, getUserID(ctx))
+	api.Respond(ctx, nil, err)
 }

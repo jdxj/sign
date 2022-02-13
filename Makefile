@@ -27,6 +27,14 @@ $(tools):
 	mkdir -p $(output)
 	go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
 
+.PHONY: lint
+lint:
+	golangci-lint run
+
+.PHONY: gen
+gen:
+	go generate ./...
+
 .PHONY: clean
 clean:
 	rm -rf build/output

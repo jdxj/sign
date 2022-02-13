@@ -1,9 +1,6 @@
 package auth
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/spf13/cobra"
 
 	"github.com/jdxj/sign/internal/pkg/util"
@@ -58,38 +55,32 @@ func New() *cobra.Command {
 	return cmd
 }
 
-func authCmdRun(cmd *cobra.Command, args []string) {
+func authCmdRun(cmd *cobra.Command, _ []string) {
 	var (
-		host     = cmd.Flag(consts.Host)
-		nickname = cmd.Flag(consts.Nickname)
-		passFlag = cmd.Flag(consts.Password)
-		pass     = passFlag.Value.String()
-		err      error
+		host, _     = cmd.Flags().GetString(consts.Host)
+		debug, _    = cmd.Flags().GetBool(consts.Debug)
+		nickname, _ = cmd.Flags().GetString(consts.Nickname)
+		password, _ = cmd.Flags().GetString(consts.Password)
+		err         error
 	)
-
-	if pass == "" {
-		pass, err = util.GetPassword()
+	if password == "" {
+		password, err = util.GetPassword()
 		if err != nil {
 			cmd.PrintErrf("get password failed: %s", err)
 			return
 		}
 	}
 
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.SessionLogin)
-	req := &model.Request{
-		Data: &model.AuthReq{
-			Nickname: nickname.Value.String(),
-			Password: pass,
-		},
+	req := &model.AuthReq{
+		Nickname: nickname,
+		Password: password,
 	}
 	rsp := &model.Response{}
 
-	err = util.PostJson(url, req, rsp)
+	err = util.SendJson(host, req, rsp, util.WithDebug(debug), util.WithJoin(consts.ApiToken))
 	if err != nil {
 		cmd.Printf("%s: %s", consts.ErrSendJson, err)
 		return
 	}
-
 	cmd.Printf("%s", rsp)
 }

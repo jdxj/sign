@@ -1,9 +1,7 @@
 package delete
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
+	"net/http"
 
 	"github.com/spf13/cobra"
 
@@ -53,34 +51,32 @@ func newTaskCmd() *cobra.Command {
 
 	// flags
 	flagSet := cmd.Flags()
-	flagSet.Int64(consts.TaskID, 0, "the id of task")
+	flagSet.String(consts.TaskID, "", "the id of task")
 	return cmd
 }
 
-func taskCmdRun(cmd *cobra.Command, args []string) {
-	host := cmd.Flag(consts.Host)
-	token := cmd.Flag(consts.Token)
+func taskCmdRun(cmd *cobra.Command, _ []string) {
+	var (
+		host, _   = cmd.Flags().GetString(consts.Host)
+		debug, _  = cmd.Flags().GetBool(consts.Debug)
+		token, _  = cmd.Flags().GetString(consts.Token)
+		taskID, _ = cmd.Flags().GetString(consts.TaskID)
+	)
+	rsp := &model.Response{}
 
-	taskID := cmd.Flag(consts.TaskID)
-	taskIDInt64, err := strconv.ParseInt(taskID.Value.String(), 10, 64)
-	if err != nil {
-		cmd.PrintErrf("%s, taskID: %s", consts.ErrInvalidParam, taskID.Value.String())
-		return
-	}
-
-	req := &model.Request{
-		Token: token.Value.String(),
-		Data: &model.DeleteTaskReq{
-			TaskID: taskIDInt64,
-		},
-	}
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.TaskDelete)
-	err = util.DeleteJson(url, req, nil)
+	err := util.SendJson(
+		host,
+		nil,
+		rsp,
+		util.WithDebug(debug),
+		util.WithJoin(consts.ApiTasks),
+		util.WithJoin(taskID),
+		util.WithMethod(http.MethodDelete),
+		util.WithBearer(token),
+	)
 	if err != nil {
 		cmd.PrintErrf("%s: delete, %s", consts.ErrSendJson, err)
 		return
 	}
-
-	cmd.Println("delete task successfully")
+	cmd.Printf("%s\n", rsp)
 }

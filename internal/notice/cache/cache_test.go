@@ -3,6 +3,8 @@ package cache
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUserTelegram(t *testing.T) {
@@ -11,9 +13,6 @@ func TestGetUserTelegram(t *testing.T) {
 		telegram int64 = 456
 	)
 	SetUserTelegram(context.Background(), userID, telegram)
-
 	res := GetUserTelegram(context.Background(), userID)
-	if res != telegram {
-		t.Fatalf("set telegram err")
-	}
+	assert.Equal(t, telegram, res, "should equal")
 }

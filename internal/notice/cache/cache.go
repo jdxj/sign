@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -33,7 +34,10 @@ func getUserTelegramCacheKey(userID int64) string {
 
 func GetUserTelegram(ctx context.Context, userID int64) int64 {
 	res, _, err := cc.Context(ctx).Get(getUserTelegramCacheKey(userID))
-	if err != nil {
+	if errors.Is(err, cache.ErrKeyNotFound) ||
+		errors.Is(err, cache.ErrItemExpired) {
+		return 0
+	} else if err != nil {
 		logger.Errorf("GetUserTelegram: %s, userID: %d", err, userID)
 		return 0
 	}

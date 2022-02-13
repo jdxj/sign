@@ -8,6 +8,7 @@ import (
 const (
 	Host  = "host"
 	Token = "token"
+	Debug = "debug"
 
 	Nickname = "nickname"
 	Password = "password"
@@ -30,19 +31,11 @@ const (
 	prefix  = "/api"
 	version = "/v1"
 
-	session      = prefix + version + "/session"
-	SessionLogin = session + "/login"
+	users    = prefix + version + "/users"
+	ApiUser  = users + "/user"
+	ApiToken = users + "/token"
 
-	user       = prefix + version + "/user"
-	UserCreate = user + "/sign-up"
-	UserUpdate = user + "/update"
-
-	task       = prefix + version + "/task"
-	TaskCreate = task + "/create"
-	TaskGet    = task + "/get"
-	TaskList   = task + "/list"
-	TaskUpdate = task + "/update"
-	TaskDelete = task + "/delete"
+	ApiTasks = prefix + version + "/tasks"
 )
 
 var (

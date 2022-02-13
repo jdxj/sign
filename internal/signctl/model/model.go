@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 type Request struct {
@@ -10,9 +11,10 @@ type Request struct {
 }
 
 type Response struct {
-	Code        int         `json:"code"`
-	Description string      `json:"description"`
-	Data        interface{} `json:"data"`
+	Code int         `json:"code"`
+	Desc string      `json:"desc"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
 }
 
 func (rsp *Response) String() string {
@@ -48,35 +50,10 @@ type CreateSecretReq struct {
 	Key      string `json:"key"`
 }
 
-type CreateSecretRsp struct {
-	SecretID int64 `json:"secret_id"`
-}
-
 type UpdateTaskReq struct {
-	TaskID int64           `json:"task_id"`
-	Desc   string          `json:"desc"`
-	Spec   string          `json:"spec"`
-	Param  json.RawMessage `json:"param"`
-}
-
-type DeleteSecretReq struct {
-	SecretID int64 `json:"secret_id"`
-}
-
-type GetSecretsReq struct {
-	SecretIDs []int64 `json:"secret_ids"`
-	Domains   []int   `json:"domains"`
-}
-
-type Secret struct {
-	SecretID int64  `json:"secret_id"`
-	Describe string `json:"describe"`
-	Domain   int    `json:"domain"`
-	Key      string `json:"key"`
-}
-
-type GetSecretsRsp struct {
-	List []*Secret `json:"list"`
+	Desc  string          `json:"desc"`
+	Spec  string          `json:"spec"`
+	Param json.RawMessage `json:"param"`
 }
 
 type CreateTaskReq struct {
@@ -90,12 +67,7 @@ type CreateTaskRsp struct {
 	TaskID int64 `json:"task_id"`
 }
 
-type DeleteTaskReq struct {
-	TaskID int64 `json:"task_id"`
-}
-
 type GetTasksReq struct {
-	TaskID    int64  `json:"task_id"`
 	Desc      string `json:"desc"`
 	Kind      string `json:"kind"`
 	Spec      string `json:"spec"`
@@ -105,16 +77,34 @@ type GetTasksReq struct {
 }
 
 type Task struct {
-	TaskID   int64  `json:"task_id"`
-	Describe string `json:"describe"`
-	Kind     int    `json:"kind"`
-	Spec     string `json:"spec"`
-	Param    string `json:"param"`
+	TaskID   int64           `json:"task_id"`
+	Describe string          `json:"describe"`
+	Kind     string          `json:"kind"`
+	Spec     string          `json:"spec"`
+	Param    json.RawMessage `json:"param"`
 }
 
 type GetTasksRsp struct {
-	Count int64   `json:"count"`
-	List  []*Task `json:"tasks"`
+	Count    int64   `json:"count"`
+	PageID   int64   `json:"-"`
+	PageSize int64   `json:"-"`
+	List     []*Task `json:"tasks"`
+}
+
+func (gtr *GetTasksRsp) String() string {
+	result := fmt.Sprintf("\n%-7s %-15s %-15s %-15s %-15s\n",
+		"task id", "description", "kind", "spec", "param")
+	for _, v := range gtr.List {
+		param := v.Param
+		if len(param) > 48 {
+			param = append(param[:45], "..."...)
+		}
+		result = fmt.Sprintf("%s%7d %-15s %-15s %-15s %-15s\n",
+			result, v.TaskID, v.Describe, v.Kind, v.Spec, param)
+	}
+	result = fmt.Sprintf("%s%5s %7s %9s\n", result, "count", "page id", "page size")
+	result = fmt.Sprintf("%s%5d %7d %9d\n", result, gtr.Count, gtr.PageID, gtr.PageSize)
+	return result
 }
 
 type UpdateUserReq struct {

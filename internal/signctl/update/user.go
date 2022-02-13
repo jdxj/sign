@@ -1,8 +1,7 @@
 package update
 
 import (
-	"fmt"
-	"strings"
+	"net/http"
 
 	"github.com/spf13/cobra"
 
@@ -59,32 +58,36 @@ func newUserCmd() *cobra.Command {
 	return cmd
 }
 
-func userCmdRun(cmd *cobra.Command, args []string) {
-	host := cmd.Flag(consts.Host)
-	token := cmd.Flag(consts.Token)
-
-	nickname, _ := cmd.Flags().GetString(consts.Nickname)
-	password, _ := cmd.Flags().GetString(consts.Password)
-	mail, _ := cmd.Flags().GetString(consts.Mail)
-	telegram, _ := cmd.Flags().GetInt64(consts.Telegram)
-
-	url := fmt.Sprintf("%s%s",
-		strings.TrimSuffix(host.Value.String(), "/"), consts.UserUpdate)
-
-	req := &model.Request{
-		Token: token.Value.String(),
-		Data: &model.UpdateUserReq{
-			Nickname: nickname,
-			Password: password,
-			Mail:     mail,
-			Telegram: telegram,
-		},
+func userCmdRun(cmd *cobra.Command, _ []string) {
+	var (
+		host, _     = cmd.Flags().GetString(consts.Host)
+		t, _        = cmd.Flags().GetString(consts.Token)
+		debug, _    = cmd.Flags().GetBool(consts.Debug)
+		nickname, _ = cmd.Flags().GetString(consts.Nickname)
+		password, _ = cmd.Flags().GetString(consts.Password)
+		mail, _     = cmd.Flags().GetString(consts.Mail)
+		telegram, _ = cmd.Flags().GetInt64(consts.Telegram)
+	)
+	req := &model.UpdateUserReq{
+		Nickname: nickname,
+		Password: password,
+		Mail:     mail,
+		Telegram: telegram,
 	}
-	err := util.PutJson(url, req, nil)
+	rsp := &model.Response{}
+
+	err := util.SendJson(
+		host,
+		req,
+		rsp,
+		util.WithDebug(debug),
+		util.WithJoin(consts.ApiUser),
+		util.WithMethod(http.MethodPut),
+		util.WithBearer(t),
+	)
 	if err != nil {
 		cmd.PrintErrf("%s: put, %s\n", consts.ErrSendJson, err)
 		return
 	}
-
-	cmd.Println("update user successfully")
+	cmd.Printf("%s\n", rsp)
 }
