@@ -30,7 +30,7 @@
 $ make all
 ```
 
-可执行文件默认输出到 `_output/build/`.
+可执行文件默认输出到 `build/output/`.
 
 ## 启动
 
@@ -62,7 +62,7 @@ $ kubectl create -f deployment.yaml
 
 1. 构建 signctl
 
-signctl 生成在 `./_ooutput/tools/`.
+signctl 生成在 `build/tools/`.
 
 ```shell
 $ make ctl
@@ -128,6 +128,18 @@ Global Flags:
   -H, --host string    apiserver address (default "http://127.0.0.1:8080")
   -T, --token string   user token
 ```
+
+## 测试服
+
+```
+https://task.baldcamera.com
+```
+
+注意:
+
+- 目前部署版本为 `v0.10.0`, 请使用相同 tag 的 signctl 测试
+- 创建用户时指定 `--telegram` 标记用于接收通知
+- 测试服中的数据会随时清除
 
 # 各组件介绍
 
