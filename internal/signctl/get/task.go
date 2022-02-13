@@ -83,7 +83,10 @@ func taskCmdRun(cmd *cobra.Command, _ []string) {
 		PageID:    pageID,
 		PageSize:  pageSize,
 	}
-	rsp := &model.Response{}
+	rsp := &model.Response{Data: &model.GetTasksRsp{
+		PageID:   pageID,
+		PageSize: pageSize,
+	}}
 
 	err := util.SendJson(
 		host,
@@ -99,5 +102,5 @@ func taskCmdRun(cmd *cobra.Command, _ []string) {
 		cmd.PrintErrf("%s: post, %s", consts.ErrSendJson, err)
 		return
 	}
-	cmd.Printf("%s\n", rsp)
+	cmd.Printf("%s\n", rsp.Data)
 }

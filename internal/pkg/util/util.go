@@ -80,6 +80,42 @@ type (
 	SendJsonOption func(sjo *sendJsonOption)
 )
 
+func (o *sendJsonOption) build(ctx context.Context, u string, req interface{}) (*http.Request, error) {
+	// 编码 url
+	uu, err := url.Parse(u)
+	if err != nil {
+		return nil, err
+	}
+	for _, p := range o.path {
+		uu.Path = path.Join(uu.Path, p)
+	}
+	rawQuery := uu.Query()
+	for k, v := range o.value {
+		rawQuery.Add(k, v)
+	}
+	uu.RawQuery = rawQuery.Encode()
+
+	// 编码 body
+	body, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	reader := bytes.NewReader(body)
+
+	// 创建 request
+	httpReq, err := http.NewRequestWithContext(ctx, o.method, uu.String(), reader)
+	if err != nil {
+		return nil, err
+	}
+
+	// 编码 header
+	for k, v := range o.header {
+		httpReq.Header.Add(k, v)
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	return httpReq, nil
+}
+
 func WithDebug(d bool) SendJsonOption {
 	return func(o *sendJsonOption) {
 		o.debug = d
@@ -131,38 +167,11 @@ func SendJson(u string, req, rsp interface{}, options ...SendJsonOption) error {
 		opt(o)
 	}
 
-	// 编码 url
-	uu, err := url.Parse(u)
+	// 创建 http request
+	httpReq, err := o.build(ctx, u, req)
 	if err != nil {
 		return err
 	}
-	for _, p := range o.path {
-		uu.Path = path.Join(uu.Path, p)
-	}
-	rawQuery := uu.Query()
-	for k, v := range o.value {
-		rawQuery.Add(k, v)
-	}
-	uu.RawQuery = rawQuery.Encode()
-
-	// 编码 body
-	body, err := json.Marshal(req)
-	if err != nil {
-		return err
-	}
-	reader := bytes.NewReader(body)
-
-	// 创建 request
-	httpReq, err := http.NewRequestWithContext(ctx, o.method, uu.String(), reader)
-	if err != nil {
-		return err
-	}
-
-	// 编码 header
-	for k, v := range o.header {
-		httpReq.Header.Add(k, v)
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
 
 	if o.debug {
 		fmt.Printf("request: %+v\n", httpReq)
@@ -181,7 +190,7 @@ func SendJson(u string, req, rsp interface{}, options ...SendJsonOption) error {
 		return nil
 	}
 
-	body, err = ioutil.ReadAll(httpRsp.Body)
+	body, err := ioutil.ReadAll(httpRsp.Body)
 	if err != nil {
 		return err
 	}

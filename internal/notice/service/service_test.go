@@ -5,12 +5,10 @@ import (
 	"testing"
 
 	bot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-
-	"github.com/jdxj/sign/configs"
 )
 
 func TestSendNotice(t *testing.T) {
-	client, err := bot.NewBotAPI(configs.BotKey)
+	client, err := bot.NewBotAPI("")
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
