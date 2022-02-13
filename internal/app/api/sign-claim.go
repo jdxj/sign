@@ -9,6 +9,10 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+const (
+	SignClaimKey = "sign-claim"
+)
+
 var (
 	JwtKey string
 )

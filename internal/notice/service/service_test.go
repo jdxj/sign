@@ -12,7 +12,7 @@ func TestSendNotice(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
-	mc := bot.NewMessage(548250375, "abc")
+	mc := bot.NewMessage(0, "abc")
 	m, err := client.Send(mc)
 	if err != nil {
 		t.Fatalf("%s\n", err)
