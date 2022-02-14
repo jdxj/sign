@@ -1,5 +1,5 @@
 GO_BUILD_DIR := $(BUILD_DIR)/output
-GO_EXT := .out
+GO_EXT := .run
 COMMANDS := $(filter-out %test, $(wildcard $(CMD_DIR)/*))
 BINS := $(foreach cmd, $(COMMANDS), $(notdir $(cmd)))
 
