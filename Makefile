@@ -39,3 +39,8 @@ gen:
 clean:
 	rm -rf build/output
 	rm -rf build/tools
+
+# refactor
+include scripts/make-rules/common.mk
+include scripts/make-rules/gen.mk
+include scripts/make-rules/go.mk
