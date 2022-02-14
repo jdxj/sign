@@ -1,48 +1,14 @@
-# components := apiserver.out crontab.out executor.out notice.out secret.out trigger.out user.out
-components := trigger.out user.out notice.out task.out app.out
-images := $(subst .out,,$(components))
-
-.PHONY: all
-all: $(components)
-$(components): output := build/output
-$(components):
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
-
-.PHONY: docker
-docker: $(images)
-$(images): src := build/output
-$(images): des := build/docker
-$(images): all
-	upx -7 $(src)/$@.out
-	mkdir -p $(des)/$@
-	cp $(src)/$@.out $(des)/$@/$@.run
-	cd $(des) && ./build.sh $@
-
-tools := signctl.out
-
-.PHONY: ctl
-ctl: $(tools)
-$(tools): output := build/tools
-$(tools):
-	mkdir -p $(output)
-	go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
+include scripts/make-rules/common.mk
+include scripts/make-rules/gen.mk
+include scripts/make-rules/go.mk
+include scripts/make-rules/image.mk
+include scripts/make-rules/release.mk
+include scripts/make-rules/tools.mk
 
 .PHONY: lint
 lint:
 	golangci-lint run
 
-.PHONY: gen
-gen:
-	go generate ./...
-
 .PHONY: clean
 clean:
 	rm -rf build/output
-	rm -rf build/tools
-
-# refactor
-include scripts/make-rules/common.mk
-include scripts/make-rules/gen.mk
-include scripts/make-rules/go.mk
-include scripts/make-rules/image.mk
-include scripts/make-rules/tools.mk

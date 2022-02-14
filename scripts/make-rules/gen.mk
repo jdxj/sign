@@ -2,12 +2,6 @@ PROTO_DIR := $(ROOT_DIR)/internal/proto
 PROTOS := $(filter-out %test-grpc, $(wildcard $(PROTO_DIR)/*))
 PBS := $(foreach pb, $(PROTOS), $(notdir $(pb)))
 
-.PHONY: hello2
-hello2:
-	@echo $(PROTO_DIR)
-	@echo $(PROTOS)
-	@echo $(PBS)
-
 .PHONY: gen.code
 gen.code:
 	go generate ./...

@@ -3,12 +3,6 @@ GO_EXT := .run
 COMMANDS := $(filter-out %test, $(wildcard $(CMD_DIR)/*))
 BINS := $(foreach cmd, $(COMMANDS), $(notdir $(cmd)))
 
-.PHONY: hello
-hello:
-	@echo $(GO_BUILD_DIR)
-	@echo $(COMMANDS)
-	@echo $(BINS)
-
 .PHONY: go.build.%
 go.build.%:
 	@mkdir -p $(GO_BUILD_DIR)
