@@ -25,6 +25,7 @@ Options:
 
   release.ensure-tag
   release.tag
+  release.chglog
 
   install.codegen
 endef
