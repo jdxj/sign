@@ -27,7 +27,7 @@
 ## 编译
 
 ```shell
-$ make all
+$ make go.build
 ```
 
 可执行文件默认输出到 `build/output/`.
@@ -62,10 +62,10 @@ $ kubectl create -f deployment.yaml
 
 1. 构建 signctl
 
-signctl 生成在 `build/tools/`.
+signctl 生成在 `build/output`.
 
 ```shell
-$ make ctl
+$ make go.build.signctl
 ```
 
 2. 创建用户
