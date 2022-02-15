@@ -10,3 +10,7 @@ go.build.%:
 
 .PHONY: go.build
 go.build: $(addprefix go.build., $(BINS))
+
+.PHONY: go.lint
+go.lint:
+	@golangci-lint run

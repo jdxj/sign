@@ -4,7 +4,7 @@ PBS := $(foreach pb, $(PROTOS), $(notdir $(pb)))
 
 .PHONY: gen.code
 gen.code:
-	go generate ./...
+	@go generate ./...
 
 .PHONY: gen.proto.%
 gen.proto.%:
