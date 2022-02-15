@@ -1,41 +1,35 @@
-# components := apiserver.out crontab.out executor.out notice.out secret.out trigger.out user.out
-components := trigger.out user.out notice.out task.out app.out
-images := $(subst .out,,$(components))
+include scripts/make-rules/common.mk
+include scripts/make-rules/gen.mk
+include scripts/make-rules/go.mk
+include scripts/make-rules/image.mk
+include scripts/make-rules/release.mk
+include scripts/make-rules/tools.mk
 
-.PHONY: all
-all: $(components)
-$(components): output := build/output
-$(components):
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
+define USAGE_OPTIONS
+Options:
+  clean
 
-.PHONY: docker
-docker: $(images)
-$(images): src := build/output
-$(images): des := build/docker
-$(images): all
-	upx -7 $(src)/$@.out
-	mkdir -p $(des)/$@
-	cp $(src)/$@.out $(des)/$@/$@.run
-	cd $(des) && ./build.sh $@
+  gen.code
+  gen.proto.%
+  gen.proto
 
-tools := signctl.out
+  go.build.%
+  go.build
+  go.lint
 
-.PHONY: ctl
-ctl: $(tools)
-$(tools): output := build/tools
-$(tools):
-	mkdir -p $(output)
-	go build -ldflags '-s -w' -o $(output)/$@ cmd/$(subst .out,,$@)/*.go
+  image.build.%
+  image.build
+  image.push.%
+  image.push
+  image.test-tag
 
-.PHONY: lint
-lint:
-	golangci-lint run
+  release.ensure-tag
+  release.tag
 
-.PHONY: gen
-gen:
-	go generate ./...
+  install.codegen
+endef
+export USAGE_OPTIONS
 
-.PHONY: clean
-clean:
-	rm -rf build/output
-	rm -rf build/tools
+.PHONY: help
+help:
+	@echo "$$USAGE_OPTIONS"

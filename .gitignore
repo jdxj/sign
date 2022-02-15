@@ -27,6 +27,7 @@
 key_test.go
 *.run
 *.upx
+tmp/
 
 config.yaml
 configs.yaml
