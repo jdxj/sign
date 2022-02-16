@@ -24,6 +24,9 @@ const (
 	CreatedAt = "created_at"
 	PageID    = "page-id"
 	PageSize  = "page-size"
+
+	// default
+	Randomly = "@randomly"
 )
 
 // api path

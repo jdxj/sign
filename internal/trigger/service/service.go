@@ -15,7 +15,7 @@ import (
 
 func (s *Service) CreateTrigger(ctx context.Context, req *trigger.CreateTriggerRequest, _ *emptypb.Empty) error {
 	spec := req.GetTrigger().GetSpec()
-	_, err := s.parser.Parse(spec)
+	_, err := s.parse(spec)
 	if err != nil {
 		return status.Errorf(codes.InvalidArgument, "Parse: %s", err)
 	}
@@ -34,7 +34,7 @@ func (s *Service) CreateTrigger(ctx context.Context, req *trigger.CreateTriggerR
 		return status.Errorf(codes.Internal, "Create spec: %s", err)
 	}
 
-	_, err = s.cron.AddJob(spec, newJob(spec))
+	err = s.addJob(spec, newJob(spec))
 	if err != nil {
 		return status.Errorf(codes.Internal, "AddJob: %s", err)
 	}

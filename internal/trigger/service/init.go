@@ -46,7 +46,7 @@ func (s *Service) start() {
 
 	for _, v := range rows {
 		s.specs[v.Spec] = struct{}{}
-		_, err := s.cron.AddJob(v.Spec, newJob(v.Spec))
+		err = s.addJob(v.Spec, newJob(v.Spec))
 		if err != nil {
 			logger.Errorf("AddFunc: %s, specID: %d\n", err, v.SpecID)
 			continue
