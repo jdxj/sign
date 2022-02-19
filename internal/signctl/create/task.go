@@ -56,7 +56,7 @@ func newTaskCmd() *cobra.Command {
 	flagSet := cmd.Flags()
 	flagSet.String(consts.Description, "", "description of the task")
 	flagSet.Int32(consts.Kind, 0, "kind of the task")
-	flagSet.String(consts.Spec, "", "crontab expression")
+	flagSet.String(consts.Spec, consts.Randomly, "crontab expression")
 	flagSet.StringSliceP(consts.Param, "p", nil, "the param required by the task can be specified multiple times (key=value)")
 	return cmd
 }
