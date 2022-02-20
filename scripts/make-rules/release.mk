@@ -9,6 +9,6 @@ release.tag: release.ensure-tag
 	@git push origin $(shell git describe --tags --abbrev=0)
 
 .PHONY: release.chglog
-release.chglog:
-	@git-chglog -o $(CHANGELOG_DIR)/CHANGELOG-$(shell gsemver bump patch).md \
-	$(shell git describe --tags --abbrev=0 --match 'v*')..
+release.chglog: release.ensure-tag
+	@git-chglog -o $(CHANGELOG_DIR)/CHANGELOG-$(shell git describe --tags --abbrev=0 --match 'v*' | sed 's/v//g').md \
+	$(shell git describe --tags --abbrev=0 --match 'v*')
