@@ -73,7 +73,7 @@ func taskCmdRun(cmd *cobra.Command, _ []string) {
 	)
 	paramMap := make(map[string]string)
 	for _, param := range params {
-		pair := strings.Split(param, "=")
+		pair := strings.SplitN(param, "=", 2)
 		if len(pair) != 2 {
 			cmd.PrintErrf("%s, param: %s", consts.ErrInvalidParam, param)
 			return
