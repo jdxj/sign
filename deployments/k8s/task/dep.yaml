@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: task-dep
+  namespace: sign
 spec:
-  replicas: 3
+  replicas: 6
   selector:
     matchLabels:
       app: task
@@ -15,7 +16,7 @@ spec:
     spec:
       containers:
         - name: task-run
-          image: jdxj/task:test-da9060c
+          image: jdxj/task:v0.11.1
           command: [ "/sign/task.run" ]
           args: [ "--config", "/sign/config/conf.yaml" ]
           volumeMounts:

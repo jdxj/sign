@@ -22,8 +22,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app-dep
+  namespace: sign
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: app
@@ -35,7 +36,7 @@ spec:
     spec:
       containers:
         - name: app-run
-          image: jdxj/app:test-da9060c
+          image: jdxj/app:v0.11.1
           command: [ "/sign/app.run" ]
           args: [ "--config", "/sign/config/conf.yaml" ]
           env:
@@ -49,7 +50,7 @@ spec:
             - mountPath: /sign/config
               name: app-conf
           ports:
-            - containerPort: 8081
+            - containerPort: 8080
               protocol: TCP
       volumes:
         - name: app-conf

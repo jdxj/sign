@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: notice-dep
+  namespace: sign
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: notice
@@ -15,7 +16,7 @@ spec:
     spec:
       containers:
         - name: notice-run
-          image: jdxj/notice:test-da9060c
+          image: jdxj/notice:v0.11.1
           command: [ "/sign/notice.run" ]
           args: [ "--config", "/sign/config/conf.yaml" ]
           volumeMounts:

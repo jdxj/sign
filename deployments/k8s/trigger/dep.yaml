@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: trigger-dep
+  namespace: sign
 spec:
   replicas: 1
   selector:
@@ -15,7 +16,7 @@ spec:
     spec:
       containers:
         - name: trigger-run
-          image: jdxj/trigger:test-da9060c
+          image: jdxj/trigger:v0.11.1
           command: [ "/sign/trigger.run" ]
           args: [ "--config", "/sign/config/conf.yaml" ]
           volumeMounts:
